@@ -347,24 +347,32 @@ function CandidatePanel({ candidate, onClose, onCraft }) {
       </div>
 
       {/* ── Footer actions ── */}
-      <div style={{ padding: '13px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', gap: 8 }}>
-        <button
-          onClick={() => onCraft(candidate)}
-          style={{
-            flex: 1, padding: '9px 0', borderRadius: 8,
-            background: C.red, color: 'white', border: 'none',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-          }}
-        >
-          ✉ Craft Message
-        </button>
-        <button style={{
-          padding: '9px 13px', borderRadius: 8,
-          background: C.gray, color: C.muted, border: 'none',
-          fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          → Move
-        </button>
+      <div style={{ padding: '13px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ display: 'flex', gap: 7 }}>
+          <button
+            onClick={() => onCraft(candidate)}
+            style={{ flex: 1, padding: '9px 0', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            ✉ Craft Message
+          </button>
+          <button style={{ padding: '9px 12px', borderRadius: 8, background: C.gray, color: C.muted, border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+            → Move
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 7 }}>
+          <button
+            onClick={() => onNavigate?.('interview-summaries')}
+            style={{ flex: 1, padding: '7px 0', borderRadius: 8, background: C.white, color: C.text, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            📋 Pre-call briefings
+          </button>
+          <button
+            onClick={() => onNavigate?.('decision-list')}
+            style={{ flex: 1, padding: '7px 0', borderRadius: 8, background: C.white, color: C.text, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            📊 Decision briefs
+          </button>
+        </div>
       </div>
     </aside>
   )
@@ -618,7 +626,7 @@ export default function RecruiterDashboard({ onNavigate }) {
                       {/* Actions — stop propagation so row click doesn't fire */}
                       <div onClick={e => e.stopPropagation()}>
                         <button
-                          onClick={() => onNavigate?.('craft', c)}
+                          onClick={() => onNavigate?.('craft', { candidate: c })}
                           style={{
                             padding: '5px 11px', borderRadius: 7,
                             border: `1.5px solid ${C.red}`,
@@ -643,7 +651,7 @@ export default function RecruiterDashboard({ onNavigate }) {
         <CandidatePanel
           candidate={selectedCandidate}
           onClose={() => setSelectedCandidate(null)}
-          onCraft={(c) => onNavigate?.('craft', c)}
+          onCraft={(c) => onNavigate?.('craft', { candidate: c })}
         />
       )}
     </div>
