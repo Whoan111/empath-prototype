@@ -10,6 +10,7 @@ import { useState } from 'react'
 import RecruiterDashboard        from './screens/RecruiterDashboard'
 import CVImportScreening         from './screens/CVImportScreening'
 import CVScreening               from './screens/CVScreening'
+import CVTriage                  from './screens/CVTriage'
 import CraftMessage              from './screens/CraftMessage'
 import RecruiterSummary          from './screens/RecruiterSummary'
 import HiringManagerSummary      from './screens/HiringManagerSummary'
@@ -36,6 +37,7 @@ const NAV = {
   recruiter: [
     { id: 'dashboard',           label: 'Recruiter Dashboard',  icon: '⊞' },
     { id: 'import',              label: 'Import CVs',           icon: '📂' },
+    { id: 'triage',              label: 'CV Triage',            icon: '🗂'  },
     { id: 'craft',               label: 'Craft Message',        icon: '✉'  },
     { id: 'interview-summaries', label: 'Interview Summaries',  icon: '📋' },
     null,
@@ -162,7 +164,7 @@ function ComingSoon({ screen, onBack }) {
 }
 
 // ── App root ──────────────────────────────────────────────────────────────────
-const BUILT = ['dashboard','import','screening','craft','interview-summaries','decision-list','recruiter-summary','hiring-summary','hiring-manager','questionnaire']
+const BUILT = ['dashboard','import','screening','triage','craft','interview-summaries','decision-list','recruiter-summary','hiring-summary','hiring-manager','questionnaire']
 
 export default function App() {
   const [role,       setRole]       = useState('recruiter')
@@ -199,6 +201,10 @@ export default function App() {
 
         {screen === 'import' && (
           <CVImportScreening onBack={goBack} onNavigate={handleNavigate} />
+        )}
+
+        {screen === 'triage' && (
+          <CVTriage onBack={goBack} onNavigate={handleNavigate} />
         )}
 
         {screen === 'screening' && (
