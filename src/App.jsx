@@ -16,7 +16,9 @@ import RecruiterSummary          from './screens/RecruiterSummary'
 import HiringManagerSummary      from './screens/HiringManagerSummary'
 import HiringManagerDashboard    from './screens/HiringManagerDashboard'
 import PostInterviewQuestionnaire from './screens/PostInterviewQuestionnaire'
+import DebriefList               from './screens/DebriefList'
 import SummaryList               from './screens/SummaryList'
+import AIInsights                from './screens/AIInsights'
 
 const C = { red: '#C9394A', redBg: '#FFF5F6', muted: '#78716C', border: '#F0D0D4', white: '#FFFFFF', gray: '#F5F4F3' }
 
@@ -46,7 +48,7 @@ const NAV = {
   'hiring-manager': [
     { id: 'hiring-manager',  label: 'My Dashboard',           icon: '⊞' },
     { id: 'decision-list',   label: 'Decision Briefs',        icon: '📊' },
-    { id: 'questionnaire',   label: 'Post-interview Debrief', icon: '📝' },
+    { id: 'debrief-list',    label: 'Post-interview Debriefs',icon: '📝' },
   ],
 }
 
@@ -164,7 +166,7 @@ function ComingSoon({ screen, onBack }) {
 }
 
 // ── App root ──────────────────────────────────────────────────────────────────
-const BUILT = ['dashboard','import','screening','triage','craft','interview-summaries','decision-list','recruiter-summary','hiring-summary','hiring-manager','questionnaire']
+const BUILT = ['dashboard','import','screening','triage','craft','interview-summaries','decision-list','recruiter-summary','hiring-summary','hiring-manager','questionnaire','debrief-list','insights']
 
 export default function App() {
   const [role,       setRole]       = useState('recruiter')
@@ -246,9 +248,20 @@ export default function App() {
           <PostInterviewQuestionnaire
             candidate={screenData?.candidate || null}
             isHM={role === 'hiring-manager'}
+            onBack={() => handleNavigate('debrief-list')}
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {screen === 'debrief-list' && (
+          <DebriefList
             onBack={() => handleNavigate('hiring-manager')}
             onNavigate={handleNavigate}
           />
+        )}
+
+        {screen === 'insights' && (
+          <AIInsights onBack={goBack} onNavigate={handleNavigate} />
         )}
 
         {!BUILT.includes(screen) && (

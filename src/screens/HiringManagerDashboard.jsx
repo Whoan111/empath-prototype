@@ -363,10 +363,10 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
         )}
 
         <button
-          onClick={() => onNavigate?.('questionnaire', { candidate })}
+          onClick={() => onNavigate?.('debrief-list')}
           style={{ padding: '9px 0', borderRadius: 9, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
         >
-          📝 Fill post-interview questionnaire
+          📝 Post-interview debriefs
         </button>
       </div>
     </aside>
@@ -492,7 +492,7 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
             </span>
           )}
           <button
-            onClick={() => onNavigate?.('questionnaire')}
+            onClick={() => onNavigate?.('debrief-list')}
             style={{ padding: '5px 12px', borderRadius: 20, background: C.redBg, color: C.red, border: `1px solid ${C.redL}`, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             📝 Post-interview debrief
@@ -516,10 +516,10 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
               </span>
             </div>
             <button
-              onClick={() => onNavigate?.('questionnaire', { candidate: pendingDebriefs[0] })}
+              onClick={() => onNavigate?.('debrief-list')}
               style={{ padding: '6px 14px', borderRadius: 8, background: C.war, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
             >
-              Fill debrief →
+              View debriefs →
             </button>
           </div>
         )
