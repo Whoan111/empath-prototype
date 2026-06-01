@@ -14,6 +14,103 @@
 
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    // Position picker
+    badge:          'CV Triage',
+    selectPos:      'Select a position',
+    posCount:       (p, c) => `${p} position${p !== 1 ? 's' : ''} · ${c} CVs pending review`,
+    addPos:         '+ Position',
+    openPositions:  'Open Positions',
+    noCVs:          'NO CVS',
+    pending:        'PENDING',
+    startTriage:    'Start triage →',
+    close:          'Close',
+    reopen:         'Reopen',
+    // Add position modal
+    addNewPos:      'Add new position',
+    posTitle:       'Position title',
+    department:     'Department',
+    createPos:      'Create position',
+    cancel:         'Cancel',
+    // Triage top bar
+    backPositions:  '← Positions',
+    // Batch progress
+    batchProgress:  'Batch Progress',
+    advancing:      'Advancing',
+    notFwd:         'Not fwd',
+    remaining:      'Remaining',
+    // Candidate card
+    skills:         'Skills',
+    experience:     'Experience',
+    education:      'Education',
+    links:          'Links',
+    notMovingFwd:   '✕ Not moving forward',
+    advance:        '✓ Advance',
+    undoDecision:   'Undo decision',
+    movingToScreen: '✓ Moving to screening',
+    notMovingDec:   '✕ Not moving forward',
+    // Doc viewer
+    markPortfolio:  'Mark as Portfolio',
+    markCV:         'Mark as CV',
+    identifyAs:     'Identify as:',
+    reset:          'Reset',
+    // Completion
+    allReviewed:    'All CVs reviewed',
+    backToPositions:'← Back to positions',
+    // Empty position
+    noCVsImported:  'No CVs imported for this position yet',
+    importCVs:      'Import CVs →',
+  },
+  it: {
+    // Position picker
+    badge:          'Selezione CV',
+    selectPos:      'Seleziona una posizione',
+    posCount:       (p, c) => `${p} posizion${p !== 1 ? 'i' : 'e'} · ${c} CV in attesa`,
+    addPos:         '+ Posizione',
+    openPositions:  'Posizioni Aperte',
+    noCVs:          'NESSUN CV',
+    pending:        'IN ATTESA',
+    startTriage:    'Inizia selezione →',
+    close:          'Chiudi',
+    reopen:         'Riapri',
+    // Add position modal
+    addNewPos:      'Aggiungi nuova posizione',
+    posTitle:       'Titolo posizione',
+    department:     'Dipartimento',
+    createPos:      'Crea posizione',
+    cancel:         'Annulla',
+    // Triage top bar
+    backPositions:  '← Posizioni',
+    // Batch progress
+    batchProgress:  'Avanzamento Batch',
+    advancing:      'Avanzano',
+    notFwd:         'Non avanza',
+    remaining:      'Rimanenti',
+    // Candidate card
+    skills:         'Competenze',
+    experience:     'Esperienza',
+    education:      'Istruzione',
+    links:          'Link',
+    notMovingFwd:   '✕ Non avanza',
+    advance:        '✓ Avanza',
+    undoDecision:   'Annulla decisione',
+    movingToScreen: '✓ Passa alla selezione',
+    notMovingDec:   '✕ Non avanza',
+    // Doc viewer
+    markPortfolio:  'Segna come Portfolio',
+    markCV:         'Segna come CV',
+    identifyAs:     'Identifica come:',
+    reset:          'Ripristina',
+    // Completion
+    allReviewed:    'Tutti i CV rivisti',
+    backToPositions:'← Torna alle posizioni',
+    // Empty position
+    noCVsImported:  'Nessun CV importato per questa posizione',
+    importCVs:      'Importa CV →',
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
@@ -330,7 +427,7 @@ function UnknownDocMockup({ cv }) {
 }
 
 // ── Left panel: document viewer ───────────────────────────────────────────────
-function DocumentViewer({ cv, docType, onOverrideType }) {
+function DocumentViewer({ cv, docType, onOverrideType, T }) {
   const [zoom, setZoom] = useState(1)
 
   return (
@@ -346,7 +443,7 @@ function DocumentViewer({ cv, docType, onOverrideType }) {
         {/* Manual type override */}
         {docType === 'unknown' && (
           <div style={{ display: 'flex', gap: 6 }}>
-            <span style={{ fontSize: 11, color: C.muted, marginRight: 4 }}>Identify as:</span>
+            <span style={{ fontSize: 11, color: C.muted, marginRight: 4 }}>{T.identifyAs}</span>
             <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,    background: C.infBg,    color: C.infT,    fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
             <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: '1px solid #DDD8F9',        background: '#EDE7F6', color: '#6D28D9', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
           </div>
@@ -355,7 +452,7 @@ function DocumentViewer({ cv, docType, onOverrideType }) {
           <button onClick={() => onOverrideType(docType === 'cv' ? 'portfolio' : 'cv')}
             style={{ fontSize: 10, color: C.muted, background: 'none', border: `1px solid ${C.border}`, borderRadius: 7, padding: '3px 9px', cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            {docType === 'cv' ? 'Mark as Portfolio' : 'Mark as CV'}
+            {docType === 'cv' ? T.markPortfolio : T.markCV}
           </button>
         )}
       </div>
@@ -383,14 +480,14 @@ function DocumentViewer({ cv, docType, onOverrideType }) {
         <span style={{ fontSize: 11, color: C.muted, width: 44, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
         <button onClick={() => setZoom(z => Math.min(1.6, z + 0.1))} style={{ width: 26, height: 26, borderRadius: '50%', border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
         <span style={{ width: 1, height: 16, background: C.border }} />
-        <button onClick={() => setZoom(1)} style={{ fontSize: 10, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
+        <button onClick={() => setZoom(1)} style={{ fontSize: 10, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{T.reset}</button>
       </div>
     </div>
   )
 }
 
 // ── Right panel: candidate info card + decisions ──────────────────────────────
-function CandidateCard({ cv, docType, decision, onDecide }) {
+function CandidateCard({ cv, docType, decision, onDecide, T }) {
   const isPortfolio = docType === 'portfolio'
 
   return (
@@ -427,7 +524,7 @@ function CandidateCard({ cv, docType, decision, onDecide }) {
         {/* Skills */}
         {cv.skills && cv.skills.length > 0 && (
           <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>Skills</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.skills}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {cv.skills.map(s => (
                 <span key={s} style={{ background: C.redBg, color: C.red, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500, border: `1px solid ${C.redL}` }}>
@@ -441,7 +538,7 @@ function CandidateCard({ cv, docType, decision, onDecide }) {
         {/* Experience snippet */}
         {cv.snippet && (
           <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>Experience</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.experience}</p>
             <div style={{ padding: '11px 13px', background: C.gray, borderRadius: 9, borderLeft: `3px solid ${C.redL}` }}>
               <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: 0 }}>{cv.snippet}</p>
             </div>
@@ -451,14 +548,14 @@ function CandidateCard({ cv, docType, decision, onDecide }) {
         {/* Education */}
         {cv.edu && (
           <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>Education</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>{T.education}</p>
             <p style={{ fontSize: 12, color: C.text, margin: 0 }}>{cv.edu}</p>
           </div>
         )}
 
         {/* Links */}
         <div style={{ marginBottom: 18 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>Links</p>
+          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.links}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {cv.email && (
               <a href={`mailto:${cv.email}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.text, textDecoration: 'none', padding: '7px 11px', background: C.gray, borderRadius: 8 }}>
@@ -502,20 +599,20 @@ function CandidateCard({ cv, docType, decision, onDecide }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ padding: '11px 14px', borderRadius: 9, textAlign: 'center', background: decision === 'advance' ? C.sucBg : '#FEF2F2', border: `1px solid ${decision === 'advance' ? '#BBF7D0' : '#FECACA'}` }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.sucT : C.red }}>
-                {decision === 'advance' ? '✓ Moving to screening' : '✕ Not moving forward'}
+                {decision === 'advance' ? T.movingToScreen : T.notMovingDec}
               </span>
             </div>
             <button onClick={() => onDecide(null)} style={{ fontSize: 11, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' }}>
-              Undo decision
+              {T.undoDecision}
             </button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              ✕ Not moving forward
+              {T.notMovingFwd}
             </button>
             <button onClick={() => onDecide('advance')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              ✓ Advance
+              {T.advance}
             </button>
           </div>
         )}
@@ -525,17 +622,17 @@ function CandidateCard({ cv, docType, decision, onDecide }) {
 }
 
 // ── Add position modal ────────────────────────────────────────────────────────
-function AddPositionModal({ onAdd, onClose }) {
+function AddPositionModal({ onAdd, onClose, T }) {
   const [title, setTitle] = useState('')
   const [dept,  setDept]  = useState('')
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,23,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: C.white, borderRadius: 14, padding: '28px 32px', width: 400, boxShadow: '0 8px 40px rgba(0,0,0,0.14)' }}>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 20px' }}>Add new position</h2>
+        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 20px' }}>{T.addNewPos}</h2>
 
         <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 6 }}>Position title</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 6 }}>{T.posTitle}</label>
           <input
             value={title}
             onChange={e => setTitle(e.target.value)}
@@ -544,7 +641,7 @@ function AddPositionModal({ onAdd, onClose }) {
           />
         </div>
         <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 6 }}>Department</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 6 }}>{T.department}</label>
           <input
             value={dept}
             onChange={e => setDept(e.target.value)}
@@ -559,10 +656,10 @@ function AddPositionModal({ onAdd, onClose }) {
             disabled={!title}
             style={{ flex: 1, padding: '10px 0', borderRadius: 9, background: title ? C.red : C.grayB, color: title ? 'white' : C.muted, border: 'none', fontSize: 13, fontWeight: 600, cursor: title ? 'pointer' : 'default', fontFamily: 'inherit' }}
           >
-            Create position
+            {T.createPos}
           </button>
           <button onClick={onClose} style={{ padding: '10px 18px', borderRadius: 9, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
-            Cancel
+            {T.cancel}
           </button>
         </div>
       </div>
@@ -571,25 +668,25 @@ function AddPositionModal({ onAdd, onClose }) {
 }
 
 // ── Left candidates list panel ─────────────────────────────────────────────────
-function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing, passing }) {
+function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing, passing, T }) {
   const remaining = cvList.filter(c => !decisions[c.id]).length
   return (
     <div style={{ width: 232, flexShrink: 0, background: C.white, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Batch progress */}
       <div style={{ padding: '12px 14px 10px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Batch Progress</div>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>{T.batchProgress}</div>
         <div style={{ display: 'flex', gap: 5 }}>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.sucBg, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.suc, lineHeight: 1 }}>{advancing}</div>
-            <div style={{ fontSize: 8, color: C.sucT, fontWeight: 600, marginTop: 2 }}>Advancing</div>
+            <div style={{ fontSize: 8, color: C.sucT, fontWeight: 600, marginTop: 2 }}>{T.advancing}</div>
           </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: '#FEE2E2', borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{passing}</div>
-            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>Not fwd</div>
+            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
           </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.gray, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.muted, lineHeight: 1 }}>{remaining}</div>
-            <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>Remaining</div>
+            <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>{T.remaining}</div>
           </div>
         </div>
       </div>
@@ -630,30 +727,30 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
 }
 
 // ── Triage completion screen ───────────────────────────────────────────────────
-function CompletionScreen({ advancing, passing, onBackToPicker }) {
+function CompletionScreen({ advancing, passing, onBackToPicker, T }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, background: C.white, padding: '0 40px' }}>
       <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.sucBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>✓</div>
       <div style={{ textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>All CVs reviewed</h2>
+        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>{T.allReviewed}</h2>
         <p style={{ fontSize: 13, color: C.muted, margin: 0, lineHeight: 1.7 }}>
-          <span style={{ color: C.suc, fontWeight: 600 }}>{advancing} advancing</span>
+          <span style={{ color: C.suc, fontWeight: 600 }}>{advancing} {T.advancing.toLowerCase()}</span>
           {' · '}
-          <span style={{ color: C.red, fontWeight: 600 }}>{passing} not moving forward</span>
+          <span style={{ color: C.red, fontWeight: 600 }}>{passing} {T.notFwd.toLowerCase()}</span>
         </p>
       </div>
       <button
         onClick={onBackToPicker}
         style={{ padding: '11px 28px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
       >
-        ← Back to positions
+        {T.backToPositions}
       </button>
     </div>
   )
 }
 
 // ── Position picker card (same visual style as RecruiterDashboard) ─────────────
-function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose }) {
+function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T }) {
   const [hov, setHov] = useState(false)
   const isEmpty = pending === 0
 
@@ -690,7 +787,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose })
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 32, fontWeight: 400, color: (isEmpty || closed) ? th.textDim : th.text, lineHeight: 1 }}>{pending}</div>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.textDim, marginTop: 2, letterSpacing: '0.08em' }}>
-            {isEmpty ? 'NO CVS' : 'PENDING'}
+            {isEmpty ? T.noCVs : T.pending}
           </div>
         </div>
       </div>
@@ -703,7 +800,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose })
               onClick={() => onOpen(pos.id)}
               style={{ fontSize: 11, fontWeight: 600, color: hov ? th.red : th.textDim, transition: 'color 0.15s', letterSpacing: '0.02em', cursor: 'pointer' }}
             >
-              Start triage →
+              {T.startTriage}
             </span>
           )}
           <button
@@ -711,7 +808,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose })
             title={closed ? 'Reopen position' : 'Close position'}
             style={{ fontSize: 10, color: th.textDim, background: 'transparent', border: `1px solid ${th.border}`, borderRadius: 6, padding: '2px 8px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
           >
-            {closed ? 'Reopen' : 'Close'}
+            {closed ? T.reopen : T.close}
           </button>
         </div>
       </div>
@@ -722,11 +819,20 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose })
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate }) {
+export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition }) {
   const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)' }
+  const T = SCREEN_T[lang] || SCREEN_T.en
 
-  const [positions,        setPositions]        = useState(INIT_POSITIONS)
-  const [activePosId,      setActivePosId]      = useState(null)   // null = position picker
+  const [positions, setPositions] = useState(() => {
+    if (initialPosition && !INIT_POSITIONS.find(p => p.id === initialPosition.id)) {
+      return [...INIT_POSITIONS, {
+        id: initialPosition.id, title: initialPosition.title,
+        dept: initialPosition.dept || '', count: 0, openDays: initialPosition.openDays || 0,
+      }]
+    }
+    return INIT_POSITIONS
+  })
+  const [activePosId, setActivePosId] = useState(() => initialPosition?.id ?? null)   // null = position picker
   const [idx,              setIdx]              = useState(0)
   const [decisions,        setDecisions]        = useState({})
   const [docTypeOverrides, setDocTypeOverrides] = useState({})
@@ -788,26 +894,26 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36 }}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 700, color: th.red, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px' }}>
-                CV Triage
+                {T.badge}
               </p>
               <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 30, fontWeight: 400, color: th.text, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
-                Select a position
+                {T.selectPos}
               </h1>
               <p style={{ fontSize: 13, color: th.textDim, margin: 0 }}>
-                {positions.length} positions · {positions.reduce((s, p) => s + (TRIAGE_DATA[p.id]?.length || 0), 0)} CVs pending review
+                {T.posCount(positions.length, positions.reduce((s, p) => s + (TRIAGE_DATA[p.id]?.length || 0), 0))}
               </p>
             </div>
             <button
               onClick={() => setShowAddPos(true)}
               style={{ padding: '10px 20px', borderRadius: '0.75rem', background: th.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.04em', boxShadow: `0 0 20px ${th.redGlow}` }}
             >
-              + Position
+              {T.addPos}
             </button>
           </div>
 
           {/* Section divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Open Positions</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{T.openPositions}</span>
             <div style={{ flex: 1, height: 1, background: th.border }} />
           </div>
 
@@ -822,6 +928,7 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
                 closed={closedPositions.has(pos.id)}
                 onOpen={handleOpenPosition}
                 onToggleClose={toggleClose}
+                T={T}
               />
             ))}
           </div>
@@ -829,7 +936,7 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
         </div>
 
         {showAddPos && (
-          <AddPositionModal onAdd={handleAddPosition} onClose={() => setShowAddPos(false)} />
+          <AddPositionModal onAdd={handleAddPosition} onClose={() => setShowAddPos(false)} T={T} />
         )}
       </div>
     )
@@ -846,7 +953,7 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
             onClick={handleBackToPicker}
             style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            ← Positions
+            {T.backPositions}
           </button>
           <span style={{ width: 1, height: 18, background: C.border }} />
           <div>
@@ -859,8 +966,8 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
 
         {/* Stats + nav */}
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {advancing > 0 && <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ {advancing} advancing</span>}
-          {passing   > 0 && <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✕ {passing} not moving fwd</span>}
+          {advancing > 0 && <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ {advancing} {T.advancing.toLowerCase()}</span>}
+          {passing   > 0 && <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✕ {passing} {T.notFwd.toLowerCase()}</span>}
           <span style={{ fontSize: 12, color: C.muted }}>{total > 0 ? `${idx + 1} / ${total}` : '0 CVs'}</span>
           <button onClick={() => goTo(idx - 1)} disabled={idx === 0}           style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === 0 ? C.gray : C.border}`, background: C.white, cursor: idx === 0 ? 'default' : 'pointer', fontSize: 13, color: idx === 0 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
           <button onClick={() => goTo(idx + 1)} disabled={idx === total - 1}   style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === total - 1 ? C.gray : C.border}`, background: C.white, cursor: idx === total - 1 ? 'default' : 'pointer', fontSize: 13, color: idx === total - 1 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
@@ -905,6 +1012,7 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
           onSelect={goTo}
           advancing={advancing}
           passing={passing}
+          T={T}
         />
 
         {/* All decided → completion screen */}
@@ -913,6 +1021,7 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
             advancing={advancing}
             passing={passing}
             onBackToPicker={handleBackToPicker}
+            T={T}
           />
         )}
 
@@ -923,12 +1032,14 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
               cv={cv}
               docType={effectiveDocType(cv)}
               onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}
+              T={T}
             />
             <CandidateCard
               cv={cv}
               docType={effectiveDocType(cv)}
               decision={decisions[cv.id]}
               onDecide={handleDecide}
+              T={T}
             />
           </>
         )}
@@ -937,16 +1048,16 @@ export default function CVTriage({ theme, themeMode, lang, onBack, onNavigate })
         {total === 0 && (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: C.muted, background: C.white }}>
             <div style={{ fontSize: 36 }}>📂</div>
-            <p style={{ fontSize: 14, margin: 0 }}>No CVs imported for this position yet</p>
+            <p style={{ fontSize: 14, margin: 0 }}>{T.noCVsImported}</p>
             <button onClick={() => onNavigate?.('import')} style={{ padding: '8px 18px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              Import CVs →
+              {T.importCVs}
             </button>
           </div>
         )}
       </div>
 
       {showAddPos && (
-        <AddPositionModal onAdd={handleAddPosition} onClose={() => setShowAddPos(false)} />
+        <AddPositionModal onAdd={handleAddPosition} onClose={() => setShowAddPos(false)} T={T} />
       )}
     </div>
   )

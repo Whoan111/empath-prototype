@@ -10,6 +10,39 @@
 
 import { useState, useRef } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:         '← Back to Dashboard',
+    title:        'Import CVs',
+    posLabel:     'Job Position',
+    mgrLabel:     'Hiring Manager',
+    uploadLabel:  'Upload CVs',
+    dropText:     'Drop PDF or Word files here',
+    browseText:   'or click to browse...',
+    readyText:    (n) => `${n} CVs ready to review`,
+    addMore:      'Click to add more files',
+    startBtn:     (n) => `Start screening ${n > 0 ? `${n} CVs` : ''} →`,
+    needPos:      'Select a position',
+    needMgr:      'Assign a manager',
+    needCV:       'Upload at least one CV',
+  },
+  it: {
+    back:         '← Indietro alla Bacheca',
+    title:        'Importa CV',
+    posLabel:     'Posizione Lavorativa',
+    mgrLabel:     'Responsabile Assunzioni',
+    uploadLabel:  'Carica CV',
+    dropText:     'Trascina file PDF o Word qui',
+    browseText:   'o clicca per sfogliare...',
+    readyText:    (n) => `${n} CV pronti per la revisione`,
+    addMore:      'Clicca per aggiungere altri file',
+    startBtn:     (n) => `Inizia selezione ${n > 0 ? `${n} CV` : ''} →`,
+    needPos:      'Seleziona una posizione',
+    needMgr:      'Assegna un responsabile',
+    needCV:       'Carica almeno un CV',
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:    '#C9394A',
@@ -173,7 +206,7 @@ function ManagerChip({ mgr, selected, onClick }) {
 }
 
 // ── STEP 1 — Import ───────────────────────────────────────────────────────────
-function ImportStep({ onNavigate, onBack }) {
+function ImportStep({ onNavigate, onBack, T }) {
   const [posId,    setPosId]    = useState(null)
   const [mgrId,    setMgrId]    = useState(null)
   const [dragging, setDragging] = useState(false)
@@ -202,12 +235,12 @@ function ImportStep({ onNavigate, onBack }) {
 
       {/* Back */}
       <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'inherit' }}>
-        ← Back to Dashboard
+        {T.back}
       </button>
 
       {/* Page title */}
       <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        Import CVs
+        {T.title}
       </h1>
       <p style={{ color: C.muted, fontSize: 14, margin: '0 0 36px', lineHeight: 1.6 }}>
         Select a position, assign a hiring manager, then upload the CVs to review.
@@ -216,7 +249,7 @@ function ImportStep({ onNavigate, onBack }) {
       {/* ── Section 1: Position ── */}
       <div style={{ marginBottom: 30 }}>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          Job Position
+          {T.posLabel}
         </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
           {POSITIONS.map(p => (
@@ -251,7 +284,7 @@ function ImportStep({ onNavigate, onBack }) {
       {/* ── Section 2: Manager ── */}
       <div style={{ marginBottom: 30 }}>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          Hiring Manager
+          {T.mgrLabel}
         </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
           {MANAGERS.map(m => (
@@ -268,7 +301,7 @@ function ImportStep({ onNavigate, onBack }) {
       {/* ── Section 3: Upload ── */}
       <div style={{ marginBottom: 28 }}>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          Upload CVs
+          {T.uploadLabel}
         </label>
 
         {/* Drop zone */}
@@ -288,20 +321,20 @@ function ImportStep({ onNavigate, onBack }) {
             <>
               <div style={{ fontSize: 36, marginBottom: 10 }}>✅</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 4 }}>
-                {files.length} CVs ready to review
+                {T.readyText(files.length)}
               </div>
               <div style={{ fontSize: 12, color: C.muted }}>
-                Click to add more files
+                {T.addMore}
               </div>
             </>
           ) : (
             <>
               <div style={{ fontSize: 36, marginBottom: 10 }}>📂</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 4 }}>
-                Drop PDF or Word files here
+                {T.dropText}
               </div>
               <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>
-                or click to browse · Multiple files supported<br />
+                {T.browseText} · Multiple files supported<br />
                 <span style={{ fontSize: 11 }}>PDF, DOCX — max 10 MB each</span>
               </div>
             </>
@@ -340,9 +373,8 @@ function ImportStep({ onNavigate, onBack }) {
           onClick={() => {
             if (!canProceed) return
             const position = POSITIONS.find(p => p.id === Number(posId))
-            const manager  = MANAGERS.find(m => m.id === Number(mgrId))
-            // Navigate to the dedicated CVScreening screen, passing context
-            onNavigate('screening', { position, manager, cvs: MOCK_CVS })
+            // Go directly to CV Triage for the selected position
+            onNavigate('triage', { position })
           }}
           style={{
             padding: '12px 28px', borderRadius: 10,
@@ -353,11 +385,11 @@ function ImportStep({ onNavigate, onBack }) {
             transition: 'background 0.15s',
           }}
         >
-          Start screening {files.length > 0 ? `${files.length} CVs` : ''} →
+          {T.startBtn(files.length)}
         </button>
         {!canProceed && (
           <span style={{ fontSize: 12, color: C.muted }}>
-            {!posId ? 'Select a position' : !mgrId ? 'Assign a manager' : 'Upload at least one CV'}
+            {!posId ? T.needPos : !mgrId ? T.needMgr : T.needCV}
           </span>
         )}
       </div>
@@ -851,10 +883,11 @@ function DoneStep({ decisions, config, onGoToDashboard }) {
 // Props:
 //   onBack()            — navigate back to the recruiter dashboard
 //   onNavigate(screen, data?) — navigate to another screen
-export default function CVImportScreening({ onBack, onNavigate }) {
+export default function CVImportScreening({ lang = 'en', onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <ImportStep onBack={onBack} onNavigate={onNavigate} />
+      <ImportStep onBack={onBack} onNavigate={onNavigate} T={T} />
     </div>
   )
 }

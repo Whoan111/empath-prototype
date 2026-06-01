@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { THEMES } from './designSystem'
+import { THEMES, TRANSLATIONS } from './designSystem'
 import HomeScreen                from './screens/HomeScreen'
 import RecruiterDashboard        from './screens/RecruiterDashboard'
 import CVImportScreening         from './screens/CVImportScreening'
@@ -10,41 +10,53 @@ import CraftMessage              from './screens/CraftMessage'
 import RecruiterSummary          from './screens/RecruiterSummary'
 import HiringManagerSummary      from './screens/HiringManagerSummary'
 import HiringManagerDashboard    from './screens/HiringManagerDashboard'
+import HMCVReview               from './screens/HMCVReview'
 import PostInterviewQuestionnaire from './screens/PostInterviewQuestionnaire'
 import SummaryList               from './screens/SummaryList'
 import DebriefList               from './screens/DebriefList'
 import AIInsights                from './screens/AIInsights'
 import NotSuitable               from './screens/NotSuitable'
+import InterviewerDashboard      from './screens/InterviewerDashboard'
 
 const ROLES = {
   recruiter:       { id:'recruiter',       name:'Valentina O.', ini:'VO', title_en:'Recruiter',         title_it:'Reclutatore',             home:'home'          },
   'hiring-manager':{ id:'hiring-manager',  name:'Andrea',       ini:'AM', title_en:'Hiring Manager',    title_it:'Responsabile Assunzioni', home:'hiring-manager'},
+  interviewer:     { id:'interviewer',     name:'Alessandro M.',ini:'AL', title_en:'Interviewer',        title_it:'Intervistatore',          home:'interviewer-dashboard'},
 }
 
 const BUILT = ['home','dashboard','import','screening','triage','not-suitable','kanban','craft',
   'interview-summaries','decision-list','recruiter-summary','hiring-summary',
-  'hiring-manager','questionnaire','debrief-list','insights']
+  'hiring-manager','questionnaire','debrief-list','insights','hm-cv-review',
+  'interviewer-dashboard', 'interviewer-debrief']
 
 // ── Fixed sidebar ──────────────────────────────────────────────────────────────
 function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggleLang, notifications }) {
   const th = theme
   const [showPicker, setShowPicker] = useState(false)
   const user = ROLES[role]
+  const T = TRANSLATIONS[lang] || TRANSLATIONS.en
 
   const NAV_RECRUITER = [
-    { id: 'triage',              label: 'CV Triage'    },
-    { id: 'not-suitable',        label: 'Not Suitable' },
-    { id: 'dashboard',           label: 'Dashboard'    },
+    { id: 'triage',              label: T.navTriage        },
+    { id: 'not-suitable',        label: T.navNotSuitable   },
+    { id: 'dashboard',           label: T.navDashboard     },
     null,
-    { id: 'insights',            label: 'AI Insights'  },
-    { id: 'interview-summaries', label: 'Summary'      },
+    { id: 'insights',            label: T.navInsights      },
+    { id: 'interview-summaries', label: T.navSummaries     },
   ]
   const NAV_HM = [
-    { id: 'hiring-manager',  label: 'My Dashboard'    },
-    { id: 'decision-list',   label: 'Decision Briefs' },
-    { id: 'debrief-list',    label: 'Debriefs'        },
+    { id: 'hm-cv-review',    label: T.navHmCVReview     },
+    { id: 'hiring-manager',  label: T.navMyDashboard    },
+    { id: 'decision-list',   label: T.navDecisionBriefs },
+    { id: 'debrief-list',    label: T.navDebriefs       },
   ]
-  const navItems = role === 'hiring-manager' ? NAV_HM : NAV_RECRUITER
+  const NAV_INTERVIEWER = [
+    { id: 'interviewer-dashboard', label: T.navInterviewerHome   },
+    { id: 'interviewer-debrief',   label: T.navInterviewerDebrief },
+  ]
+  const navItems = role === 'hiring-manager' ? NAV_HM
+                 : role === 'interviewer'    ? NAV_INTERVIEWER
+                 : NAV_RECRUITER
 
   const isActive = (id) => {
     if (id === 'dashboard' && screen === 'kanban') return true
@@ -121,7 +133,7 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
       {/* Role picker popup */}
       {showPicker && (
         <div style={{ position: 'absolute', bottom: 68, left: 8, right: 8, background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 12, border: `1px solid ${th.borderBrt}`, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-          <div style={{ padding: '8px 12px 5px', fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Switch view</div>
+          <div style={{ padding: '8px 12px 5px', fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>{T.switchView}</div>
           {Object.values(ROLES).map(r => (
             <button key={r.id} className="sb-role-opt"
               onClick={() => { onSwitchRole(r.id); setShowPicker(false) }}
@@ -183,8 +195,9 @@ export default function App() {
 
   const sp = { theme, themeMode, lang, onNavigate: nav, userName: ROLES[role].name }
 
-  // Red dots: triage always has pending CVs, not-suitable always has pending messages
-  const notifications = { triage: true, 'not-suitable': true }
+  // Red dots: triage always has pending CVs, not-suitable always has pending messages,
+  // hm-cv-review always has assigned CVs awaiting HM review
+  const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'interviewer-debrief': true }
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg }}>
@@ -199,19 +212,22 @@ export default function App() {
         {screen === 'home'                && <HomeScreen                    {...sp} />}
         {screen === 'dashboard'           && <RecruiterDashboard            {...sp} />}
         {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} onBack={() => nav('dashboard')} />}
-        {screen === 'import'              && <CVImportScreening             onBack={goBack} onNavigate={nav} />}
-        {screen === 'screening'           && <CVScreening                   position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
-        {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} />}
-        {screen === 'not-suitable'        && <NotSuitable                   theme={theme} onBack={goBack} onNavigate={nav} />}
-        {screen === 'craft'               && <CraftMessage                  candidate={screenData?.candidate || null} onBack={goBack} onNavigate={nav} />}
-        {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} />}
-        {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} />}
-        {screen === 'recruiter-summary'   && <RecruiterSummary              candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}
-        {screen === 'hiring-summary'      && <HiringManagerSummary          candidate={screenData?.candidate || null} onBack={() => nav('decision-list')} onNavigate={nav} />}
-        {screen === 'hiring-manager'      && <HiringManagerDashboard        onBack={goBack} onNavigate={nav} />}
-        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} onBack={() => nav('debrief-list')} onNavigate={nav} />}
-        {screen === 'debrief-list'        && <DebriefList                   onBack={() => nav('hiring-manager')} onNavigate={nav} />}
+        {screen === 'import'              && <CVImportScreening             lang={lang} onBack={goBack} onNavigate={nav} />}
+        {screen === 'screening'           && <CVScreening                   lang={lang} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
+        {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} />}
+        {screen === 'not-suitable'        && <NotSuitable                   lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
+        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} onBack={goBack} onNavigate={nav} />}
+        {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} />}
+        {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} lang={lang} />}
+        {screen === 'recruiter-summary'   && <RecruiterSummary              lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}
+        {screen === 'hiring-summary'      && <HiringManagerSummary          lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('decision-list')} onNavigate={nav} />}
+        {screen === 'hm-cv-review'        && <HMCVReview                    lang={lang} theme={theme} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
+        {screen === 'hiring-manager'      && <HiringManagerDashboard        lang={lang} onBack={goBack} onNavigate={nav} />}
+        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} onBack={() => nav('debrief-list')} onNavigate={nav} />}
+        {screen === 'debrief-list'        && <DebriefList                   lang={lang} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
         {screen === 'insights'            && <AIInsights                    {...sp} onBack={goBack} />}
+        {screen === 'interviewer-dashboard' && <InterviewerDashboard        lang={lang} theme={theme} section="home"   onBack={goBack} onNavigate={nav} />}
+        {screen === 'interviewer-debrief'   && <InterviewerDashboard        lang={lang} theme={theme} section="debrief" onBack={goBack} onNavigate={nav} />}
         {!BUILT.includes(screen)          && <ComingSoon screen={screen} onBack={goBack} theme={theme} />}
       </main>
     </div>

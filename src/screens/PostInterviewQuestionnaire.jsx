@@ -17,6 +17,147 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:             '← Back',
+    badge:            'Post-interview debrief',
+    stepOf:           (s, t) => `Step ${s} of ${t} · Fields marked`,
+    required:         'are required',
+    steps:            ['Context', 'Ratings', 'Feedback', 'Recommendation'],
+    // Step 1
+    step1Title:       'Before you begin',
+    step1Sub:         'Just the date and you are good to go.',
+    candidate:        'Candidate',
+    interviewer:      'Interviewer',
+    dateLabel:        'Date of interview',
+    dateTip:          'Filling this in right after the interview leads to sharper, more useful feedback.',
+    typeLabel:        'Interview type',
+    typeOptional:     '(optional)',
+    continueBtn:      'Continue →',
+    // Step 2
+    step2Title:       'How did they perform?',
+    step2Sub:         (bold) => `Rate what you covered. If you did not evaluate a criterion, tap ${bold} — that is a valid answer.`,
+    step2Bold:        'Did not evaluate',
+    step2Tech:        'Technical skills are',
+    step2TechBold:    'optional',
+    step2TechSub:     '— skip if there was no technical component to your interview.',
+    avgSoFar:         'Your average so far',
+    acrossCriteria:   (n) => `Across ${n} rated criterion`,
+    ratingRequired:   (labels) => `${labels} — rate or tap "Did not evaluate"`,
+    backBtn:          '← Back',
+    // Step 3
+    step3Title:       'Your observations',
+    step3Framing:     "Candidates appreciate specific, growth-oriented feedback more than you might expect — a few honest, concrete sentences can genuinely make a difference, even when the answer is no.",
+    step3Hint:        'Tap Dictate',
+    step3HintText:    ' to speak your thoughts — ideal right after the interview while everything is fresh. Or type and paste your notes directly. Either works.',
+    strengthsLabel:   'What did they do well?',
+    strengthsHint:    'Specific beats general — a real example is worth ten adjectives',
+    developLabel:     'What could they develop further?',
+    developHint:      'Growth-oriented and honest — this is what candidates remember and use',
+    standoutLabel:    'Anything else worth noting?',
+    // Step 4
+    step4Title:       'Your recommendation',
+    step4Sub:         'Be direct — ambiguity slows the process for everyone, including the candidate.',
+    notesLabel:       'Additional context',
+    notesHint:        'Seen by the hiring manager and recruiter only',
+    whatNext:         '✦ What happens next',
+    submitBtn:        'Submit feedback ✓',
+    // Done
+    doneTitle:        'Feedback submitted',
+    doneSub:          (name) => `Your input for ${name} has been saved and will inform the decision brief and any candidate updates.`,
+    avgScore:         'AVG SCORE',
+    yourRec:          'Your recommendation',
+    hmMessage:        'As hiring manager, you can now view the consolidated decision brief across all interviewers and make your final call.',
+    notifyTitle:      '🔔 You will be notified when a decision is made',
+    notifyText:       'Thank you for taking the time — your feedback makes the decision better and the candidate update more meaningful.',
+    viewBrief:        '📊 View decision brief',
+    backDashboard:    '← Back to dashboard',
+    // Misc
+    skipped:          'Skipped',
+    didNotEval:       'Did not evaluate',
+    didNotEvalDesc:   'Did not evaluate this characteristic',
+    undoBtn:          'Undo',
+    requiredText:     'Required',
+    optional:         'Optional',
+    stopDictate:      'Stop',
+    dictate:          'Dictate',
+    transcribing:     '🎤 Transcribing…',
+    listening:        'Listening — speak naturally, tap Stop when done',
+    voiceUnavail:     'Voice unavailable',
+    resetGenerated:   '↺ Reset to generated',
+    wordCount:        (n) => `${n} words`,
+  },
+  it: {
+    back:             '← Indietro',
+    badge:            'Debrief post-intervista',
+    stepOf:           (s, t) => `Passaggio ${s} di ${t} · I campi con`,
+    required:         'sono obbligatori',
+    steps:            ['Contesto', 'Valutazioni', 'Feedback', 'Raccomandazione'],
+    // Step 1
+    step1Title:       'Prima di iniziare',
+    step1Sub:         'Solo la data e sei pronto.',
+    candidate:        'Candidato',
+    interviewer:      'Intervistatore',
+    dateLabel:        'Data del colloquio',
+    dateTip:          'Compilare subito dopo il colloquio porta a feedback più nitidi e utili.',
+    typeLabel:        'Tipo di colloquio',
+    typeOptional:     '(opzionale)',
+    continueBtn:      'Continua →',
+    // Step 2
+    step2Title:       'Come si è comportato?',
+    step2Sub:         (bold) => `Valuta ciò che hai esaminato. Se non hai valutato un criterio, tocca ${bold} — è una risposta valida.`,
+    step2Bold:        'Non valutato',
+    step2Tech:        'Le competenze tecniche sono',
+    step2TechBold:    'opzionali',
+    step2TechSub:     '— salta se non c\'era una componente tecnica.',
+    avgSoFar:         'La tua media finora',
+    acrossCriteria:   (n) => `Su ${n} criteri valutati`,
+    ratingRequired:   (labels) => `${labels} — valuta o tocca "Non valutato"`,
+    backBtn:          '← Indietro',
+    // Step 3
+    step3Title:       'Le tue osservazioni',
+    step3Framing:     "I candidati apprezzano il feedback specifico e orientato alla crescita più di quanto ti aspetti — poche frasi oneste e concrete possono fare la differenza.",
+    step3Hint:        'Tocca Ditta',
+    step3HintText:    ' per parlare — ideale subito dopo il colloquio. O scrivi direttamente le tue note.',
+    strengthsLabel:   'Cosa ha fatto bene?',
+    strengthsHint:    'Lo specifico vale più del generico — un esempio reale vale dieci aggettivi',
+    developLabel:     'Cosa potrebbe migliorare?',
+    developHint:      'Orientato alla crescita e onesto — questo è ciò che i candidati ricordano',
+    standoutLabel:    'Qualcos\'altro da segnalare?',
+    // Step 4
+    step4Title:       'La tua raccomandazione',
+    step4Sub:         'Sii diretto — l\'ambiguità rallenta il processo per tutti, incluso il candidato.',
+    notesLabel:       'Contesto aggiuntivo',
+    notesHint:        'Visibile solo al responsabile assunzioni e al recruiter',
+    whatNext:         '✦ Cosa succede dopo',
+    submitBtn:        'Invia feedback ✓',
+    // Done
+    doneTitle:        'Feedback inviato',
+    doneSub:          (name) => `Il tuo contributo per ${name} è stato salvato e informerà il brief decisionale.`,
+    avgScore:         'MEDIA',
+    yourRec:          'La tua raccomandazione',
+    hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il brief decisionale consolidato e prendere la decisione finale.',
+    notifyTitle:      '🔔 Sarai notificato quando verrà presa una decisione',
+    notifyText:       'Grazie per il tuo tempo — il tuo feedback rende la decisione migliore e l\'aggiornamento al candidato più significativo.',
+    viewBrief:        '📊 Visualizza brief decisionale',
+    backDashboard:    '← Torna alla bacheca',
+    // Misc
+    skipped:          'Saltato',
+    didNotEval:       'Non valutato',
+    didNotEvalDesc:   'Non ho valutato questa caratteristica',
+    undoBtn:          'Annulla',
+    requiredText:     'Obbligatorio',
+    optional:         'Opzionale',
+    stopDictate:      'Stop',
+    dictate:          'Ditta',
+    transcribing:     '🎤 Trascrizione…',
+    listening:        'In ascolto — parla normalmente, tocca Stop quando hai finito',
+    voiceUnavail:     'Voce non disponibile',
+    resetGenerated:   '↺ Ripristina generato',
+    wordCount:        (n) => `${n} parole`,
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redH: '#A82D3B', redL: '#FECDD3', redBg: '#FFF5F6',
@@ -162,7 +303,7 @@ function useDictation(onResult) {
 }
 
 // ── Dictation field ───────────────────────────────────────────────────────────
-function DictationField({ label, value, onChange, placeholder, required, rows = 3, hint }) {
+function DictationField({ label, value, onChange, placeholder, required, rows = 3, hint, T }) {
   const handleResult = useCallback((text) => {
     onChange(prev => prev ? prev + ' ' + text : text)
   }, [onChange])
@@ -202,11 +343,11 @@ function DictationField({ label, value, onChange, placeholder, required, rows = 
               <line x1="12" y1="19" x2="12" y2="22"/>
               <line x1="9" y1="22" x2="15" y2="22"/>
             </svg>
-            {active ? 'Stop' : 'Dictate'}
+            {active ? (T ? T.stopDictate : 'Stop') : (T ? T.dictate : 'Dictate')}
             {active && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'white', animation: 'pulse 1s infinite', display: 'inline-block' }} />}
           </button>
         ) : (
-          <span style={{ fontSize: 10, color: C.muted, fontStyle: 'italic', marginLeft: 12 }}>Voice unavailable</span>
+          <span style={{ fontSize: 10, color: C.muted, fontStyle: 'italic', marginLeft: 12 }}>{T ? T.voiceUnavail : 'Voice unavailable'}</span>
         )}
       </div>
 
@@ -219,7 +360,7 @@ function DictationField({ label, value, onChange, placeholder, required, rows = 
       {active && (
         <div style={{ marginBottom: 5, display: 'flex', alignItems: 'center', gap: 7, fontSize: 11, color: C.red, fontWeight: 600 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, animation: 'pulse 1s infinite', display: 'inline-block' }} />
-          Listening — speak naturally, tap Stop when done
+          {T ? T.listening : 'Listening — speak naturally, tap Stop when done'}
         </div>
       )}
 
@@ -238,14 +379,14 @@ function DictationField({ label, value, onChange, placeholder, required, rows = 
         }}
       />
       {required && isEmpty && !active && (
-        <p style={{ fontSize: 11, color: '#EF4444', margin: '3px 0 0' }}>Required</p>
+        <p style={{ fontSize: 11, color: '#EF4444', margin: '3px 0 0' }}>{T ? T.requiredText : 'Required'}</p>
       )}
     </div>
   )
 }
 
 // ── Star rating with "Did not evaluate" ───────────────────────────────────────
-function StarRating({ value, onChange, criterion }) {
+function StarRating({ value, onChange, criterion, T }) {
   const [hover, setHover] = useState(0)
 
   const isSkipped  = value === -1
@@ -274,7 +415,7 @@ function StarRating({ value, onChange, criterion }) {
             {criterion.label}
             {!criterion.optional && !isSkipped && <RequiredDot />}
             {criterion.optional && (
-              <span style={{ fontSize: 10, fontWeight: 400, color: C.muted, background: C.gray, padding: '1px 7px', borderRadius: 10 }}>Optional</span>
+              <span style={{ fontSize: 10, fontWeight: 400, color: C.muted, background: C.gray, padding: '1px 7px', borderRadius: 10 }}>{T ? T.optional : 'Optional'}</span>
             )}
           </div>
           {!isSkipped && (
@@ -285,7 +426,7 @@ function StarRating({ value, onChange, criterion }) {
         {/* Status badge */}
         {isSkipped ? (
           <span style={{ fontSize: 10, fontWeight: 600, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, flexShrink: 0, marginLeft: 10 }}>
-            Skipped
+            {T ? T.skipped : 'Skipped'}
           </span>
         ) : value > 0 ? (
           <span style={{
@@ -296,15 +437,15 @@ function StarRating({ value, onChange, criterion }) {
             {RATING_LABELS[value]}
           </span>
         ) : !criterion.optional ? (
-          <span style={{ fontSize: 10, color: '#EF4444', flexShrink: 0, marginLeft: 10, fontWeight: 500 }}>Required</span>
+          <span style={{ fontSize: 10, color: '#EF4444', flexShrink: 0, marginLeft: 10, fontWeight: 500 }}>{T ? T.requiredText : 'Required'}</span>
         ) : null}
       </div>
 
       {isSkipped ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: C.muted }}>Did not evaluate this characteristic</span>
+          <span style={{ fontSize: 12, color: C.muted }}>{T ? T.didNotEvalDesc : 'Did not evaluate this characteristic'}</span>
           <button onClick={() => onChange(0)} style={{ fontSize: 11, color: C.inf, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
-            Undo
+            {T ? T.undoBtn : 'Undo'}
           </button>
         </div>
       ) : (
@@ -338,7 +479,7 @@ function StarRating({ value, onChange, criterion }) {
               transition: 'all 0.15s',
             }}
           >
-            Did not evaluate
+            {T ? T.didNotEval : 'Did not evaluate'}
           </button>
         </div>
       )}
@@ -385,16 +526,16 @@ function StepBar({ step, steps }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Context
 // ─────────────────────────────────────────────────────────────────────────────
-function StepContext({ candidate, context, onChange, onNext, currentUser }) {
+function StepContext({ candidate, context, onChange, onNext, currentUser, T }) {
   const valid = !!context.interviewDate
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        Before you begin
+        {T.step1Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 24px', lineHeight: 1.6 }}>
-        Just the date and you are good to go.
+        {T.step1Sub}
       </p>
 
       {/* Candidate + auto-filled interviewer */}
@@ -402,7 +543,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
         <div style={{ background: C.redBg, borderRadius: 11, border: `1px solid ${C.border}`, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <Av id={candidate.id} ini={candidate.ini} size={38} />
           <div>
-            <div style={{ fontSize: 9, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Candidate</div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{T.candidate}</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</div>
             <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
           </div>
@@ -413,7 +554,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
             {currentUser.ini}
           </div>
           <div>
-            <div style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Interviewer</div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{T.interviewer}</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{currentUser.name}</div>
             <div style={{ fontSize: 11, color: C.muted }}>{currentUser.role}</div>
           </div>
@@ -423,7 +564,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
       {/* Date */}
       <div style={{ marginBottom: 26 }}>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 7 }}>
-          Date of interview<RequiredDot />
+          {T.dateLabel}<RequiredDot />
         </label>
         <input
           type="date"
@@ -439,14 +580,14 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
           }}
         />
         <p style={{ fontSize: 11, color: C.muted, marginTop: 6 }}>
-          Filling this in right after the interview leads to sharper, more useful feedback.
+          {T.dateTip}
         </p>
       </div>
 
       {/* Interview type — optional quick-select */}
       <div style={{ marginBottom: 28 }}>
         <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 8 }}>
-          Interview type <span style={{ fontWeight: 400, color: C.muted }}>(optional)</span>
+          {T.typeLabel} <span style={{ fontWeight: 400, color: C.muted }}>{T.typeOptional}</span>
         </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {INTERVIEW_TYPES.map(t => (
@@ -475,7 +616,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
         disabled={!valid}
         style={{ padding: '11px 26px', borderRadius: 10, background: valid ? C.red : C.grayB, color: valid ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: valid ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}
       >
-        Continue →
+        {T.continueBtn}
       </button>
     </div>
   )
@@ -484,7 +625,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 2 — Ratings
 // ─────────────────────────────────────────────────────────────────────────────
-function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
+function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
   // Required criteria need a score (1-5) OR explicit skip (-1). 0 = not yet answered.
   const requiredAnswered = CRITERIA
     .filter(c => !c.optional)
@@ -498,13 +639,13 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        How did they perform?
+        {T.step2Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 10px', lineHeight: 1.6 }}>
-        Rate what you covered. If you did not evaluate a criterion, tap <strong style={{ color: C.text }}>Did not evaluate</strong> — that is a valid answer.
+        {T.step2Sub(<strong style={{ color: C.text }}>{T.step2Bold}</strong>)}
       </p>
       <p style={{ color: C.muted, fontSize: 12, margin: '0 0 22px', lineHeight: 1.5, padding: '9px 13px', background: C.redBg, borderRadius: 8, border: `1px solid ${C.border}` }}>
-        Technical skills are <strong style={{ color: C.text }}>optional</strong> — skip if there was no technical component to your interview.
+        {T.step2Tech} <strong style={{ color: C.text }}>{T.step2TechBold}</strong>{T.step2TechSub}
       </p>
 
       {/* Live average */}
@@ -512,8 +653,8 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.redBg, borderRadius: 10, padding: '11px 16px', marginBottom: 20, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{avgScore}</div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>Your average so far</div>
-            <div style={{ fontSize: 10, color: C.muted }}>Across {ratedCount} rated criterion</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.avgSoFar}</div>
+            <div style={{ fontSize: 10, color: C.muted }}>{T.acrossCriteria(ratedCount)}</div>
           </div>
         </div>
       )}
@@ -525,6 +666,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
             criterion={c}
             value={ratings[c.id] !== undefined ? ratings[c.id] : 0}
             onChange={(val) => onChange(c.id, val)}
+            T={T}
           />
         ))}
       </div>
@@ -533,15 +675,15 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, padding: '9px 13px', background: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA' }}>
           <span style={{ fontSize: 13 }}>⚠</span>
           <span style={{ fontSize: 12, color: C.red }}>
-            {CRITERIA.filter(c => !c.optional && (!ratings[c.id] || ratings[c.id] === 0)).map(c => c.label).join(' · ')} — rate or tap "Did not evaluate"
+            {T.ratingRequired(CRITERIA.filter(c => !c.optional && (!ratings[c.id] || ratings[c.id] === 0)).map(c => c.label).join(' · '))}
           </span>
         </div>
       )}
 
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
+        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{T.backBtn}</button>
         <button onClick={onNext} disabled={!requiredAnswered} style={{ padding: '11px 26px', borderRadius: 10, background: requiredAnswered ? C.red : C.grayB, color: requiredAnswered ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: requiredAnswered ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}>
-          Continue →
+          {T.continueBtn}
         </button>
       </div>
     </div>
@@ -551,7 +693,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 3 — Qualitative feedback
 // ─────────────────────────────────────────────────────────────────────────────
-function StepFeedback({ candidate, feedback, onChange, onNext, onBack }) {
+function StepFeedback({ candidate, feedback, onChange, onNext, onBack, T }) {
   const strengthsValid = feedback.strengths && feedback.strengths.trim().length >= 8
   const developValid   = feedback.development && feedback.development.trim().length >= 8
   const canProceed     = strengthsValid && developValid
@@ -562,13 +704,13 @@ function StepFeedback({ candidate, feedback, onChange, onNext, onBack }) {
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
-        Your observations
+        {T.step3Title}
       </h2>
 
       {/* Candidate-centred framing */}
       <div style={{ background: C.redBg, borderRadius: 10, padding: '12px 15px', border: `1px solid ${C.border}`, marginBottom: 22 }}>
         <p style={{ fontSize: 13, color: C.text, lineHeight: 1.7, margin: 0 }}>
-          Candidates appreciate specific, growth-oriented feedback more than you might expect — a few honest, concrete sentences can genuinely make a difference, even when the answer is no.
+          {T.step3Framing}
         </p>
       </div>
 
@@ -576,45 +718,48 @@ function StepFeedback({ candidate, feedback, onChange, onNext, onBack }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 22, padding: '10px 14px', background: C.white, borderRadius: 9, border: `1px solid ${C.border}` }}>
         <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>💬</span>
         <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.7 }}>
-          <strong style={{ color: C.text }}>Tap Dictate</strong> to speak your thoughts — ideal right after the interview while everything is fresh. Or type and paste your notes directly. Either works.
+          <strong style={{ color: C.text }}>{T.step3Hint}</strong>{T.step3HintText}
         </p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
         <DictationField
-          label="What did they do well?"
+          label={T.strengthsLabel}
           value={feedback.strengths || ''}
           onChange={makeHandler('strengths')}
           placeholder="A specific moment or quality — e.g. Walked through a complex decision with real clarity. Responded to pushback without deflecting."
           required
           rows={3}
-          hint="Specific beats general — a real example is worth ten adjectives"
+          hint={T.strengthsHint}
+          T={T}
         />
 
         <DictationField
-          label="What could they develop further?"
+          label={T.developLabel}
           value={feedback.development || ''}
           onChange={makeHandler('development')}
           placeholder="Frame it as growth — e.g. Stakeholder communication: tended to default to technical depth when a simpler framing would land better."
           required
           rows={3}
-          hint="Growth-oriented and honest — this is what candidates remember and use"
+          hint={T.developHint}
+          T={T}
         />
 
         <DictationField
-          label="Anything else worth noting?"
+          label={T.standoutLabel}
           value={feedback.standout || ''}
           onChange={makeHandler('standout')}
           placeholder="Optional — a standout moment, a concern, or anything the decision makers should know…"
           required={false}
           rows={2}
+          T={T}
         />
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
-        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
+        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{T.backBtn}</button>
         <button onClick={onNext} disabled={!canProceed} style={{ padding: '11px 26px', borderRadius: 10, background: canProceed ? C.red : C.grayB, color: canProceed ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: canProceed ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}>
-          Continue →
+          {T.continueBtn}
         </button>
       </div>
     </div>
@@ -624,7 +769,7 @@ function StepFeedback({ candidate, feedback, onChange, onNext, onBack }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 4 — Recommendation
 // ─────────────────────────────────────────────────────────────────────────────
-function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRec, onChangeNotes, onSubmit, onBack }) {
+function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRec, onChangeNotes, onSubmit, onBack, T }) {
   const canSubmit = !!recommendation
 
   const makeHandler = () => (updater) =>
@@ -633,10 +778,10 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        Your recommendation
+        {T.step4Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 26px', lineHeight: 1.6 }}>
-        Be direct — ambiguity slows the process for everyone, including the candidate.
+        {T.step4Sub}
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
@@ -664,19 +809,20 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
       </div>
 
       <DictationField
-        label="Additional context"
+        label={T.notesLabel}
         value={notes || ''}
         onChange={makeHandler()}
         placeholder="Logistics, red flags, compensation expectations, or a standout concern — optional but useful…"
         required={false}
         rows={3}
-        hint="Seen by the hiring manager and recruiter only"
+        hint={T.notesHint}
+        T={T}
       />
 
       {/* What happens next — tailored to role */}
       {canSubmit && (
         <div style={{ margin: '22px 0', padding: '13px 16px', background: C.redBg, borderRadius: 10, border: `1px solid ${C.border}` }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>✦ What happens next</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>{T.whatNext}</p>
           <ul style={{ margin: 0, paddingLeft: 15, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
             <li>Your feedback is saved to {candidate.name.split(' ')[0]}'s profile</li>
             {isHM
@@ -689,9 +835,9 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
       )}
 
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
+        <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{T.backBtn}</button>
         <button onClick={onSubmit} disabled={!canSubmit} style={{ padding: '11px 30px', borderRadius: 10, background: canSubmit ? C.red : C.grayB, color: canSubmit ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: canSubmit ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}>
-          Submit feedback ✓
+          {T.submitBtn}
         </button>
       </div>
     </div>
@@ -701,7 +847,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 // ─────────────────────────────────────────────────────────────────────────────
 // Done state — differs for HM vs other interviewers
 // ─────────────────────────────────────────────────────────────────────────────
-function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
+function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) {
   const rec      = RECOMMENDATIONS.find(r => r.id === recommendation)
   const ratedCriteria = CRITERIA.filter(c => ratings[c.id] > 0)
   const avg      = ratedCriteria.length > 0
@@ -712,10 +858,10 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
     <div style={{ textAlign: 'center', padding: '40px 32px', animation: 'stepIn 0.3s ease' }}>
       <div style={{ fontSize: 52, marginBottom: 14 }}>✅</div>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
-        Feedback submitted
+        {T.doneTitle}
       </h2>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, margin: '0 0 28px', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
-        Your input for <strong style={{ color: C.text }}>{candidate.name}</strong> has been saved and will inform the decision brief and any candidate updates.
+        {T.doneSub(candidate.name)}
       </p>
 
       {/* Score + recommendation card */}
@@ -731,14 +877,14 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
           {avg && (
             <div style={{ flex: 1, textAlign: 'center', background: C.redBg, borderRadius: 8, padding: '9px' }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>{avg}</div>
-              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>AVG SCORE</div>
+              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.avgScore}</div>
             </div>
           )}
           <div style={{ flex: 2, background: rec?.bg, borderRadius: 8, padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
             <span style={{ fontSize: 18 }}>{rec?.emoji}</span>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: rec?.color }}>{rec?.label}</div>
-              <div style={{ fontSize: 9, color: C.muted }}>Your recommendation</div>
+              <div style={{ fontSize: 9, color: C.muted }}>{T.yourRec}</div>
             </div>
           </div>
         </div>
@@ -748,16 +894,16 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
       {isHM ? (
         <div style={{ background: C.sucBg, borderRadius: 11, padding: '14px 18px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BBF7D0', textAlign: 'left' }}>
           <p style={{ fontSize: 12, color: C.sucT, margin: 0, lineHeight: 1.7 }}>
-            As hiring manager, you can now view the consolidated decision brief across all interviewers and make your final call.
+            {T.hmMessage}
           </p>
         </div>
       ) : (
         <div style={{ background: C.infBg, borderRadius: 11, padding: '14px 18px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', border: `1px solid #BFDBFE`, textAlign: 'left' }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.infT, marginBottom: 4 }}>
-            🔔 You will be notified when a decision is made
+            {T.notifyTitle}
           </p>
           <p style={{ fontSize: 12, color: C.infT, margin: 0, lineHeight: 1.7 }}>
-            Thank you for taking the time — your feedback makes the decision better and the candidate update more meaningful.
+            {T.notifyText}
           </p>
         </div>
       )}
@@ -765,11 +911,11 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
       <div style={{ display: 'flex', gap: 11, justifyContent: 'center', flexWrap: 'wrap' }}>
         {isHM && (
           <button onClick={() => onNavigate?.('hiring-summary')} style={{ padding: '10px 20px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-            📊 View decision brief
+            {T.viewBrief}
           </button>
         )}
         <button onClick={() => onNavigate?.('hiring-manager')} style={{ padding: '10px 20px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
-          ← Back to dashboard
+          {T.backDashboard}
         </button>
       </div>
     </div>
@@ -779,7 +925,8 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE, isHM = true, onBack, onNavigate }) {
+export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [step, setStep] = useState(0)
 
   const [context,        setContext]        = useState({ interviewDate: '', interviewType: '' })
@@ -792,7 +939,7 @@ export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE,
   const updateRating   = (key, val) => setRatings(r => ({ ...r, [key]: val }))
   const updateFeedback = (key, val) => setFeedback(f => ({ ...f, [key]: val }))
 
-  const STEPS = ['Context', 'Ratings', 'Feedback', 'Recommendation']
+  const STEPS = T.steps
 
   if (step === 4) return (
     <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
@@ -800,7 +947,7 @@ export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE,
         @keyframes stepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse  { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(1.15);} }
       `}</style>
-      <DoneState candidate={candidate} recommendation={recommendation} ratings={ratings} isHM={isHM} onNavigate={onNavigate} />
+      <DoneState candidate={candidate} recommendation={recommendation} ratings={ratings} isHM={isHM} onNavigate={onNavigate} T={T} />
     </div>
   )
 
@@ -813,11 +960,11 @@ export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE,
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '28px 36px 56px' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-          ← Back
+          {T.back}
         </button>
 
         <div style={{ marginBottom: 26 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Post-interview debrief</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
           <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>{candidate.name}</h1>
           <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>{candidate.role} · {candidate.pos}</p>
         </div>
@@ -832,13 +979,14 @@ export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE,
               onChange={updateContext}
               onNext={() => setStep(1)}
               currentUser={CURRENT_USER}
+              T={T}
             />
           )}
           {step === 1 && (
-            <StepRatings candidate={candidate} ratings={ratings} onChange={updateRating} onNext={() => setStep(2)} onBack={() => setStep(0)} />
+            <StepRatings candidate={candidate} ratings={ratings} onChange={updateRating} onNext={() => setStep(2)} onBack={() => setStep(0)} T={T} />
           )}
           {step === 2 && (
-            <StepFeedback candidate={candidate} feedback={feedback} onChange={updateFeedback} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+            <StepFeedback candidate={candidate} feedback={feedback} onChange={updateFeedback} onNext={() => setStep(3)} onBack={() => setStep(1)} T={T} />
           )}
           {step === 3 && (
             <StepRecommendation
@@ -850,12 +998,13 @@ export default function PostInterviewQuestionnaire({ candidate = MOCK_CANDIDATE,
               onChangeNotes={setNotes}
               onSubmit={() => setStep(4)}
               onBack={() => setStep(2)}
+              T={T}
             />
           )}
         </div>
 
         <div style={{ marginTop: 14, textAlign: 'center', fontSize: 11, color: C.muted }}>
-          Step {step + 1} of {STEPS.length} · Fields marked <span style={{ color: C.red }}>*</span> are required
+          {T.stepOf(step + 1, STEPS.length)} <span style={{ color: C.red }}>*</span> {T.required}
         </div>
       </div>
     </div>

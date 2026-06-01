@@ -13,6 +13,71 @@
 
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:              '← Back',
+    applied:           'Applied',
+    interviewsDone:    (n) => `${n} interviews completed`,
+    recommendAdvance:  (a, t) => `${a} of ${t} recommend advancing`,
+    feedbackTitle:     'Interview feedback',
+    clickCollapse:     'Click any card to collapse',
+    empath:            '✦ Empath synthesis',
+    overallScore:      'Overall score / 5.0',
+    scoreBreakdown:    'Score breakdown',
+    strengths:         'Consistent strengths',
+    developAreas:      'Development areas',
+    consensus:         'Interviewer consensus',
+    recommendation:    '✦ Recommendation',
+    advanceRec:        '✓ Advance recommended',
+    lowRisk:           'Low risk',
+    yourDecision:      'Your decision',
+    changeDecision:    'Change decision',
+    movingFwd:         '✓ Moving forward — recruiter will be notified',
+    notMovingFwd:      '✕ Not moving forward — recruiter will be notified',
+    anotherRound:      '↺ Another round requested',
+    advance:           '✓ Move forward',
+    requestRound:      '↺ Request another round',
+    notForward:        '✕ Not moving forward',
+    sendUpdate:        '✉ Send update to candidate',
+    roundLabel:        (n) => `Round ${n}:`,
+    highlights:        'Highlights',
+    areasToDevp:       'Areas to develop',
+    advancePill:       '✓ Advance',
+    passPill:          '✕ Pass',
+  },
+  it: {
+    back:              '← Indietro',
+    applied:           'Candidato il',
+    interviewsDone:    (n) => `${n} interviste completate`,
+    recommendAdvance:  (a, t) => `${a} di ${t} raccomandano di avanzare`,
+    feedbackTitle:     'Feedback interviste',
+    clickCollapse:     'Clicca su una scheda per ridurla',
+    empath:            '✦ Sintesi Empath',
+    overallScore:      'Punteggio totale / 5.0',
+    scoreBreakdown:    'Dettaglio punteggi',
+    strengths:         'Punti di forza costanti',
+    developAreas:      'Aree di sviluppo',
+    consensus:         'Consenso intervistatori',
+    recommendation:    '✦ Raccomandazione',
+    advanceRec:        '✓ Avanzamento raccomandato',
+    lowRisk:           'Rischio basso',
+    yourDecision:      'La tua decisione',
+    changeDecision:    'Cambia decisione',
+    movingFwd:         '✓ Avanza — il recruiter verrà notificato',
+    notMovingFwd:      '✕ Non avanza — il recruiter verrà notificato',
+    anotherRound:      '↺ Altro round richiesto',
+    advance:           '✓ Avanza',
+    requestRound:      '↺ Richiedi altro round',
+    notForward:        '✕ Non avanza',
+    sendUpdate:        '✉ Invia aggiornamento al candidato',
+    roundLabel:        (n) => `Round ${n}:`,
+    highlights:        'Punti salienti',
+    areasToDevp:       'Aree da sviluppare',
+    advancePill:       '✓ Avanza',
+    passPill:          '✕ Non avanza',
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redH: '#A82D3B', redL: '#FECDD3', redBg: '#FFF5F6',
@@ -161,7 +226,7 @@ function AvatarCluster({ interviews }) {
 }
 
 // ── Interview feedback card ───────────────────────────────────────────────────
-function FeedbackCard({ interview }) {
+function FeedbackCard({ interview, T }) {
   const [open, setOpen] = useState(true)
   const avColors = [['#FECDD3',C.red],['#DBEAFE',C.inf],['#D1FAE5',C.suc]]
   const [bg, color] = avColors[(interview.id - 1) % 3]
@@ -183,7 +248,7 @@ function FeedbackCard({ interview }) {
             <span style={{ fontSize: 11, color: C.muted }}>· {interview.interviewerRole}</span>
           </div>
           <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
-            Round {interview.round}: {interview.type} · {interview.date} · {interview.duration}
+            {T.roundLabel(interview.round)} {interview.type} · {interview.date} · {interview.duration}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -193,7 +258,7 @@ function FeedbackCard({ interview }) {
             color: interview.recommendation === 'advance' ? C.sucT : C.red,
             fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20,
           }}>
-            {interview.recommendation === 'advance' ? '✓ Advance' : '✕ Pass'}
+            {interview.recommendation === 'advance' ? T.advancePill : T.passPill}
           </span>
           <span style={{ color: C.muted, fontSize: 13, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▾</span>
         </div>
@@ -223,7 +288,7 @@ function FeedbackCard({ interview }) {
           {/* Highlights */}
           {interview.highlights.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>Highlights</p>
+              <p style={{ fontSize: 10, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.highlights}</p>
               {interview.highlights.map((h, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
                   <span style={{ color: C.suc, fontSize: 12, flexShrink: 0, marginTop: 1 }}>✓</span>
@@ -236,7 +301,7 @@ function FeedbackCard({ interview }) {
           {/* Concerns */}
           {interview.concerns.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>Areas to develop</p>
+              <p style={{ fontSize: 10, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.areasToDevp}</p>
               {interview.concerns.map((c, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
                   <span style={{ color: C.war, fontSize: 12, flexShrink: 0, marginTop: 1 }}>△</span>
@@ -264,7 +329,8 @@ function FeedbackCard({ interview }) {
 }
 
 // ── Root ──────────────────────────────────────────────────────────────────────
-export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
+export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [decision, setDecision] = useState(null) // 'advance' | 'pass' | 'another-round'
 
   const interviews = MOCK_INTERVIEWS
@@ -277,7 +343,7 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
       <div style={{ flex: 1, overflow: 'auto', padding: '28px 28px 40px' }}>
         {/* Back */}
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-          ← Back
+          {T.back}
         </button>
 
         {/* Candidate header */}
@@ -288,26 +354,26 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
               {candidate.name}
             </h1>
             <div style={{ fontSize: 13, color: C.muted }}>{candidate.role} · {candidate.pos}</div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>Applied {candidate.appliedDate} · {interviews.length} interviews completed</div>
+            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{T.applied} {candidate.appliedDate} · {T.interviewsDone(interviews.length)}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
             <AvatarCluster interviews={interviews} />
             <span style={{ fontSize: 11, color: C.muted }}>
-              {advCount} of {interviews.length} recommend advancing
+              {T.recommendAdvance(advCount, interviews.length)}
             </span>
           </div>
         </div>
 
         {/* Section heading */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>Interview feedback</h2>
-          <span style={{ fontSize: 11, color: C.muted }}>Click any card to collapse</span>
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.feedbackTitle}</h2>
+          <span style={{ fontSize: 11, color: C.muted }}>{T.clickCollapse}</span>
         </div>
 
         {/* Interview cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
           {interviews.map(iv => (
-            <FeedbackCard key={iv.id} interview={iv} />
+            <FeedbackCard key={iv.id} interview={iv} T={T} />
           ))}
         </div>
       </div>
@@ -318,17 +384,17 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
 
           {/* Overall score */}
           <div style={{ textAlign: 'center', marginBottom: 24, padding: '20px 16px', background: C.redBg, borderRadius: 13, border: `1px solid ${C.border}` }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>✦ Empath synthesis</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>{T.empath}</p>
             <div style={{ fontSize: 48, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>
               {SYNTHESIS.overallScore}
             </div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 4, marginBottom: 10 }}>Overall score / 5.0</div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 4, marginBottom: 10 }}>{T.overallScore}</div>
             <Stars rating={Math.round(SYNTHESIS.overallScore)} size={18} />
           </div>
 
           {/* Criteria breakdown */}
           <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>Score breakdown</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>{T.scoreBreakdown}</p>
             {SYNTHESIS.scoredCriteria.map(c => (
               <ScoreBar key={c.label} label={c.label} score={c.score} color={c.color} />
             ))}
@@ -336,7 +402,7 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
 
           {/* Strengths */}
           <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>Consistent strengths</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.strengths}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {SYNTHESIS.strengths.map(s => (
                 <span key={s} style={{ background: C.sucBg, color: C.sucT, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500 }}>{s}</span>
@@ -346,7 +412,7 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
 
           {/* Concerns */}
           <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>Development areas</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.developAreas}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {SYNTHESIS.concerns.map(s => (
                 <span key={s} style={{ background: C.warBg, color: C.warT, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500 }}>{s}</span>
@@ -356,7 +422,7 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
 
           {/* Interviewer consensus */}
           <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Interviewer consensus</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>{T.consensus}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {interviews.map(iv => {
                 const ivColors = [['#FECDD3',C.red],['#DBEAFE',C.inf],['#D1FAE5',C.suc]]
@@ -382,30 +448,30 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
 
           {/* AI rationale */}
           <div style={{ background: C.redBg, borderRadius: 11, padding: '13px 14px', border: `1px solid ${C.border}`, marginBottom: 8 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>✦ Recommendation</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.recommendation}</p>
             <p style={{ fontSize: 12, color: C.text, lineHeight: 1.8, margin: 0 }}>
               {SYNTHESIS.rationale}
             </p>
             <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 7 }}>
               <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
-                ✓ Advance recommended
+                {T.advanceRec}
               </span>
-              <span style={{ fontSize: 11, color: C.muted }}>Low risk</span>
+              <span style={{ fontSize: 11, color: C.muted }}>{T.lowRisk}</span>
             </div>
           </div>
         </div>
 
         {/* ── Decision panel ── */}
         <div style={{ padding: '16px 22px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 9 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 2px' }}>Your decision</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 2px' }}>{T.yourDecision}</p>
 
           {decision ? (
             <div style={{ padding: '14px 16px', borderRadius: 11, background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}`, textAlign: 'center' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
-                {decision === 'advance' ? '✓ Moving forward — recruiter will be notified' : decision === 'pass' ? '✕ Not moving forward — recruiter will be notified' : '↺ Another round requested'}
+                {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
               </div>
               <button onClick={() => setDecision(null)} style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>
-                Change decision
+                {T.changeDecision}
               </button>
             </div>
           ) : (
@@ -414,25 +480,25 @@ export default function HiringManagerSummary({ candidate = MOCK_CANDIDATE, onBac
                 onClick={() => setDecision('advance')}
                 style={{ padding: '11px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
-                ✓ Move forward
+                {T.advance}
               </button>
               <button
                 onClick={() => setDecision('another-round')}
                 style={{ padding: '11px 0', borderRadius: 9, background: C.warBg, color: C.warT, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
-                ↺ Request another round
+                {T.requestRound}
               </button>
               <button
                 onClick={() => setDecision('pass')}
                 style={{ padding: '11px 0', borderRadius: 9, background: C.gray, color: C.muted, border: 'none', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
               >
-                ✕ Not moving forward
+                {T.notForward}
               </button>
               <button
                 onClick={() => onNavigate?.('craft', { candidate })}
                 style={{ padding: '9px 0', borderRadius: 9, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
               >
-                ✉ Send update to candidate
+                {T.sendUpdate}
               </button>
             </>
           )}

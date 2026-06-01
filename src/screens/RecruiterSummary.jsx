@@ -12,6 +12,47 @@
 
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:            '← Interview summaries',
+    badge:           'Interview summary',
+    applied:         'Applied',
+    contact:         'Contact',
+    clickToCopy:     'Click to copy',
+    tapToCall:       'Tap to call',
+    openProfile:     'Open profile',
+    copied:          'Copied!',
+    empath:          '✦ Empath summary',
+    avgScore:        'AVG SCORE',
+    recommend:       'RECOMMEND',
+    feedback:        'Interview feedback',
+    rounds:          (n) => `${n} round${n !== 1 ? 's' : ''}`,
+    advance:         '✓ Advance',
+    pass:            '✕ Pass',
+    craftMessage:    (name) => `✉ Craft message for ${name}`,
+    fullBrief:       '📊 Full decision brief →',
+  },
+  it: {
+    back:            '← Riepilogo interviste',
+    badge:           'Riepilogo intervista',
+    applied:         'Candidato il',
+    contact:         'Contatto',
+    clickToCopy:     'Clicca per copiare',
+    tapToCall:       'Tocca per chiamare',
+    openProfile:     'Apri profilo',
+    copied:          'Copiato!',
+    empath:          '✦ Riepilogo Empath',
+    avgScore:        'MEDIA',
+    recommend:       'RACCOMANDA',
+    feedback:        'Feedback interviste',
+    rounds:          (n) => `${n} round${n !== 1 ? 's' : ''}`,
+    advance:         '✓ Avanza',
+    pass:            '✕ Non avanza',
+    craftMessage:    (name) => `✉ Scrivi messaggio per ${name}`,
+    fullBrief:       '📊 Brief decisionale →',
+  },
+}
+
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
   text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
@@ -77,7 +118,7 @@ function Stars({ score, max = 5, size = 13 }) {
 }
 
 // ── Condensed interview card ───────────────────────────────────────────────────
-function InterviewCard({ interview, expanded, onToggle }) {
+function InterviewCard({ interview, expanded, onToggle, T }) {
   const avColors = [['#FECDD3', C.red], ['#DBEAFE', C.inf], ['#D1FAE5', C.suc]]
   const [bg, col] = avColors[(interview.id - 1) % 3]
 
@@ -100,7 +141,7 @@ function InterviewCard({ interview, expanded, onToggle }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <Stars score={interview.score} size={12} />
           <span style={{ background: interview.recommendation === 'advance' ? C.sucBg : '#FEE2E2', color: interview.recommendation === 'advance' ? C.sucT : C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
-            {interview.recommendation === 'advance' ? '✓ Advance' : '✕ Pass'}
+            {interview.recommendation === 'advance' ? T.advance : T.pass}
           </span>
           <span style={{ color: C.muted, fontSize: 12, transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▾</span>
         </div>
@@ -118,7 +159,8 @@ function InterviewCard({ interview, expanded, onToggle }) {
 }
 
 // ── Root ──────────────────────────────────────────────────────────────────────
-export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
+export default function RecruiterSummary({ lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [expandedInterview, setExpandedInterview] = useState(null)
   const [copiedEmail, setCopiedEmail]             = useState(false)
 
@@ -138,18 +180,18 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
 
         {/* Back */}
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-          ← Interview summaries
+          {T.back}
         </button>
 
         {/* Page header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Interview summary</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
             <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>
               {candidate.name}
             </h1>
             <p style={{ color: C.muted, fontSize: 13, margin: 0 }}>
-              {candidate.role} · {candidate.pos} · Applied {candidate.appliedDate}
+              {candidate.role} · {candidate.pos} · {T.applied} {candidate.appliedDate}
             </p>
           </div>
           <Av id={candidate.id} ini={candidate.ini} size={52} />
@@ -157,7 +199,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
 
         {/* ── Contact info ── */}
         <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '16px 20px', marginBottom: 20 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>Contact</p>
+          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>{T.contact}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
 
             {/* Email */}
@@ -167,8 +209,8 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
             >
               <span style={{ fontSize: 14 }}>✉</span>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: copiedEmail ? C.sucT : C.text }}>{copiedEmail ? 'Copied!' : candidate.email}</div>
-                <div style={{ fontSize: 9, color: C.muted }}>Click to copy</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: copiedEmail ? C.sucT : C.text }}>{copiedEmail ? T.copied : candidate.email}</div>
+                <div style={{ fontSize: 9, color: C.muted }}>{T.clickToCopy}</div>
               </div>
             </button>
 
@@ -180,7 +222,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
               <span style={{ fontSize: 14 }}>📞</span>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{candidate.phone}</div>
-                <div style={{ fontSize: 9, color: C.muted }}>Tap to call</div>
+                <div style={{ fontSize: 9, color: C.muted }}>{T.tapToCall}</div>
               </div>
             </a>
 
@@ -194,7 +236,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
               <span style={{ fontSize: 14 }}>💼</span>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: C.infT }}>LinkedIn</div>
-                <div style={{ fontSize: 9, color: C.infT }}>Open profile</div>
+                <div style={{ fontSize: 9, color: C.infT }}>{T.openProfile}</div>
               </div>
             </a>
           </div>
@@ -203,7 +245,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
         {/* ── AI snapshot ── */}
         <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '16px 20px', marginBottom: 20, display: 'flex', gap: 20, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>✦ Empath summary</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>{T.empath}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.8, margin: 0 }}>
               {advCount === interviews.length
                 ? `All ${interviews.length} interviewers recommend advancing ${candidate.name.split(' ')[0]}. Strong portfolio, excellent cultural fit, and a clear growth mindset. One development area — design systems — was framed constructively by both reviewers.`
@@ -214,11 +256,11 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
           <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
             <div style={{ textAlign: 'center', background: C.redBg, borderRadius: 9, padding: '10px 14px', border: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{avgScore}</div>
-              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 3 }}>AVG SCORE</div>
+              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 3 }}>{T.avgScore}</div>
             </div>
             <div style={{ textAlign: 'center', background: C.sucBg, borderRadius: 9, padding: '10px 14px', border: '1px solid #BBF7D0' }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
-              <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>RECOMMEND</div>
+              <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>{T.recommend}</div>
             </div>
           </div>
         </div>
@@ -226,7 +268,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
         {/* ── Interview feedback ── */}
         <div style={{ marginBottom: 28 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 11 }}>
-            Interview feedback · {interviews.length} round{interviews.length !== 1 ? 's' : ''}
+            {T.feedback} · {T.rounds(interviews.length)}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             {interviews.map(iv => (
@@ -235,6 +277,7 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
                 interview={iv}
                 expanded={expandedInterview === iv.id}
                 onToggle={() => setExpandedInterview(expandedInterview === iv.id ? null : iv.id)}
+                T={T}
               />
             ))}
           </div>
@@ -246,13 +289,13 @@ export default function RecruiterSummary({ candidate = MOCK_CANDIDATE, onBack, o
             onClick={() => onNavigate?.('craft', { candidate })}
             style={{ padding: '11px 22px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            ✉ Craft message for {candidate.name.split(' ')[0]}
+            {T.craftMessage(candidate.name.split(' ')[0])}
           </button>
           <button
             onClick={() => onNavigate?.('hiring-summary', { candidate })}
             style={{ padding: '11px 20px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            📊 Full decision brief →
+            {T.fullBrief}
           </button>
         </div>
       </div>

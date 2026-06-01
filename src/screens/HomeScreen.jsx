@@ -1,10 +1,29 @@
 import { useState } from 'react'
 
-const MAIN_BTNS = [
-  { id: 'triage',       label: 'CV Triage',    sub: 'Review incoming CVs'  },
-  { id: 'not-suitable', label: 'Not Suitable', sub: 'Rejected candidates'  },
-  { id: 'dashboard',    label: 'Dashboard',    sub: 'Active positions'     },
-]
+const SCREEN_T = {
+  en: {
+    badge:    'Publicis Sapient · empath',
+    question: 'What would you like to work on today?',
+    btns: [
+      { id: 'triage',       label: 'CV Triage',    sub: 'Review incoming CVs'  },
+      { id: 'not-suitable', label: 'Not Suitable', sub: 'Rejected candidates'  },
+      { id: 'dashboard',    label: 'Dashboard',    sub: 'Active positions'     },
+    ],
+    summary:    'Summary',
+    aiInsights: 'AI Insights',
+  },
+  it: {
+    badge:    'Publicis Sapient · empath',
+    question: 'Su cosa vorresti lavorare oggi?',
+    btns: [
+      { id: 'triage',       label: 'Selezione CV', sub: 'Rivedi i CV in arrivo'  },
+      { id: 'not-suitable', label: 'Non Idoneo',   sub: 'Candidati rifiutati'    },
+      { id: 'dashboard',    label: 'Bacheca',       sub: 'Posizioni attive'       },
+    ],
+    summary:    'Riepilogo',
+    aiInsights: 'Analisi AI',
+  },
+}
 
 function CapsuleButton({ btn, th, hov, onEnter, onLeave, onClick, isFirst }) {
   return (
@@ -62,8 +81,9 @@ function CapsuleButton({ btn, th, hov, onEnter, onLeave, onClick, isFirst }) {
   )
 }
 
-export default function HomeScreen({ theme, themeMode, lang, onNavigate, userName }) {
+export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, userName }) {
   const th = theme
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [hovId, setHovId] = useState(null)
   const firstName = userName ? userName.split(' ')[0] : 'there'
 
@@ -84,7 +104,7 @@ export default function HomeScreen({ theme, themeMode, lang, onNavigate, userNam
             textTransform: 'uppercase', letterSpacing: '0.14em',
             margin: '0 0 16px',
           }}>
-            Publicis Sapient · empath
+            {T.badge}
           </p>
           <h1 style={{
             fontFamily: 'DM Serif Display, Georgia, serif',
@@ -98,7 +118,7 @@ export default function HomeScreen({ theme, themeMode, lang, onNavigate, userNam
             fontSize: 16, color: th.textMid, margin: 0,
             letterSpacing: '-0.01em', fontWeight: 300,
           }}>
-            What would you like to work on today?
+            {T.question}
           </p>
         </div>
 
@@ -114,7 +134,7 @@ export default function HomeScreen({ theme, themeMode, lang, onNavigate, userNam
           background: th.cardBg,
           boxShadow: '0 4px 32px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)',
         }}>
-          {MAIN_BTNS.map((btn, i) => (
+          {T.btns.map((btn, i) => (
             <CapsuleButton
               key={btn.id}
               btn={btn}
@@ -132,8 +152,8 @@ export default function HomeScreen({ theme, themeMode, lang, onNavigate, userNam
       {/* Bottom row: Summary ← → AI Insights */}
       <div style={{ padding: '0 60px 52px', display: 'flex', justifyContent: 'space-between' }}>
         {[
-          { label: 'Summary',     dest: 'interview-summaries' },
-          { label: 'AI Insights', dest: 'insights' },
+          { label: T.summary,    dest: 'interview-summaries' },
+          { label: T.aiInsights, dest: 'insights' },
         ].map(({ label, dest }) => (
           <button
             key={dest}

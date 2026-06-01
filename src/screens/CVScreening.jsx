@@ -18,6 +18,108 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
+// ── Translations ──────────────────────────────────────────────────────────────
+const SCREEN_T = {
+  en: {
+    batchProgress:    'Batch progress',
+    advancing:        'Advancing',
+    notFwd:           'Not fwd',
+    remaining:        'Remaining',
+    advancingBadge:   '✓ Advancing',
+    notFwdBadge:      '✕ Not moving fwd',
+    bannerAdvance:    '✓  Moving forward — will appear in the screening pipeline',
+    bannerPass:       '✕  Not moving forward — will receive a thoughtful, personalised update',
+    skills:           'Skills',
+    experience:       'Experience',
+    noLinks:          'No additional links provided',
+    btnNotFwd:        '✕  Not moving forward',
+    btnAdvance:       '✓  Advance to screening',
+    backImport:       '← Back to import',
+    cvReview:         'CV Review',
+    hiringMgr:        'Hiring manager:',
+    cvsInBatch:       (n) => `${n} CVs in batch`,
+    advancingCount:   (n) => `✓ ${n} advancing`,
+    notFwdCount:      (n) => `✕ ${n} not moving fwd`,
+    cvOf:             (i, n) => `CV ${i} of ${n}`,
+    keyboardHint:     '← → navigate · A advance · X not moving forward',
+    quickNote:        (name) => `Quick note about ${name}… only visible to you`,
+    prevBtn:          '← Previous',
+    reviewAll:        'Review all decisions →',
+    cvsLeft:          (n) => `${n} CV${n !== 1 ? 's' : ''} left to review`,
+    nextBtn:          'Next →',
+    backReview:       '← Back to review',
+    reviewDecisions:  'Review your decisions',
+    reviewSub:        (pos, mgr) => `${pos} · Manager: ${mgr} · You can still change any decision before confirming.`,
+    advancingToScreen:'Advancing to screening',
+    candidates:       'candidates',
+    notMovingFwd:     'Not moving forward',
+    personalUpdate:   'will receive a personalised, empathetic update',
+    advancingSection: 'Advancing ✓',
+    notMovingSection: 'Not moving forward',
+    whatNext:         '✦ What happens next',
+    whatNextText:     (a, b) => `Candidates advancing will appear in the ${a} on the dashboard. Candidates not moving forward will be queued for a ${b} — you can craft it from the dashboard or let Empath generate one automatically.`,
+    screeningPipeline:'screening pipeline',
+    personalisedMsg:  'personalised, growth-oriented message',
+    confirmBtn:       'Confirm & add to dashboard →',
+    backToReview:     'Back to review',
+    changeBtn:        'Change',
+    allSet:           'All set, Sarah.',
+    allSetSub:        (na, pos, np) => `${na} candidate${na !== 1 ? 's' : ''} added to the ${pos} screening pipeline. ${np} candidate${np !== 1 ? 's' : ''} queued for an empathetic update.`,
+    nowInPipeline:    'Now in pipeline',
+    goToDashboard:    'Go to Dashboard →',
+    craftUpdates:     (n) => `✉ Craft updates for ${n} candidate${n !== 1 ? 's' : ''}`,
+  },
+  it: {
+    batchProgress:    'Avanzamento batch',
+    advancing:        'Avanzano',
+    notFwd:           'Non avanza',
+    remaining:        'Rimanenti',
+    advancingBadge:   '✓ Avanzano',
+    notFwdBadge:      '✕ Non avanza',
+    bannerAdvance:    '✓  Avanza — apparirà nella pipeline di screening',
+    bannerPass:       '✕  Non avanza — riceverà un aggiornamento personalizzato ed empatico',
+    skills:           'Competenze',
+    experience:       'Esperienza',
+    noLinks:          'Nessun link aggiuntivo fornito',
+    btnNotFwd:        '✕  Non avanza',
+    btnAdvance:       '✓  Avanza allo screening',
+    backImport:       '← Torna all\'importazione',
+    cvReview:         'Revisione CV',
+    hiringMgr:        'Responsabile assunzioni:',
+    cvsInBatch:       (n) => `${n} CV nel batch`,
+    advancingCount:   (n) => `✓ ${n} avanzano`,
+    notFwdCount:      (n) => `✕ ${n} non avanzano`,
+    cvOf:             (i, n) => `CV ${i} di ${n}`,
+    keyboardHint:     '← → naviga · A avanza · X non avanza',
+    quickNote:        (name) => `Nota rapida su ${name}… visibile solo a te`,
+    prevBtn:          '← Precedente',
+    reviewAll:        'Rivedi tutte le decisioni →',
+    cvsLeft:          (n) => `${n} CV rimanent${n !== 1 ? 'i' : 'e'} da rivedere`,
+    nextBtn:          'Successivo →',
+    backReview:       '← Torna alla revisione',
+    reviewDecisions:  'Rivedi le tue decisioni',
+    reviewSub:        (pos, mgr) => `${pos} · Manager: ${mgr} · Puoi ancora cambiare qualsiasi decisione prima di confermare.`,
+    advancingToScreen:'Avanzano allo screening',
+    candidates:       'candidati',
+    notMovingFwd:     'Non avanzano',
+    personalUpdate:   'riceveranno un aggiornamento personalizzato ed empatico',
+    advancingSection: 'Avanzano ✓',
+    notMovingSection: 'Non avanzano',
+    whatNext:         '✦ Cosa succede dopo',
+    whatNextText:     (a, b) => `I candidati che avanzano appariranno nel ${a} nella bacheca. I candidati che non avanzano saranno in coda per un ${b} — puoi crearlo dalla bacheca o lasciare che Empath lo generi automaticamente.`,
+    screeningPipeline:'pipeline di screening',
+    personalisedMsg:  'messaggio personalizzato e orientato alla crescita',
+    confirmBtn:       'Conferma e aggiungi alla bacheca →',
+    backToReview:     'Torna alla revisione',
+    changeBtn:        'Cambia',
+    allSet:           'Tutto pronto, Sarah.',
+    allSetSub:        (na, pos, np) => `${na} candidat${na !== 1 ? 'i' : 'o'} aggiunt${na !== 1 ? 'i' : 'o'} alla pipeline di screening ${pos}. ${np} candidat${np !== 1 ? 'i' : 'o'} in coda per un aggiornamento empatico.`,
+    nowInPipeline:    'Ora in pipeline',
+    goToDashboard:    'Vai alla bacheca →',
+    craftUpdates:     (n) => `✉ Scrivi aggiornamenti per ${n} candidat${n !== 1 ? 'i' : 'o'}`,
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redH:  '#A82D3B', redL:  '#FECDD3', redBg: '#FFF5F6',
@@ -122,18 +224,18 @@ function Av({ id, ini, size = 48 }) {
   )
 }
 
-function DecisionBadge({ dec }) {
+function DecisionBadge({ dec, T }) {
   if (dec === 'advance') return (
-    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✓ Advancing</span>
+    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{T.advancingBadge}</span>
   )
   if (dec === 'pass') return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not moving fwd</span>
+    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{T.notFwdBadge}</span>
   )
   return null
 }
 
 // ── Sub-component: Queue sidebar ──────────────────────────────────────────────
-function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect }) {
+function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect, T }) {
   const advancing = Object.values(decisions).filter(d => d === 'advance').length
   const passing   = Object.values(decisions).filter(d => d === 'pass').length
   const remaining = cvs.length - Object.keys(decisions).length
@@ -149,7 +251,7 @@ function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect }) {
       {/* Stats panel */}
       <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${C.border}` }}>
         <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
-          Batch progress
+          {T.batchProgress}
         </p>
 
         {/* Bar */}
@@ -164,9 +266,9 @@ function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect }) {
         {/* Stat tiles */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
           {[
-            { n: advancing, label: 'Advancing',  bg: C.sucBg,   color: C.sucT },
-            { n: passing,   label: 'Not fwd',    bg: '#FEE2E2', color: C.red  },
-            { n: remaining, label: 'Remaining',  bg: C.gray,    color: C.muted },
+            { n: advancing, label: T.advancing, bg: C.sucBg,   color: C.sucT },
+            { n: passing,   label: T.notFwd,    bg: '#FEE2E2', color: C.red  },
+            { n: remaining, label: T.remaining, bg: C.gray,    color: C.muted },
           ].map(s => (
             <div key={s.label} style={{ background: s.bg, borderRadius: 7, padding: '7px 6px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: s.color, fontFamily: 'DM Serif Display, serif' }}>{s.n}</div>
@@ -237,7 +339,7 @@ function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect }) {
 }
 
 // ── Sub-component: CV card ────────────────────────────────────────────────────
-function CVCard({ cv, decision, animKey }) {
+function CVCard({ cv, decision, animKey, T }) {
   return (
     <div
       key={animKey}
@@ -264,9 +366,7 @@ function CVCard({ cv, decision, animKey }) {
           color:      decision === 'advance' ? C.sucT  : C.red,
           borderBottom: `1px solid ${decision === 'advance' ? '#BBF7D0' : '#FECACA'}`,
         }}>
-          {decision === 'advance'
-            ? '✓  Moving forward — will appear in the screening pipeline'
-            : '✕  Not moving forward — will receive a thoughtful, personalised update'}
+          {decision === 'advance' ? T.bannerAdvance : T.bannerPass}
         </div>
       )}
 
@@ -311,7 +411,7 @@ function CVCard({ cv, decision, animKey }) {
         {/* Skills */}
         <div style={{ marginBottom: 22 }}>
           <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-            Skills
+            {T.skills}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
             {cv.skills.map(s => (
@@ -330,7 +430,7 @@ function CVCard({ cv, decision, animKey }) {
         {/* Experience */}
         <div style={{ marginBottom: 22 }}>
           <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-            Experience
+            {T.experience}
           </p>
           <div style={{
             padding: '15px 18px', background: C.gray,
@@ -355,7 +455,7 @@ function CVCard({ cv, decision, animKey }) {
             </span>
           )}
           {!cv.portfolio && !cv.linkedin && (
-            <span style={{ fontSize: 12, color: C.muted }}>No additional links provided</span>
+            <span style={{ fontSize: 12, color: C.muted }}>{T.noLinks}</span>
           )}
         </div>
       </div>
@@ -364,7 +464,7 @@ function CVCard({ cv, decision, animKey }) {
 }
 
 // ── Sub-component: Decision buttons ──────────────────────────────────────────
-function DecisionButtons({ decision, onDecide }) {
+function DecisionButtons({ decision, onDecide, T }) {
   return (
     <div style={{ display: 'flex', gap: 14, width: '100%', maxWidth: 650 }}>
       <button
@@ -378,7 +478,7 @@ function DecisionButtons({ decision, onDecide }) {
           fontFamily: 'inherit', transition: 'all 0.18s',
         }}
       >
-        ✕  Not moving forward
+        {T.btnNotFwd}
       </button>
       <button
         onClick={() => onDecide('advance')}
@@ -390,14 +490,14 @@ function DecisionButtons({ decision, onDecide }) {
           fontFamily: 'inherit', transition: 'background 0.18s',
         }}
       >
-        ✓  Advance to screening
+        {T.btnAdvance}
       </button>
     </div>
   )
 }
 
 // ── STEP 1: Screening view ────────────────────────────────────────────────────
-function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onNote, onFinish, onBack }) {
+function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onNote, onFinish, onBack, T }) {
   const [idx,     setIdx]     = useState(0)
   const [animKey, setAnimKey] = useState(0)
 
@@ -444,24 +544,24 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
         flexShrink: 0,
       }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
-          ← Back to import
+          {T.backImport}
         </button>
 
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>
-            {position?.title} — CV Review
+            {position?.title} — {T.cvReview}
           </div>
           <div style={{ fontSize: 11, color: C.muted }}>
-            Hiring manager: {manager?.name} · {cvs.length} CVs in batch
+            {T.hiringMgr} {manager?.name} · {T.cvsInBatch(cvs.length)}
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
           <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
-            ✓ {advancing} advancing
+            {T.advancingCount(advancing)}
           </span>
           <span style={{ background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
-            ✕ {passing} not moving fwd
+            {T.notFwdCount(passing)}
           </span>
         </div>
       </div>
@@ -484,6 +584,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
           decisions={decisions}
           notes={notes}
           onSelect={goTo}
+          T={T}
         />
 
         {/* ── Card area ── */}
@@ -496,22 +597,22 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
           {/* CV position label + keyboard hint */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 650 }}>
             <span style={{ fontSize: 12, color: C.muted }}>
-              CV {idx + 1} of {cvs.length}
+              {T.cvOf(idx + 1, cvs.length)}
             </span>
             <span style={{ fontSize: 11, color: C.grayB }}>
-              ← → navigate · A advance · X not moving forward
+              {T.keyboardHint}
             </span>
           </div>
 
           {/* CV card */}
-          <CVCard cv={cv} decision={decisions[cv.id]} animKey={animKey} />
+          <CVCard cv={cv} decision={decisions[cv.id]} animKey={animKey} T={T} />
 
           {/* Quick note */}
           <div style={{ width: '100%', maxWidth: 650 }}>
             <textarea
               value={notes[cv.id] || ''}
               onChange={e => onNote(cv.id, e.target.value)}
-              placeholder={`Quick note about ${cv.name}… only visible to you`}
+              placeholder={T.quickNote(cv.name)}
               style={{
                 width: '100%', padding: '10px 14px', borderRadius: 10,
                 border: `1.5px solid ${C.border}`, fontSize: 12, resize: 'none', height: 52,
@@ -522,7 +623,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
           </div>
 
           {/* Decision buttons */}
-          <DecisionButtons decision={decisions[cv.id]} onDecide={handleDecide} />
+          <DecisionButtons decision={decisions[cv.id]} onDecide={handleDecide} T={T} />
 
           {/* Bottom navigation */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 650 }}>
@@ -536,7 +637,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
                 cursor: idx === 0 ? 'default' : 'pointer',
               }}
             >
-              ← Previous
+              {T.prevBtn}
             </button>
 
             {allDone ? (
@@ -548,11 +649,11 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
                   fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
-                Review all decisions →
+                {T.reviewAll}
               </button>
             ) : (
               <span style={{ fontSize: 12, color: C.muted }}>
-                {cvs.length - decided} CV{cvs.length - decided !== 1 ? 's' : ''} left to review
+                {T.cvsLeft(cvs.length - decided)}
               </span>
             )}
 
@@ -566,7 +667,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
                 cursor: idx === cvs.length - 1 ? 'default' : 'pointer',
               }}
             >
-              Next →
+              {T.nextBtn}
             </button>
           </div>
         </div>
@@ -576,7 +677,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
 }
 
 // ── STEP 2: Summary view ──────────────────────────────────────────────────────
-function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfirm, onToggle }) {
+function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfirm, onToggle, T }) {
   const advancing = cvs.filter(c => decisions[c.id] === 'advance')
   const passing   = cvs.filter(c => decisions[c.id] === 'pass')
 
@@ -584,31 +685,31 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
     <div style={{ flex: 1, overflow: 'auto', padding: '32px 40px', maxWidth: 760, margin: '0 auto', width: '100%' }}>
 
       <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-        ← Back to review
+        {T.backReview}
       </button>
 
       <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        Review your decisions
+        {T.reviewDecisions}
       </h1>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 28px', lineHeight: 1.6 }}>
-        {position?.title} · Manager: {manager?.name} · You can still change any decision before confirming.
+        {T.reviewSub(position?.title, manager?.name)}
       </p>
 
       {/* Summary counts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
         <div style={{ background: C.sucBg, borderRadius: 13, padding: '18px 22px', border: '1px solid #BBF7D0' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: C.sucT, marginBottom: 4 }}>Advancing to screening</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.sucT, marginBottom: 4 }}>{T.advancingToScreen}</div>
           <div style={{ fontSize: 34, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif' }}>
             {advancing.length}
           </div>
-          <div style={{ fontSize: 11, color: C.sucT }}>candidates</div>
+          <div style={{ fontSize: 11, color: C.sucT }}>{T.candidates}</div>
         </div>
         <div style={{ background: '#FEF2F2', borderRadius: 13, padding: '18px 22px', border: '1px solid #FECACA' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 4 }}>Not moving forward</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 4 }}>{T.notMovingFwd}</div>
           <div style={{ fontSize: 34, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>
             {passing.length}
           </div>
-          <div style={{ fontSize: 11, color: C.red }}>will receive a personalised, empathetic update</div>
+          <div style={{ fontSize: 11, color: C.red }}>{T.personalUpdate}</div>
         </div>
       </div>
 
@@ -616,11 +717,11 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
       {advancing.length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 11 }}>
-            Advancing ✓
+            {T.advancingSection}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {advancing.map(cv => (
-              <SummaryRow key={cv.id} cv={cv} dec="advance" note={notes[cv.id]} onToggle={() => onToggle(cv.id)} />
+              <SummaryRow key={cv.id} cv={cv} dec="advance" note={notes[cv.id]} onToggle={() => onToggle(cv.id)} T={T} />
             ))}
           </div>
         </div>
@@ -630,11 +731,11 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
       {passing.length > 0 && (
         <div style={{ marginBottom: 32 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 11 }}>
-            Not moving forward
+            {T.notMovingSection}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {passing.map(cv => (
-              <SummaryRow key={cv.id} cv={cv} dec="pass" note={notes[cv.id]} onToggle={() => onToggle(cv.id)} />
+              <SummaryRow key={cv.id} cv={cv} dec="pass" note={notes[cv.id]} onToggle={() => onToggle(cv.id)} T={T} />
             ))}
           </div>
         </div>
@@ -642,10 +743,9 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
 
       {/* Empathy note */}
       <div style={{ padding: '14px 18px', borderRadius: 11, background: C.redBg, border: `1px solid ${C.border}`, marginBottom: 26 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: C.red, marginBottom: 5 }}>✦ What happens next</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: C.red, marginBottom: 5 }}>{T.whatNext}</div>
         <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.8, margin: 0 }}>
-          Candidates advancing will appear in the <strong style={{ color: C.text }}>screening pipeline</strong> on the dashboard.
-          Candidates not moving forward will be queued for a <strong style={{ color: C.text }}>personalised, growth-oriented message</strong> — you can craft it from the dashboard or let Empath generate one automatically.
+          {T.whatNextText(T.screeningPipeline, T.personalisedMsg)}
         </p>
       </div>
 
@@ -659,7 +759,7 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
             fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
-          Confirm & add to dashboard →
+          {T.confirmBtn}
         </button>
         <button
           onClick={onBack}
@@ -670,14 +770,14 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
             fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
-          Back to review
+          {T.backToReview}
         </button>
       </div>
     </div>
   )
 }
 
-function SummaryRow({ cv, dec, note, onToggle }) {
+function SummaryRow({ cv, dec, note, onToggle, T }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 13,
@@ -694,7 +794,7 @@ function SummaryRow({ cv, dec, note, onToggle }) {
           </div>
         )}
       </div>
-      <DecisionBadge dec={dec} />
+      <DecisionBadge dec={dec} T={T} />
       <button
         onClick={onToggle}
         style={{
@@ -703,14 +803,14 @@ function SummaryRow({ cv, dec, note, onToggle }) {
           color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
         }}
       >
-        Change
+        {T.changeBtn}
       </button>
     </div>
   )
 }
 
 // ── STEP 3: Done view ─────────────────────────────────────────────────────────
-function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages }) {
+function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages, T }) {
   const advancing = cvs.filter(c => decisions[c.id] === 'advance')
   const passing   = cvs.filter(c => decisions[c.id] === 'pass')
 
@@ -719,19 +819,17 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages }
       <div style={{ textAlign: 'center', maxWidth: 460 }}>
         <div style={{ fontSize: 56, marginBottom: 18 }}>✅</div>
         <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
-          All set, Sarah.
+          {T.allSet}
         </h2>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: '0 0 32px' }}>
-          <strong style={{ color: C.text }}>{advancing.length} candidate{advancing.length !== 1 ? 's' : ''}</strong> added to the{' '}
-          <em>{position?.title}</em> screening pipeline.{' '}
-          <strong style={{ color: C.text }}>{passing.length} candidate{passing.length !== 1 ? 's' : ''}</strong> queued for an empathetic update.
+          {T.allSetSub(advancing.length, position?.title, passing.length)}
         </p>
 
         {/* Advancing mini-list */}
         {advancing.length > 0 && (
           <div style={{ background: C.sucBg, borderRadius: 12, padding: '14px 16px', marginBottom: 14, textAlign: 'left' }}>
             <p style={{ fontSize: 10, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-              Now in pipeline
+              {T.nowInPipeline}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {advancing.map(cv => (
@@ -753,7 +851,7 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages }
               fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            Go to Dashboard →
+            {T.goToDashboard}
           </button>
           {passing.length > 0 && (
             <button
@@ -765,7 +863,7 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages }
                 fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              ✉ Craft updates for {passing.length} candidate{passing.length !== 1 ? 's' : ''}
+              {T.craftUpdates(passing.length)}
             </button>
           )}
         </div>
@@ -776,12 +874,14 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages }
 
 // ── Root export ───────────────────────────────────────────────────────────────
 export default function CVScreening({
+  lang       = 'en',
   cvs        = MOCK_CVS,
   position   = MOCK_POSITION,
   manager    = MOCK_MANAGER,
   onBack,
   onNavigate,
 }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   // Sub-step: 'screen' | 'summary' | 'done'
   const [step,      setStep]      = useState('screen')
   const [decisions, setDecisions] = useState({})
@@ -822,6 +922,7 @@ export default function CVScreening({
           onNote={handleNote}
           onFinish={() => setStep('summary')}
           onBack={onBack}
+          T={T}
         />
       )}
 
@@ -835,6 +936,7 @@ export default function CVScreening({
           onBack={() => setStep('screen')}
           onConfirm={() => setStep('done')}
           onToggle={handleToggle}
+          T={T}
         />
       )}
 
@@ -845,6 +947,7 @@ export default function CVScreening({
           position={position}
           onGoToDashboard={() => onNavigate?.('dashboard')}
           onCraftMessages={() => onNavigate?.('craft')}
+          T={T}
         />
       )}
     </div>

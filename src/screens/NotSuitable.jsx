@@ -1,5 +1,38 @@
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:           '← Back',
+    badge:          'Not Suitable',
+    title:          'Rejected Candidates',
+    messagesPending: (n) => `${n} message${n !== 1 ? 's' : ''} pending`,
+    explanation:    'Candidates are listed oldest rejection first — those waiting longer have higher priority for a message.',
+    pipelineNote:   'Use',
+    pipelineBtn:    '↩ Pipeline',
+    pipelineNote2:  'to restore a candidate to the active pipeline.',
+    writeMessage:   'Write message',
+    resend:         'Resend',
+    pipeline:       '↩ Pipeline',
+    messageSent:    'Message sent',
+    emptyAll:       'All candidates have been messaged or restored.',
+  },
+  it: {
+    back:           '← Indietro',
+    badge:          'Non Idoneo',
+    title:          'Candidati Rifiutati',
+    messagesPending: (n) => `${n} ${n !== 1 ? 'messaggi' : 'messaggio'} in attesa`,
+    explanation:    'I candidati sono elencati per data di rifiuto più vecchia — chi aspetta da più tempo ha priorità più alta.',
+    pipelineNote:   'Usa',
+    pipelineBtn:    '↩ Pipeline',
+    pipelineNote2:  'per ripristinare un candidato nella pipeline attiva.',
+    writeMessage:   'Scrivi messaggio',
+    resend:         'Reinvia',
+    pipeline:       '↩ Pipeline',
+    messageSent:    'Messaggio inviato',
+    emptyAll:       'Tutti i candidati sono stati contattati o ripristinati.',
+  },
+}
+
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
   text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
@@ -71,13 +104,18 @@ function urgencyColor(daysAgo) {
   return '#78716C'
 }
 
-function daysLabel(d) {
+function daysLabel(d, lang) {
+  if (lang === 'it') {
+    if (d === 0) return 'Oggi'
+    if (d === 1) return '1 giorno fa'
+    return `${d} giorni fa`
+  }
   if (d === 0) return 'Today'
   if (d === 1) return '1 day ago'
   return `${d} days ago`
 }
 
-function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline }) {
+function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline, T, lang }) {
   const [hov, setHov] = useState(false)
   const urg = urgencyColor(candidate.rejectedDaysAgo)
 
@@ -100,7 +138,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</span>
           {messageSent && (
             <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#D1FAE5', padding: '1px 8px', borderRadius: 20 }}>
-              Message sent
+              {T.messageSent}
             </span>
           )}
         </div>
@@ -112,7 +150,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         background: candidate.rejectedDaysAgo >= 14 ? '#FEE2E2' : candidate.rejectedDaysAgo >= 7 ? '#FEF3C7' : C.gray,
         padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap',
       }}>
-        {daysLabel(candidate.rejectedDaysAgo)}
+        {daysLabel(candidate.rejectedDaysAgo, lang)}
       </span>
 
       {/* Back to pipeline */}
@@ -129,7 +167,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
         title="Move back to active pipeline"
       >
-        ↩ Pipeline
+        {T.pipeline}
       </button>
 
       {messageSent ? (
@@ -142,7 +180,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
             fontFamily: 'inherit', whiteSpace: 'nowrap',
           }}
         >
-          Resend
+          {T.resend}
         </button>
       ) : (
         <button
@@ -154,14 +192,14 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
             cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
           }}
         >
-          Write message
+          {T.writeMessage}
         </button>
       )}
     </div>
   )
 }
 
-function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen, onBackToPipeline }) {
+function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen, onBackToPipeline, T, lang }) {
   const [open, setOpen] = useState(defaultOpen)
   const pendingCount = group.candidates.filter(c => !sentMap[c.id]).length
 
@@ -210,6 +248,8 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
               messageSent={sentMap[c.id] ?? c.messageSent}
               onMarkSent={onMarkSent}
               onBackToPipeline={() => onBackToPipeline(c.id)}
+              T={T}
+              lang={lang}
             />
           ))}
         </div>
@@ -218,7 +258,8 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
   )
 }
 
-export default function NotSuitable({ theme, onBack, onNavigate }) {
+export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [sentMap, setSentMap] = useState(() => {
     const map = {}
     REJECTED_BY_POSITION.forEach(g => g.candidates.forEach(c => { map[c.id] = c.messageSent }))
@@ -265,17 +306,17 @@ export default function NotSuitable({ theme, onBack, onNavigate }) {
           onClick={onBack}
           style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}
         >
-          ←
+          {T.back}
         </button>
         <div>
           <div style={{ fontSize: 9, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>
-            Not Suitable
+            {T.badge}
           </div>
           <h1 style={{
             fontFamily: 'DM Serif Display, Georgia, serif',
             fontSize: 20, fontWeight: 400, color: C.text, margin: 0,
           }}>
-            Rejected Candidates
+            {T.title}
           </h1>
         </div>
         {totalPending > 0 && (
@@ -284,7 +325,7 @@ export default function NotSuitable({ theme, onBack, onNavigate }) {
             fontSize: 11, fontWeight: 600, color: C.red,
             background: '#FEE2E2', padding: '4px 12px', borderRadius: 20,
           }}>
-            {totalPending} message{totalPending !== 1 ? 's' : ''} pending
+            {T.messagesPending(totalPending)}
           </span>
         )}
       </div>
@@ -292,8 +333,8 @@ export default function NotSuitable({ theme, onBack, onNavigate }) {
       {/* Explanation */}
       <div style={{ padding: '16px 28px 8px', background: C.white, borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
         <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.6 }}>
-          Candidates are listed oldest rejection first — those waiting longer have higher priority for a message.
-          Use <strong style={{ color: C.text }}>↩ Pipeline</strong> to restore a candidate to the active pipeline.
+          {T.explanation}{' '}
+          {T.pipelineNote} <strong style={{ color: C.text }}>{T.pipelineBtn}</strong> {T.pipelineNote2}
         </p>
       </div>
 
@@ -302,7 +343,7 @@ export default function NotSuitable({ theme, onBack, onNavigate }) {
         {visibleGroups.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0', color: C.muted }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
-            <p style={{ fontSize: 14, margin: 0 }}>All candidates have been messaged or restored.</p>
+            <p style={{ fontSize: 14, margin: 0 }}>{T.emptyAll}</p>
           </div>
         ) : (
           visibleGroups.map((group, i) => (
@@ -314,6 +355,8 @@ export default function NotSuitable({ theme, onBack, onNavigate }) {
               onMarkSent={handleMarkSent}
               defaultOpen={i === 0}
               onBackToPipeline={handleBackToPipeline}
+              T={T}
+              lang={lang}
             />
           ))
         )}

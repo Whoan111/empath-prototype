@@ -17,6 +17,119 @@
 
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    hiringManager:     'Hiring Manager',
+    preSelected:       (n) => `${n} pre-selected candidates`,
+    pendingReview:     (n) => `${n} pending review`,
+    advancing:         (n) => `✓ ${n} advancing`,
+    archived:          (n) => `✕ ${n} archived`,
+    debrief:           '📝 Post-interview debrief',
+    pendingDebriefs:   (n) => `${n} post-interview debrief${n > 1 ? 's' : ''} pending — `,
+    viewDebriefs:      'View debriefs →',
+    preSelectedTitle:  'Pre-selected candidates',
+    preSelectedSub:    (since) => `You are seeing only candidates that passed the recruiter's screening · Open since ${since}`,
+    sortScore:         '↓ Highest score first',
+    sortActivity:      '↑ Most recent activity',
+    sortName:          'A–Z Name',
+    colCandidate:      'Candidate',
+    colStage:          'Stage',
+    colInterviews:     'Interviews',
+    colAvgScore:       'Avg score',
+    colDebrief:        'Debrief',
+    colDecision:       'Decision',
+    colActions:        'Actions',
+    allReviewed:       'All candidates have been reviewed',
+    noPreSelected:     'No pre-selected candidates yet',
+    noPreSelectedSub:  "The recruiter will add candidates here after screening.",
+    recruiterContact:  'Recruiter:',
+    recruiterNote:     'Reach out to the recruiter for any logistics, scheduling, or messaging updates.',
+    debriefBtn:        'Debrief',
+    briefBtn:          'Brief',
+    postDebrief:       '📝 Post-interview debriefs',
+    yourDecision:      'Your decision',
+    advancingPill:     '✓ Advancing',
+    notMovingPill:     '✕ Not moving forward',
+    undo:              'Undo',
+    notMovingBtn:      '✕ Not moving forward',
+    advanceBtn:        '✓ Advance',
+    tabs:              { feedback: 'Feedback', notes: 'My Notes' },
+    noFeedback:        'No feedback yet',
+    noFeedbackSub:     'Feedbacks appear after interviews are completed and the post-interview questionnaire is filled in.',
+    fillForm:          'Fill post-interview form',
+    openBrief:         '📊 Open full decision brief →',
+    notesPrivate:      'Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter\'s summary.',
+    savedNote:         'Saved note',
+    saveNote:          'Save note',
+    archivedSection:   (n) => `Not moving forward — ${n} archived`,
+    archivedSaved:     'Saved · Recruiter notified',
+    archivedPill:      'Archived',
+    restore:           'Restore',
+    preCall:           'Pre-Call',
+    interviews:        'INTERVIEWS',
+    avgScore:          'AVG SCORE',
+    lastActivity:      'LAST ACTIVITY',
+    pendingDecision:   'Pending review',
+    interviewsOf:      (d, t) => `${d} of ${t}`,
+    noScoreYet:        'No score yet',
+  },
+  it: {
+    hiringManager:     'Responsabile Assunzioni',
+    preSelected:       (n) => `${n} candidati pre-selezionati`,
+    pendingReview:     (n) => `${n} in attesa di revisione`,
+    advancing:         (n) => `✓ ${n} avanzano`,
+    archived:          (n) => `✕ ${n} archiviati`,
+    debrief:           '📝 Debrief post-intervista',
+    pendingDebriefs:   (n) => `${n} debrief post-intervista${n > 1 ? '' : ''} in attesa — `,
+    viewDebriefs:      'Vedi debrief →',
+    preSelectedTitle:  'Candidati pre-selezionati',
+    preSelectedSub:    (since) => `Vedi solo i candidati che hanno superato lo screening del recruiter · Aperto da ${since}`,
+    sortScore:         '↓ Punteggio più alto',
+    sortActivity:      '↑ Attività più recente',
+    sortName:          'A–Z Nome',
+    colCandidate:      'Candidato',
+    colStage:          'Fase',
+    colInterviews:     'Interviste',
+    colAvgScore:       'Media',
+    colDebrief:        'Debrief',
+    colDecision:       'Decisione',
+    colActions:        'Azioni',
+    allReviewed:       'Tutti i candidati sono stati esaminati',
+    noPreSelected:     'Nessun candidato pre-selezionato ancora',
+    noPreSelectedSub:  'Il recruiter aggiungerà candidati qui dopo lo screening.',
+    recruiterContact:  'Recruiter:',
+    recruiterNote:     'Contatta il recruiter per logistica, pianificazione o aggiornamenti messaggi.',
+    debriefBtn:        'Debrief',
+    briefBtn:          'Brief',
+    postDebrief:       '📝 Debrief post-intervista',
+    yourDecision:      'La tua decisione',
+    advancingPill:     '✓ Avanza',
+    notMovingPill:     '✕ Non avanza',
+    undo:              'Annulla',
+    notMovingBtn:      '✕ Non avanza',
+    advanceBtn:        '✓ Avanza',
+    tabs:              { feedback: 'Feedback', notes: 'Le mie note' },
+    noFeedback:        'Nessun feedback ancora',
+    noFeedbackSub:     'I feedback appaiono dopo le interviste e la compilazione del questionario post-intervista.',
+    fillForm:          'Compila il modulo post-intervista',
+    openBrief:         '📊 Apri brief decisionale completo →',
+    notesPrivate:      'Le tue note sono private e visibili solo a te. Aiutano a informare la tua decisione.',
+    savedNote:         'Nota salvata',
+    saveNote:          'Salva nota',
+    archivedSection:   (n) => `Non avanza — ${n} archiviati`,
+    archivedSaved:     'Salvato · Recruiter notificato',
+    archivedPill:      'Archiviato',
+    restore:           'Ripristina',
+    preCall:           'Pre-Colloquio',
+    interviews:        'INTERVISTE',
+    avgScore:          'MEDIA',
+    lastActivity:      'ULTIMA ATTIVITÀ',
+    pendingDecision:   'In attesa',
+    interviewsOf:      (d, t) => `${d} di ${t}`,
+    noScoreYet:        'Nessun punteggio',
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
@@ -161,8 +274,8 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-function Stars({ score, max = 5, size = 12 }) {
-  if (score === null) return <span style={{ fontSize: 11, color: C.muted }}>No score yet</span>
+function Stars({ score, max = 5, size = 12, noScoreLabel = 'No score yet' }) {
+  if (score === null) return <span style={{ fontSize: 11, color: C.muted }}>{noScoreLabel}</span>
   const filled = Math.round(parseFloat(score))
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
@@ -174,10 +287,10 @@ function Stars({ score, max = 5, size = 12 }) {
   )
 }
 
-function DecisionPill({ dec }) {
-  if (!dec) return <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, fontWeight: 500 }}>Pending review</span>
-  if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.sucT, background: C.sucBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>✓ Advancing</span>
-  return <span style={{ fontSize: 11, color: C.red, background: '#FEE2E2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>✕ Not moving forward</span>
+function DecisionPill({ dec, T }) {
+  if (!dec) return <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, fontWeight: 500 }}>{T.pendingDecision}</span>
+  if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.sucT, background: C.sucBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.advancingPill}</span>
+  return <span style={{ fontSize: 11, color: C.red, background: '#FEE2E2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.notMovingPill}</span>
 }
 
 function StagePipeline({ stage }) {
@@ -204,8 +317,8 @@ function StagePipeline({ stage }) {
 }
 
 // ── Candidate panel ───────────────────────────────────────────────────────────
-function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onClose, onNavigate }) {
-  const [tab, setTab] = useState('Feedback')
+function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onClose, onNavigate, T }) {
+  const [tab, setTab] = useState(T.tabs.feedback)
   const [draft, setDraft] = useState(comment || '')
   const score = avgScore(candidate.fb)
 
@@ -233,25 +346,25 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
         <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
           <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.interviewsDone}/{candidate.interviewsTotal}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>INTERVIEWS</div>
+            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.interviews}</div>
           </div>
           <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: score ? C.red : C.muted, fontFamily: 'DM Serif Display, serif' }}>{score ?? '—'}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>AVG SCORE</div>
+            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.avgScore}</div>
           </div>
           <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.lastActivity}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>LAST ACTIVITY</div>
+            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.lastActivity}</div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
-        {['Feedback', 'My Notes'].map(t => (
+        {[T.tabs.feedback, T.tabs.notes].map(t => (
           <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '10px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: tab === t ? 600 : 400, color: tab === t ? C.red : C.muted, borderBottom: `2px solid ${tab === t ? C.red : 'transparent'}`, fontFamily: 'inherit' }}>
             {t}
-            {t === 'Feedback' && candidate.fb.length > 0 && (
+            {t === T.tabs.feedback && candidate.fb.length > 0 && (
               <span style={{ marginLeft: 5, background: C.redL, color: C.red, fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 10 }}>{candidate.fb.length}</span>
             )}
           </button>
@@ -260,15 +373,15 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
 
       {/* Tab content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
-        {tab === 'Feedback' && (
+        {tab === T.tabs.feedback && (
           <>
             {candidate.fb.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '32px 0', color: C.muted }}>
                 <div style={{ fontSize: 26, marginBottom: 8 }}>📋</div>
-                <div style={{ fontSize: 13, marginBottom: 4 }}>No feedback yet</div>
-                <div style={{ fontSize: 11 }}>Feedbacks appear after interviews are completed and the post-interview questionnaire is filled in.</div>
+                <div style={{ fontSize: 13, marginBottom: 4 }}>{T.noFeedback}</div>
+                <div style={{ fontSize: 11 }}>{T.noFeedbackSub}</div>
                 <button onClick={() => onNavigate?.('questionnaire')} style={{ marginTop: 12, padding: '7px 16px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Fill post-interview form
+                  {T.fillForm}
                 </button>
               </div>
             ) : (
@@ -306,21 +419,21 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
                   onClick={() => onNavigate?.('hiring-summary', { candidate })}
                   style={{ padding: '9px 0', borderRadius: 9, background: C.white, color: C.inf, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
                 >
-                  📊 Open full decision brief →
+                  {T.openBrief}
                 </button>
               </div>
             )}
           </>
         )}
 
-        {tab === 'My Notes' && (
+        {tab === T.tabs.notes && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, margin: 0 }}>
-              Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter's summary.
+              {T.notesPrivate}
             </p>
             {comment && (
               <div style={{ background: C.redBg, borderRadius: 10, padding: '11px 13px', border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: C.red, marginBottom: 5 }}>Saved note</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: C.red, marginBottom: 5 }}>{T.savedNote}</div>
                 <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: 0 }}>{comment}</p>
               </div>
             )}
@@ -334,7 +447,7 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
               onClick={() => onComment(candidate.id, draft)}
               style={{ padding: '9px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
-              Save note
+              {T.saveNote}
             </button>
           </div>
         )}
@@ -342,22 +455,22 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
 
       {/* Decision footer */}
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>Your decision</div>
+        <div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>{T.yourDecision}</div>
 
         {decision ? (
           <div style={{ padding: '11px 14px', borderRadius: 9, background: decision === 'advancing' ? C.sucBg : '#FEF2F2', border: `1px solid ${decision === 'advancing' ? '#BBF7D0' : '#FECACA'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: decision === 'advancing' ? C.sucT : C.red }}>
-              {decision === 'advancing' ? '✓ Advancing' : '✕ Not moving forward'}
+              {decision === 'advancing' ? T.advancingPill : T.notMovingPill}
             </span>
-            <button onClick={() => onDecide(candidate.id, null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>Undo</button>
+            <button onClick={() => onDecide(candidate.id, null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>{T.undo}</button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => onDecide(candidate.id, 'not-moving-forward')} style={{ flex: 1, padding: '10px 0', borderRadius: 9, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              ✕ Not moving forward
+              {T.notMovingBtn}
             </button>
             <button onClick={() => onDecide(candidate.id, 'advancing')} style={{ flex: 1, padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              ✓ Advance
+              {T.advanceBtn}
             </button>
           </div>
         )}
@@ -366,7 +479,7 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
           onClick={() => onNavigate?.('debrief-list')}
           style={{ padding: '9px 0', borderRadius: 9, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
         >
-          📝 Post-interview debriefs
+          {T.postDebrief}
         </button>
       </div>
     </aside>
@@ -374,7 +487,7 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
 }
 
 // ── Archived section ──────────────────────────────────────────────────────────
-function ArchivedSection({ candidates, onRestore }) {
+function ArchivedSection({ candidates, onRestore, T }) {
   const [open, setOpen] = useState(false)
   if (!candidates.length) return null
 
@@ -385,8 +498,8 @@ function ArchivedSection({ candidates, onRestore }) {
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 18px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}
       >
         <span style={{ fontSize: 13, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', color: C.muted }}>▶</span>
-        <span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>Not moving forward — {candidates.length} archived</span>
-        <span style={{ fontSize: 11, color: C.muted, marginLeft: 'auto' }}>Saved · Recruiter notified</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{T.archivedSection(candidates.length)}</span>
+        <span style={{ fontSize: 11, color: C.muted, marginLeft: 'auto' }}>{T.archivedSaved}</span>
       </button>
 
       {open && (
@@ -398,9 +511,9 @@ function ArchivedSection({ candidates, onRestore }) {
                 <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{c.name}</div>
                 <div style={{ fontSize: 10, color: C.muted }}>{c.role} · {c.stage}</div>
               </div>
-              <span style={{ fontSize: 10, color: C.red, background: '#FEF2F2', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>Archived</span>
+              <span style={{ fontSize: 10, color: C.red, background: '#FEF2F2', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>{T.archivedPill}</span>
               <button onClick={() => onRestore(c.id)} style={{ padding: '4px 10px', borderRadius: 7, border: `1px solid ${C.border}`, background: C.white, color: C.muted, fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Restore
+                {T.restore}
               </button>
             </div>
           ))}
@@ -413,7 +526,8 @@ function ArchivedSection({ candidates, onRestore }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard
 // ─────────────────────────────────────────────────────────────────────────────
-export default function HiringManagerDashboard({ onBack, onNavigate }) {
+export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [activePosId,        setActivePosId]        = useState(1)
   const [selectedCandidate,  setSelectedCandidate]  = useState(null)
   const [decisions,          setDecisions]          = useState({})    // id → 'advancing' | 'not-moving-forward'
@@ -468,34 +582,34 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
               Good morning, {HM.name} ☀️
             </h1>
             <span style={{ background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
-              Hiring Manager
+              {T.hiringManager}
             </span>
           </div>
           <p style={{ margin: 0, fontSize: 11, color: C.muted }}>
-            {POSITIONS.map(p => p.title).join(' · ')} · {allCands.length} pre-selected candidates
+            {POSITIONS.map(p => p.title).join(' · ')} · {T.preSelected(allCands.length)}
           </p>
         </div>
 
         {/* Stats pills */}
         <div style={{ display: 'flex', gap: 8 }}>
           <span style={{ background: C.gray, color: C.muted, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-            {pendingCount} pending review
+            {T.pendingReview(pendingCount)}
           </span>
           {advancing > 0 && (
             <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-              ✓ {advancing} advancing
+              {T.advancing(advancing)}
             </span>
           )}
           {notMoving > 0 && (
             <span style={{ background: '#FEF2F2', color: C.red, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-              ✕ {notMoving} archived
+              {T.archived(notMoving)}
             </span>
           )}
           <button
             onClick={() => onNavigate?.('debrief-list')}
             style={{ padding: '5px 12px', borderRadius: 20, background: C.redBg, color: C.red, border: `1px solid ${C.redL}`, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            📝 Post-interview debrief
+            {T.debrief}
           </button>
         </div>
       </header>
@@ -510,7 +624,7 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
             <span style={{ fontSize: 16 }}>⏳</span>
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: C.warT }}>
-                {pendingDebriefs.length} post-interview debrief{pendingDebriefs.length > 1 ? 's' : ''} pending — </span>
+                {T.pendingDebriefs(pendingDebriefs.length)}</span>
               <span style={{ fontSize: 12, color: C.war }}>
                 {pendingDebriefs.map(c => c.name.split(' ')[0]).join(', ')}
               </span>
@@ -519,7 +633,7 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
               onClick={() => onNavigate?.('debrief-list')}
               style={{ padding: '6px 14px', borderRadius: 8, background: C.war, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
             >
-              View debriefs →
+              {T.viewDebriefs}
             </button>
           </div>
         )
@@ -559,9 +673,9 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
           {/* Filter + sort bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
             <div>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 2px' }}>Pre-selected candidates</h2>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 2px' }}>{T.preSelectedTitle}</h2>
               <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>
-                You are seeing only candidates that passed the recruiter's screening · Open since {pos?.openSince}
+                {T.preSelectedSub(pos?.openSince)}
               </p>
             </div>
             <select
@@ -569,9 +683,9 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
               onChange={e => setSortBy(e.target.value)}
               style={{ padding: '5px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11, color: C.text, background: C.white, cursor: 'pointer', fontFamily: 'inherit' }}
             >
-              <option value="score">↓ Highest score first</option>
-              <option value="activity">↑ Most recent activity</option>
-              <option value="name">A–Z Name</option>
+              <option value="score">{T.sortScore}</option>
+              <option value="activity">{T.sortActivity}</option>
+              <option value="name">{T.sortName}</option>
             </select>
           </div>
 
@@ -579,14 +693,14 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
           <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
             {/* Table header */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1fr 1fr 1.1fr 130px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-              {['Candidate', 'Stage', 'Interviews', 'Avg score', 'Debrief', 'Decision', 'Actions'].map(h => (
+              {[T.colCandidate, T.colStage, T.colInterviews, T.colAvgScore, T.colDebrief, T.colDecision, T.colActions].map(h => (
                 <span key={h} style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
               ))}
             </div>
 
             {sortedActive.length === 0 && (
               <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>
-                All candidates have been reviewed
+                {T.allReviewed}
               </div>
             )}
 
@@ -617,7 +731,7 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
                   </div>
 
                   {/* Stage */}
-                  <span style={{ fontSize: 11, color: C.text }}>{c.stage === 'Preliminary Call' ? 'Pre-Call' : c.stage}</span>
+                  <span style={{ fontSize: 11, color: C.text }}>{c.stage === 'Preliminary Call' ? T.preCall : c.stage}</span>
 
                   {/* Interviews */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -630,13 +744,13 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
                   </div>
 
                   {/* Score */}
-                  <Stars score={score} size={11} />
+                  <Stars score={score} size={11} noScoreLabel={T.noScoreYet} />
 
                   {/* Debrief status */}
                   <DebriefBadge status={DEBRIEF_STATUS[c.id] || 'not-started'} />
 
                   {/* Decision */}
-                  <DecisionPill dec={dec} />
+                  <DecisionPill dec={dec} T={T} />
 
                   {/* Actions */}
                   <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
@@ -644,14 +758,14 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
                       onClick={() => onNavigate?.('hiring-summary', { candidate: c })}
                       style={{ padding: '5px 9px', borderRadius: 7, border: `1.5px solid ${C.border}`, background: 'white', color: C.text, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
                     >
-                      Brief
+                      {T.briefBtn}
                     </button>
                     {DEBRIEF_STATUS[c.id] === 'pending' && (
                       <button
                         onClick={() => onNavigate?.('questionnaire', { candidate: c })}
                         style={{ padding: '5px 9px', borderRadius: 7, border: 'none', background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
                       >
-                        Debrief
+                        {T.debriefBtn}
                       </button>
                     )}
                     {!dec && DEBRIEF_STATUS[c.id] !== 'pending' && (
@@ -667,14 +781,14 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
           </div>
 
           {/* Archived section */}
-          <ArchivedSection candidates={archived} onRestore={restore} />
+          <ArchivedSection candidates={archived} onRestore={restore} T={T} />
 
           {/* Empty state if all decided */}
           {active.length === 0 && archived.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0', color: C.muted }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>🎯</div>
-              <div style={{ fontSize: 14, fontWeight: 500, color: C.text, marginBottom: 6 }}>No pre-selected candidates yet</div>
-              <div style={{ fontSize: 12 }}>The recruiter will add candidates here after screening.</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: C.text, marginBottom: 6 }}>{T.noPreSelected}</div>
+              <div style={{ fontSize: 12 }}>{T.noPreSelectedSub}</div>
             </div>
           )}
 
@@ -682,8 +796,8 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
           {allCands.length > 0 && (
             <div style={{ padding: '13px 16px', background: C.white, borderRadius: 10, border: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>Recruiter: {pos?.recruiter}</div>
-                <div style={{ fontSize: 11, color: C.muted }}>Reach out to the recruiter for any logistics, scheduling, or messaging updates.</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{T.recruiterContact} {pos?.recruiter}</div>
+                <div style={{ fontSize: 11, color: C.muted }}>{T.recruiterNote}</div>
               </div>
               <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '4px 10px', borderRadius: 20 }}>sarah.r@publicissapient.com</span>
             </div>
@@ -698,6 +812,7 @@ export default function HiringManagerDashboard({ onBack, onNavigate }) {
             decision={decisions[selectedCandidate.id]}
             comment={comments[selectedCandidate.id] || ''}
             onDecide={decide}
+            T={T}
             onComment={saveComment}
             onClose={() => setSelectedCandidate(null)}
             onNavigate={onNavigate}

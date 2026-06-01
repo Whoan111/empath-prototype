@@ -24,8 +24,10 @@ function NewPositionModal({ th, onClose, onNavigate }) {
 
   const handle = (goToTriage) => {
     if (!canSubmit) return
+    const newPos = { id: Date.now(), title: title.trim(), dept: dept.trim(), count: 0, openDays: 0 }
     onClose()
-    if (goToTriage) onNavigate('triage')
+    if (goToTriage) onNavigate('triage', { position: newPos })
+    // If not going to triage, the position is silently created (prototype behaviour)
   }
 
   const inputStyle = {

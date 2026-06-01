@@ -15,6 +15,98 @@
 
 import { useState, useMemo } from 'react'
 
+// ── Translations ──────────────────────────────────────────────────────────────
+const SCREEN_T = {
+  en: {
+    backDash:         '← Back to Dashboard',
+    title:            'Craft a message',
+    subtitle:         'Select a candidate and message type. Empath will generate a warm, personalised draft you can refine.',
+    candidateLabel:   'Candidate',
+    selectCandidate:  'Select a candidate…',
+    msgTypeLabel:     'Message type',
+    contextOptional:  '(optional)',
+    contextHint:      'Keep it brief — a note or two. Empath handles tone, empathy, and structure.',
+    toneLabel:        'Tone',
+    professional:     'Professional',
+    personalWarm:     'Personal & Warm',
+    empathWill:       '✦ Empath will…',
+    empathAutoFill:   (name) => `Auto-fill ${name}'s name, role, and stage`,
+    empathAutoFillGeneric: "Auto-fill the candidate's name, role, and current stage",
+    empathGenerate:   (tone) => `Generate a ${tone} message tailored to the type`,
+    empathContext:    'Weave in any context you provided naturally',
+    empathControl:    'Give you full control to edit, refine, and adjust',
+    empathPreview:    'Let you preview exactly what the candidate receives',
+    generateBtn:      (name) => `Generate message for ${name} →`,
+    selectFirst:      'Select a candidate to continue',
+    // Edit step
+    editInputs:       '← Edit inputs',
+    compose:          '✏ Compose',
+    candidateView:    '👁 Candidate view',
+    toLabel:          'To',
+    subjectLabel:     'Subject',
+    words:            (n) => `${n} words`,
+    resetGenerated:   '↺ Reset to generated',
+    toneDesc0:        'Concise and factual. Clear structure, minimal warmth markers.',
+    toneDesc1:        'Respectful and clear. Warm but measured language throughout.',
+    toneDesc2:        'Warm and human. Empathetic phrasing, personal acknowledgement.',
+    toneDesc3:        'Deeply personal. Empathy-first language, genuine and heartfelt.',
+    quickAdjLabel:    'Quick adjustments',
+    editContextLabel: 'Edit context',
+    editContextPh:    'Update the context to regenerate…',
+    personal:         'Personal',
+    sentMsg:          (name) => `✓ Message sent to ${name}`,
+    sendBtn:          '✉ Send via Empath',
+    copyBtn:          '📋 Copy to clipboard',
+    copiedBtn:        '✓ Copied to clipboard',
+    backCompose:      '✏ Back to compose view',
+    previewCandidate: '👁 Preview as candidate',
+  },
+  it: {
+    backDash:         '← Torna alla bacheca',
+    title:            'Scrivi un messaggio',
+    subtitle:         'Seleziona un candidato e il tipo di messaggio. Empath genererà una bozza personalizzata che puoi rifinire.',
+    candidateLabel:   'Candidato',
+    selectCandidate:  'Seleziona un candidato…',
+    msgTypeLabel:     'Tipo di messaggio',
+    contextOptional:  '(opzionale)',
+    contextHint:      'Sii breve — una nota o due. Empath gestisce il tono, l\'empatia e la struttura.',
+    toneLabel:        'Tono',
+    professional:     'Professionale',
+    personalWarm:     'Personale e caldo',
+    empathWill:       '✦ Empath…',
+    empathAutoFill:   (name) => `Compilerà automaticamente nome, ruolo e fase di ${name}`,
+    empathAutoFillGeneric: 'Compilerà automaticamente il nome, ruolo e fase del candidato',
+    empathGenerate:   (tone) => `Genererà un messaggio ${tone} adattato al tipo`,
+    empathContext:    'Integrerà naturalmente il contesto fornito',
+    empathControl:    'Ti darà il pieno controllo per modificare e rifinire',
+    empathPreview:    'Ti permetterà di vedere esattamente cosa riceve il candidato',
+    generateBtn:      (name) => `Genera messaggio per ${name} →`,
+    selectFirst:      'Seleziona un candidato per continuare',
+    // Edit step
+    editInputs:       '← Modifica parametri',
+    compose:          '✏ Scrivi',
+    candidateView:    '👁 Vista candidato',
+    toLabel:          'A',
+    subjectLabel:     'Oggetto',
+    words:            (n) => `${n} parole`,
+    resetGenerated:   '↺ Ripristina generato',
+    toneDesc0:        'Conciso e oggettivo. Struttura chiara, tono neutro.',
+    toneDesc1:        'Rispettoso e chiaro. Caldo ma misurato.',
+    toneDesc2:        'Caldo e umano. Formulazione empatica, riconoscimento personale.',
+    toneDesc3:        'Profondamente personale. Linguaggio empatico, sincero e sentito.',
+    quickAdjLabel:    'Aggiustamenti rapidi',
+    editContextLabel: 'Modifica contesto',
+    editContextPh:    'Aggiorna il contesto per rigenerare…',
+    personal:         'Personale',
+    sentMsg:          (name) => `✓ Messaggio inviato a ${name}`,
+    sendBtn:          '✉ Invia via Empath',
+    copyBtn:          '📋 Copia negli appunti',
+    copiedBtn:        '✓ Copiato negli appunti',
+    backCompose:      '✏ Torna alla scrittura',
+    previewCandidate: '👁 Anteprima come candidato',
+  },
+}
+
 // ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
   red:   '#C9394A', redH:  '#A82D3B', redL:  '#FECDD3', redBg: '#FFF5F6',
@@ -114,11 +206,11 @@ const AV_PALETTE = [
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 
-function toneWord(t) {
-  if (t <= 25) return 'Professional'
+function toneWord(t, T) {
+  if (t <= 25) return T ? T.professional : 'Professional'
   if (t <= 55) return 'Balanced'
   if (t <= 80) return 'Warm'
-  return 'Personal & Warm'
+  return T ? T.personalWarm : 'Personal & Warm'
 }
 
 // ── Message generator ─────────────────────────────────────────────────────────
@@ -242,7 +334,7 @@ function Av({ id, ini, size = 36 }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Compose
 // ─────────────────────────────────────────────────────────────────────────────
-function ComposeStep({ initialCandidate, onGenerate, onBack }) {
+function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
   const [candidate, setCandidate] = useState(initialCandidate || null)
   const [typeId,    setTypeId]    = useState('rejection')
   const [context,   setContext]   = useState('')
@@ -260,15 +352,15 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
     <div style={{ flex: 1, overflow: 'auto', padding: '30px 36px', maxWidth: 900, margin: '0 auto', width: '100%' }}>
       {/* Back */}
       <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 26, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-        ← Back to Dashboard
+        {T.backDash}
       </button>
 
       {/* Title */}
       <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-        Craft a message
+        {T.title}
       </h1>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 32px', lineHeight: 1.6 }}>
-        Select a candidate and message type. Empath will generate a warm, personalised draft you can refine.
+        {T.subtitle}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
@@ -279,7 +371,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
           {/* Candidate picker */}
           <div>
             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 11 }}>
-              Candidate
+              {T.candidateLabel}
             </label>
 
             {candidate ? (
@@ -313,7 +405,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
                     fontFamily: 'inherit', appearance: 'none',
                   }}
                 >
-                  <option value="" disabled>Select a candidate…</option>
+                  <option value="" disabled>{T.selectCandidate}</option>
                   {ALL_CANDIDATES.map(c => (
                     <option key={c.id} value={c.id}>
                       {c.name} — {c.role} ({c.stage})
@@ -328,7 +420,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
           {/* Message types */}
           <div>
             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 11 }}>
-              Message type
+              {T.msgTypeLabel}
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {MSG_TYPES.map(t => (
@@ -366,10 +458,10 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
           <div>
             <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
               {msgType?.contextLabel || 'Additional context'}
-              <span style={{ fontWeight: 400, color: C.muted, textTransform: 'none', letterSpacing: 0, fontSize: 11, marginLeft: 6 }}>(optional)</span>
+              <span style={{ fontWeight: 400, color: C.muted, textTransform: 'none', letterSpacing: 0, fontSize: 11, marginLeft: 6 }}>{T.contextOptional}</span>
             </label>
             <p style={{ fontSize: 11, color: C.muted, margin: '0 0 9px', lineHeight: 1.6 }}>
-              Keep it brief — a note or two. Empath handles tone, empathy, and structure.
+              {T.contextHint}
             </p>
             <textarea
               value={context}
@@ -388,15 +480,15 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
           <div style={{ background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, padding: '16px 18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                Tone
+                {T.toneLabel}
               </label>
               <span style={{ fontSize: 12, fontWeight: 600, color: C.red, background: C.redBg, padding: '3px 10px', borderRadius: 20 }}>
-                {toneWord(tone)}
+                {toneWord(tone, T)}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginBottom: 6 }}>
-              <span>Professional</span>
-              <span>Personal & Warm</span>
+              <span>{T.professional}</span>
+              <span>{T.personalWarm}</span>
             </div>
             <input
               type="range" min={0} max={100} value={tone} step={1}
@@ -407,14 +499,14 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
 
           {/* Empath will… */}
           <div style={{ background: C.redBg, borderRadius: 11, border: `1px solid ${C.border}`, padding: '14px 16px', flex: 1 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 9 }}>✦ Empath will…</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 9 }}>{T.empathWill}</p>
             <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
-              {candidate && <li>Auto-fill <strong style={{ color: C.text }}>{candidate.name}</strong>'s name, role, and stage</li>}
-              {!candidate && <li>Auto-fill the candidate's name, role, and current stage</li>}
-              <li>Generate a <strong style={{ color: C.text }}>{toneWord(tone).toLowerCase()}</strong> message tailored to the type</li>
-              <li>Weave in any context you provided naturally</li>
-              <li>Give you full control to edit, refine, and adjust</li>
-              <li>Let you preview exactly what the candidate receives</li>
+              {candidate && <li>{T.empathAutoFill(candidate.name)}</li>}
+              {!candidate && <li>{T.empathAutoFillGeneric}</li>}
+              <li>{T.empathGenerate(toneWord(tone, T).toLowerCase())}</li>
+              <li>{T.empathContext}</li>
+              <li>{T.empathControl}</li>
+              <li>{T.empathPreview}</li>
             </ul>
           </div>
 
@@ -431,8 +523,8 @@ function ComposeStep({ initialCandidate, onGenerate, onBack }) {
             }}
           >
             {canGenerate
-              ? `Generate message for ${candidate.name.split(' ')[0]} →`
-              : 'Select a candidate to continue'}
+              ? T.generateBtn(candidate.name.split(' ')[0])
+              : T.selectFirst}
           </button>
         </div>
       </div>
@@ -527,7 +619,7 @@ function CandidateInboxView({ candidate, subject, message }) {
   )
 }
 
-function EditStep({ candidate, typeId, context: initContext, tone: initTone, onBack, onNavigate }) {
+function EditStep({ candidate, typeId, context: initContext, tone: initTone, onBack, onNavigate, T }) {
   const msgType = MSG_TYPES.find(t => t.id === typeId) || MSG_TYPES[0]
 
   const [tone,       setTone]       = useState(initTone)
@@ -591,7 +683,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
         flexShrink: 0,
       }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
-          ← Edit inputs
+          {T.editInputs}
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -610,7 +702,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
         {/* View toggle */}
         <div style={{ display: 'flex', gap: 2, background: C.gray, borderRadius: 8, padding: 3 }}>
-          {[{ id: false, label: '✏ Compose' }, { id: true, label: '👁 Candidate view' }].map(v => (
+          {[{ id: false, label: T.compose }, { id: true, label: T.candidateView }].map(v => (
             <button
               key={String(v.id)}
               onClick={() => setInboxView(v.id)}
@@ -647,7 +739,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
               {/* Email meta header */}
               <div style={{ padding: '12px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>To</span>
+                  <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.toLabel}</span>
                   <span style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>
                     {candidate
                       ? `${candidate.name} <${candidate.name.toLowerCase().replace(' ', '.')}@gmail.com>`
@@ -655,7 +747,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>Subject</span>
+                  <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.subjectLabel}</span>
                   <span style={{ fontSize: 12, color: C.text }}>{subject}</span>
                 </div>
               </div>
@@ -673,13 +765,13 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
               {/* Word count */}
               <div style={{ padding: '8px 20px', borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted }}>
-                <span>{currentBody.split(/\s+/).filter(Boolean).length} words</span>
+                <span>{T.words(currentBody.split(/\s+/).filter(Boolean).length)}</span>
                 {userEdited && (
                   <button
                     onClick={() => { setUserEdited(false); setEditedBody(generatedBody) }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 10, fontFamily: 'inherit' }}
                   >
-                    ↺ Reset to generated
+                    {T.resetGenerated}
                   </button>
                 )}
               </div>
@@ -698,13 +790,13 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             {/* Tone */}
             <div style={{ marginBottom: 22 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 9 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>Tone</p>
+                <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>{T.toneLabel}</p>
                 <span style={{ fontSize: 11, fontWeight: 600, color: C.red, background: C.redBg, padding: '3px 10px', borderRadius: 20 }}>
-                  {toneWord(tone)}
+                  {toneWord(tone, T)}
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginBottom: 6 }}>
-                <span>Professional</span><span>Personal</span>
+                <span>{T.professional}</span><span>{T.personal}</span>
               </div>
               <input
                 type="range" min={0} max={100} value={tone} step={1}
@@ -713,17 +805,17 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
               />
               {/* Tone descriptor line */}
               <p style={{ fontSize: 11, color: C.muted, marginTop: 7, lineHeight: 1.5 }}>
-                {tone <= 25 && 'Concise and factual. Clear structure, minimal warmth markers.'}
-                {tone > 25 && tone <= 55 && 'Respectful and clear. Warm but measured language throughout.'}
-                {tone > 55 && tone <= 80 && 'Warm and human. Empathetic phrasing, personal acknowledgement.'}
-                {tone > 80 && 'Deeply personal. Empathy-first language, genuine and heartfelt.'}
+                {tone <= 25 && T.toneDesc0}
+                {tone > 25 && tone <= 55 && T.toneDesc1}
+                {tone > 55 && tone <= 80 && T.toneDesc2}
+                {tone > 80 && T.toneDesc3}
               </p>
             </div>
 
             {/* Quick fixes */}
             <div style={{ marginBottom: 22 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-                Quick adjustments
+                {T.quickAdjLabel}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {QUICK_FIXES.map(fix => (
@@ -748,12 +840,12 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             {/* Context edit */}
             <div style={{ marginBottom: 16 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-                Edit context
+                {T.editContextLabel}
               </p>
               <textarea
                 value={context}
                 onChange={e => { setContext(e.target.value); setUserEdited(false) }}
-                placeholder="Update the context to regenerate…"
+                placeholder={T.editContextPh}
                 style={{
                   width: '100%', padding: '9px 11px', borderRadius: 8,
                   border: `1.5px solid ${C.border}`, fontSize: 11, resize: 'none',
@@ -768,7 +860,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
           <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 9 }}>
             {sent ? (
               <div style={{ padding: '12px 0', background: C.sucBg, borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.sucT }}>
-                ✓ Message sent to {candidate?.name?.split(' ')[0] || 'candidate'}
+                {T.sentMsg(candidate?.name?.split(' ')[0] || 'candidate')}
               </div>
             ) : (
               <>
@@ -779,7 +871,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                     border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                   }}
                 >
-                  ✉ Send via Empath
+                  {T.sendBtn}
                 </button>
                 <button
                   onClick={handleCopy}
@@ -792,7 +884,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                     transition: 'all 0.2s',
                   }}
                 >
-                  {copied ? '✓ Copied to clipboard' : '📋 Copy to clipboard'}
+                  {copied ? T.copiedBtn : T.copyBtn}
                 </button>
               </>
             )}
@@ -804,7 +896,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                 fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              {inboxView ? '✏ Back to compose view' : '👁 Preview as candidate'}
+              {inboxView ? T.backCompose : T.previewCandidate}
             </button>
           </div>
         </div>
@@ -816,7 +908,8 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function CraftMessage({ candidate = null, onBack, onNavigate }) {
+export default function CraftMessage({ lang = 'en', candidate = null, onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [step,  setStep]  = useState('compose')
   const [draft, setDraft] = useState(null)
 
@@ -832,6 +925,7 @@ export default function CraftMessage({ candidate = null, onBack, onNavigate }) {
           initialCandidate={candidate}
           onBack={onBack}
           onGenerate={handleGenerate}
+          T={T}
         />
       )}
       {step === 'edit' && draft && (
@@ -839,6 +933,7 @@ export default function CraftMessage({ candidate = null, onBack, onNavigate }) {
           {...draft}
           onBack={() => setStep('compose')}
           onNavigate={onNavigate}
+          T={T}
         />
       )}
     </div>

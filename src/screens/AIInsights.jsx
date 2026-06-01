@@ -11,6 +11,28 @@
 
 import { useState } from 'react'
 
+// ── Translations ──────────────────────────────────────────────────────────────
+const SCREEN_T = {
+  en: {
+    badge:       'Recruiter · Q2 2026',
+    title:       'AI Insights',
+    subtitle:    'Tap any card to explore the data in depth',
+    updatedToday:'Updated today',
+    breakdown:   'Breakdown',
+    empathLabel: '✦ Empath insight',
+    footer:      'Data aggregated across all positions · Recruiter-only',
+  },
+  it: {
+    badge:       'Reclutatore · Q2 2026',
+    title:       'Insight AI',
+    subtitle:    'Tocca qualsiasi scheda per esplorare i dati in profondità',
+    updatedToday:'Aggiornato oggi',
+    breakdown:   'Suddivisione',
+    empathLabel: '✦ Insight Empath',
+    footer:      'Dati aggregati per tutte le posizioni · Solo reclutatori',
+  },
+}
+
 // ── Brand tokens (identical to the rest of the app) ───────────────────────────
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
@@ -385,7 +407,7 @@ function Sparkline({ data, accent }) {
 }
 
 // ── Detail side panel ─────────────────────────────────────────────────────────
-function DetailPanel({ card, onClose }) {
+function DetailPanel({ card, onClose, T }) {
   return (
     <>
       {/* Backdrop */}
@@ -432,7 +454,7 @@ function DetailPanel({ card, onClose }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '18px 22px' }}>
 
           {/* Breakdown */}
-          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>Breakdown</p>
+          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>{T.breakdown}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 24 }}>
             {card.detail.breakdown.map((b, i) => (
               <div key={i}>
@@ -449,7 +471,7 @@ function DetailPanel({ card, onClose }) {
 
           {/* Insight */}
           <div style={{ padding: '13px 15px', background: card.bg, borderRadius: 11, border: `1px solid ${card.border}`, borderLeft: `3px solid ${card.accent}` }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>✦ Empath insight</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.empathLabel}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.8, margin: 0 }}>{card.detail.insight}</p>
           </div>
         </div>
@@ -516,7 +538,8 @@ function MetricCard({ card, onClick, delay }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function AIInsights({ onBack }) {
+export default function AIInsights({ lang = 'en', onBack }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [selected, setSelected] = useState(null)
 
   return (
@@ -526,16 +549,16 @@ export default function AIInsights({ onBack }) {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 26 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Recruiter · Q2 2026</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
             <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
-              AI Insights
+              {T.title}
             </h1>
-            <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Tap any card to explore the data in depth</p>
+            <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>{T.subtitle}</p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: C.suc }} />
-            <span style={{ fontSize: 11, color: C.muted }}>Updated today</span>
+            <span style={{ fontSize: 11, color: C.muted }}>{T.updatedToday}</span>
           </div>
         </div>
 
@@ -552,12 +575,12 @@ export default function AIInsights({ onBack }) {
         </div>
 
         <p style={{ fontSize: 11, color: C.muted, textAlign: 'center', marginTop: 28, opacity: 0.6 }}>
-          Data aggregated across all positions · Recruiter-only
+          {T.footer}
         </p>
       </div>
 
       {/* Detail panel */}
-      {selected && <DetailPanel card={selected} onClose={() => setSelected(null)} />}
+      {selected && <DetailPanel card={selected} onClose={() => setSelected(null)} T={T} />}
     </div>
   )
 }

@@ -18,6 +18,95 @@
 
 import { useState } from 'react'
 
+const SCREEN_T = {
+  en: {
+    back:             '← Back to dashboard',
+    badge:            'Hiring Manager',
+    title:            'Post-interview debriefs',
+    subtitle:         "Fill a debrief right after each interview while the conversation is fresh. Completed debriefs feed into the decision brief and the candidate update.",
+    pendingLabel:     'PENDING',
+    completedLabel:   'COMPLETED',
+    filterAll:        'All',
+    filterPending:    '⏳ Pending',
+    filterCompleted:  '✓ Completed',
+    pendingTitle:     'Pending debriefs',
+    completedTitle:   'Completed debriefs',
+    colCandidate:     'Candidate',
+    colInterview:     'Interview',
+    colRound:         'Round',
+    colStatus:        'Status',
+    colAction:        'Action',
+    colSubmittedBy:   'Submitted by',
+    colScore:         'Score',
+    colRecommend:     'Recommendation',
+    colActions:       'Actions',
+    pendingPill:      '⏳ Pending',
+    fillDebrief:      'Fill debrief →',
+    hide:             'Hide',
+    preview:          'Preview',
+    fullBrief:        'Full brief →',
+    allUpToDate:      'All debriefs are up to date — nothing pending.',
+    noCompleted:      'No completed debriefs yet.',
+    submittedBy:      'Submitted by',
+    tip:              'Best practice:',
+    tipText:          "fill the debrief within a few hours of the interview — observations are sharpest right after the conversation. Completed debriefs appear in the consolidated decision brief for all interviewers.",
+    roundLabel:       (n) => `Round ${n} summary`,
+    submittedOn:      'Submitted',
+    scoreOf:          '/5',
+    recommendation:   'Recommendation:',
+    roundOf:          (n) => `Round ${n}`,
+    recLabels: {
+      'strongly-advance': 'Strongly advance',
+      'advance': 'Advance',
+      'reservations': 'With reservations',
+      'not-moving': 'Not moving forward',
+    },
+  },
+  it: {
+    back:             '← Torna alla bacheca',
+    badge:            'Responsabile Assunzioni',
+    title:            'Debrief post-intervista',
+    subtitle:         "Compila il debrief subito dopo ogni intervista, mentre la conversazione è fresca. I debrief completati confluiscono nel brief decisionale.",
+    pendingLabel:     'IN ATTESA',
+    completedLabel:   'COMPLETATI',
+    filterAll:        'Tutti',
+    filterPending:    '⏳ In attesa',
+    filterCompleted:  '✓ Completati',
+    pendingTitle:     'Debrief in attesa',
+    completedTitle:   'Debrief completati',
+    colCandidate:     'Candidato',
+    colInterview:     'Intervista',
+    colRound:         'Round',
+    colStatus:        'Stato',
+    colAction:        'Azione',
+    colSubmittedBy:   'Inviato da',
+    colScore:         'Punteggio',
+    colRecommend:     'Raccomandazione',
+    colActions:       'Azioni',
+    pendingPill:      '⏳ In attesa',
+    fillDebrief:      'Compila debrief →',
+    hide:             'Nascondi',
+    preview:          'Anteprima',
+    fullBrief:        'Brief completo →',
+    allUpToDate:      'Tutti i debrief sono aggiornati — nessuno in attesa.',
+    noCompleted:      'Nessun debrief completato ancora.',
+    submittedBy:      'Inviato da',
+    tip:              'Best practice:',
+    tipText:          "compila il debrief entro poche ore dall'intervista — le osservazioni sono più nitide subito dopo. I debrief completati appaiono nel brief decisionale consolidato.",
+    roundLabel:       (n) => `Riepilogo round ${n}`,
+    submittedOn:      'Inviato il',
+    scoreOf:          '/5',
+    recommendation:   'Raccomandazione:',
+    roundOf:          (n) => `Round ${n}`,
+    recLabels: {
+      'strongly-advance': 'Fortemente raccomandato',
+      'advance': 'Raccomandato',
+      'reservations': 'Con riserve',
+      'not-moving': 'Non avanza',
+    },
+  },
+}
+
 const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
   text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
@@ -93,14 +182,17 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-function RecBadge({ rec }) {
-  const map = {
-    'strongly-advance': { emoji: '⭐', label: 'Strongly advance', color: C.sucT,  bg: C.sucBg  },
-    'advance':          { emoji: '✓',  label: 'Advance',          color: C.sucT,  bg: '#F0FDF4' },
-    'reservations':     { emoji: '△',  label: 'With reservations', color: C.warT, bg: C.warBg  },
-    'not-moving':       { emoji: '✕',  label: 'Not moving forward', color: C.red, bg: '#FEF2F2' },
+function RecBadge({ rec, T }) {
+  const emojis = { 'strongly-advance': '⭐', 'advance': '✓', 'reservations': '△', 'not-moving': '✕' }
+  const colors = {
+    'strongly-advance': { color: C.sucT, bg: C.sucBg },
+    'advance':          { color: C.sucT, bg: '#F0FDF4' },
+    'reservations':     { color: C.warT, bg: C.warBg },
+    'not-moving':       { color: C.red,  bg: '#FEF2F2' },
   }
-  const r = map[rec] || map['advance']
+  const label = T.recLabels[rec] || rec
+  const { color, bg } = colors[rec] || colors['advance']
+  const r = { emoji: emojis[rec] || '✓', label, color, bg }
   return (
     <span style={{ background: r.bg, color: r.color, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
       {r.emoji} {r.label}
@@ -109,7 +201,7 @@ function RecBadge({ rec }) {
 }
 
 // ── Pending row ───────────────────────────────────────────────────────────────
-function PendingRow({ item, onFill }) {
+function PendingRow({ item, onFill, T }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: C.white, borderBottom: `1px solid ${C.border}`, transition: 'background 0.1s' }}>
       <Av id={item.id} ini={item.ini} size={38} />
@@ -121,25 +213,25 @@ function PendingRow({ item, onFill }) {
 
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 500, color: C.text }}>{item.interviewType}</div>
-        <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>Round {item.round} · {item.interviewDate}</div>
+        <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{T.roundOf(item.round)} · {item.interviewDate}</div>
       </div>
 
       <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, flexShrink: 0 }}>
-        ⏳ Pending
+        {T.pendingPill}
       </span>
 
       <button
         onClick={() => onFill(item)}
         style={{ padding: '8px 16px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
       >
-        Fill debrief →
+        {T.fillDebrief}
       </button>
     </div>
   )
 }
 
 // ── Completed row ─────────────────────────────────────────────────────────────
-function CompletedRow({ item, onView }) {
+function CompletedRow({ item, onView, T }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -156,7 +248,7 @@ function CompletedRow({ item, onView }) {
 
         {/* Submitted by */}
         <div style={{ textAlign: 'right', flexShrink: 0, marginRight: 6 }}>
-          <div style={{ fontSize: 10, color: C.muted }}>Submitted by</div>
+          <div style={{ fontSize: 10, color: C.muted }}>{T.submittedBy}</div>
           <div style={{ fontSize: 11, fontWeight: 500, color: C.text }}>{item.submittedBy}</div>
           <div style={{ fontSize: 9, color: C.muted }}>{item.submitterRole} · {item.completedDate}</div>
         </div>
@@ -167,20 +259,20 @@ function CompletedRow({ item, onView }) {
           <div style={{ fontSize: 8, color: C.muted, fontWeight: 600 }}>SCORE</div>
         </div>
 
-        <RecBadge rec={item.recommendation} />
+        <RecBadge rec={item.recommendation} T={T} />
 
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           <button
             onClick={() => setExpanded(e => !e)}
             style={{ padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.white, color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            {expanded ? 'Hide' : 'Preview'}
+            {expanded ? T.hide : T.preview}
           </button>
           <button
             onClick={() => onView(item)}
             style={{ padding: '7px 12px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            Full brief →
+            {T.fullBrief}
           </button>
         </div>
       </div>
@@ -189,11 +281,9 @@ function CompletedRow({ item, onView }) {
       {expanded && (
         <div style={{ padding: '12px 20px 14px 72px', background: C.gray, borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
-            <strong style={{ color: C.text }}>Round {item.round} summary</strong> · Submitted {item.completedDate} by {item.submittedBy} ({item.submitterRole})
+            <strong style={{ color: C.text }}>{T.roundLabel(item.round)}</strong> · {T.submittedOn} {item.completedDate} · {item.submittedBy} ({item.submitterRole})
             <br />
-            Avg score <strong style={{ color: C.red }}>{item.avgScore.toFixed(1)}/5</strong> · Recommendation: <strong style={{ color: C.text }}>{item.recommendation.replace('-', ' ')}</strong>
-            <br />
-            Open the full decision brief to read the complete feedback and all observations.
+            Avg score <strong style={{ color: C.red }}>{item.avgScore.toFixed(1)}{T.scoreOf}</strong> · {T.recommendation} <strong style={{ color: C.text }}>{T.recLabels[item.recommendation] || item.recommendation}</strong>
           </div>
         </div>
       )}
@@ -204,7 +294,8 @@ function CompletedRow({ item, onView }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DebriefList({ onBack, onNavigate }) {
+export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
+  const T = SCREEN_T[lang] || SCREEN_T.en
   const [filter, setFilter] = useState('all') // 'all' | 'pending' | 'completed'
 
   const showPending   = filter !== 'completed'
@@ -227,18 +318,18 @@ export default function DebriefList({ onBack, onNavigate }) {
 
         {/* Back */}
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-          ← Back to dashboard
+          {T.back}
         </button>
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Hiring Manager</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
             <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 6px' }}>
-              Post-interview debriefs
+              {T.title}
             </h1>
             <p style={{ color: C.muted, fontSize: 13, margin: 0, lineHeight: 1.6, maxWidth: 520 }}>
-              Fill a debrief right after each interview while the conversation is fresh. Completed debriefs feed into the decision brief and the candidate update.
+              {T.subtitle}
             </p>
           </div>
 
@@ -246,18 +337,18 @@ export default function DebriefList({ onBack, onNavigate }) {
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
             <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #FDE68A' }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.war, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
-              <div style={{ fontSize: 9, color: C.warT, fontWeight: 600, marginTop: 3 }}>PENDING</div>
+              <div style={{ fontSize: 9, color: C.warT, fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
             <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #BBF7D0' }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
-              <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>COMPLETED</div>
+              <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>{T.completedLabel}</div>
             </div>
           </div>
         </div>
 
         {/* Filter tabs */}
         <div style={{ display: 'flex', gap: 2, background: C.white, borderRadius: 9, padding: 3, border: `1px solid ${C.border}`, marginBottom: 20, width: 'fit-content' }}>
-          {[['all','All'], ['pending','⏳ Pending'], ['completed','✓ Completed']].map(([val, label]) => (
+          {[['all', T.filterAll], ['pending', T.filterPending], ['completed', T.filterCompleted]].map(([val, label]) => (
             <button
               key={val}
               onClick={() => setFilter(val)}
@@ -272,17 +363,17 @@ export default function DebriefList({ onBack, onNavigate }) {
         {showPending && PENDING.length > 0 && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>Pending debriefs</h2>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.pendingTitle}</h2>
               <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
             </div>
             <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Table header */}
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 130px 130px', padding: '9px 20px', background: C.warBg, borderBottom: `1px solid #FDE68A` }}>
-                {['Candidate', 'Interview', 'Round', 'Status', 'Action'].map(h => (
+                {[T.colCandidate, T.colInterview, T.colRound, T.colStatus, T.colAction].map(h => (
                   <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                 ))}
               </div>
-              {PENDING.map(item => <PendingRow key={`${item.id}-${item.round}`} item={item} onFill={handleFill} />)}
+              {PENDING.map(item => <PendingRow key={`${item.id}-${item.round}`} item={item} onFill={handleFill} T={T} />)}
             </div>
           </div>
         )}
@@ -290,7 +381,7 @@ export default function DebriefList({ onBack, onNavigate }) {
         {showPending && PENDING.length === 0 && filter === 'pending' && (
           <div style={{ padding: '40px 0', textAlign: 'center', color: C.muted, fontSize: 13 }}>
             <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-            All debriefs are up to date — nothing pending.
+            {T.allUpToDate}
           </div>
         )}
 
@@ -298,17 +389,17 @@ export default function DebriefList({ onBack, onNavigate }) {
         {showCompleted && COMPLETED.length > 0 && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>Completed debriefs</h2>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.completedTitle}</h2>
               <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{COMPLETED.length}</span>
             </div>
             <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Table header */}
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 1fr 1fr 160px', padding: '9px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-                {['Candidate', 'Submitted by', 'Score', 'Recommendation', 'Actions'].map(h => (
+                {[T.colCandidate, T.colSubmittedBy, T.colScore, T.colRecommend, T.colActions].map(h => (
                   <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                 ))}
               </div>
-              {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onView={handleView} />)}
+              {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onView={handleView} T={T} />)}
             </div>
           </div>
         )}
@@ -317,7 +408,7 @@ export default function DebriefList({ onBack, onNavigate }) {
         {showCompleted && COMPLETED.length === 0 && filter === 'completed' && (
           <div style={{ padding: '40px 0', textAlign: 'center', color: C.muted, fontSize: 13 }}>
             <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
-            No completed debriefs yet.
+            {T.noCompleted}
           </div>
         )}
 
@@ -326,7 +417,7 @@ export default function DebriefList({ onBack, onNavigate }) {
           <div style={{ marginTop: 24, padding: '13px 16px', background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>💡</span>
             <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.7 }}>
-              <strong style={{ color: C.text }}>Best practice:</strong> fill the debrief within a few hours of the interview — observations are sharpest right after the conversation. Completed debriefs appear in the consolidated decision brief for all interviewers.
+              <strong style={{ color: C.text }}>{T.tip}</strong> {T.tipText}
             </p>
           </div>
         )}
