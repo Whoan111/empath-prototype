@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const SCREEN_T = {
   en: {
@@ -15,6 +15,11 @@ const SCREEN_T = {
     pipeline:        'Bring back',
     messageSent:     'Message sent',
     emptyAll:        'All candidates have been messaged or restored.',
+    allSentInGroup:  (pos) => `Every candidate from ${pos} has heard from you — that's what good recruitment looks like.`,
+    bannerMsg:       'You reached everyone who needed to hear from you today. That matters.',
+    waitDays:        (d) => d === 1 ? 'Waiting 1 day' : `Waiting ${d} days`,
+    waitLong:        (d) => `Waiting ${d} days — that's a long time.`,
+    waitVeryLong:    (d) => `Waiting ${d} days — that's a long time to be in the dark.`,
     // Restore modal
     restoreTitle:    'Bring back to pipeline',
     restoreTo:       'Restore to which stage?',
@@ -40,6 +45,11 @@ const SCREEN_T = {
     pipeline:        'Riporta',
     messageSent:     'Messaggio inviato',
     emptyAll:        'Tutti i candidati sono stati contattati o ripristinati.',
+    allSentInGroup:  (pos) => `Ogni candidato da ${pos} ha ricevuto risposta — è così che funziona un buon reclutamento.`,
+    bannerMsg:       'Hai raggiunto tutti coloro che avevano bisogno di sentirti oggi. È importante.',
+    waitDays:        (d) => d === 1 ? 'In attesa da 1 giorno' : `In attesa da ${d} giorni`,
+    waitLong:        (d) => `In attesa da ${d} giorni — è molto tempo.`,
+    waitVeryLong:    (d) => `In attesa da ${d} giorni — è molto tempo per stare al buio.`,
     restoreTitle:    'Riporta in pipeline',
     restoreTo:       'In quale fase ripristinare?',
     restoreConfirm:  'Riporta →',
@@ -67,10 +77,10 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'UX Designer',
     dept: 'Product Design',
     candidates: [
-      { id: 3,  name: 'Sara Conti',    ini: 'SC', role: 'Junior UX Designer',  rejectedDaysAgo: 18, messageSent: false, previousStage: 'Pre-Call'  },
-      { id: 7,  name: 'Davide Russo',  ini: 'DR', role: 'Interaction Designer', rejectedDaysAgo: 11, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 3,  name: 'Sara Conti',    ini: 'SC', role: 'Junior UX Designer',  rejectedDaysAgo: 12, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 7,  name: 'Davide Russo',  ini: 'DR', role: 'Interaction Designer', rejectedDaysAgo:  8, messageSent: false, previousStage: 'Pre-Call'  },
       { id: 5,  name: 'Andrea Ricci',  ini: 'AR', role: 'Product Designer',     rejectedDaysAgo:  6, messageSent: true,  previousStage: 'Interviews'},
-      { id: 2,  name: 'Marco Bianchi', ini: 'MB', role: 'Senior UX Designer',   rejectedDaysAgo:  3, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 2,  name: 'Marco Bianchi', ini: 'MB', role: 'Senior UX Designer',   rejectedDaysAgo:  2, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
   {
@@ -78,8 +88,8 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Frontend Engineer',
     dept: 'Engineering',
     candidates: [
-      { id: 11, name: 'Nina Patel',    ini: 'NP', role: 'Frontend Dev',         rejectedDaysAgo: 21, messageSent: false, previousStage: 'Pre-Call'  },
-      { id: 10, name: 'Thomas Wright', ini: 'TW', role: 'React Developer',      rejectedDaysAgo:  9, messageSent: true,  previousStage: 'Interviews'},
+      { id: 11, name: 'Nina Patel',    ini: 'NP', role: 'Frontend Dev',         rejectedDaysAgo: 11, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 10, name: 'Thomas Wright', ini: 'TW', role: 'React Developer',      rejectedDaysAgo:  7, messageSent: true,  previousStage: 'Interviews'},
     ],
   },
   {
@@ -87,7 +97,7 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Product Manager',
     dept: 'Product',
     candidates: [
-      { id: 20, name: 'Sofia Esposito',ini: 'SE', role: 'Senior PM',            rejectedDaysAgo: 14, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 20, name: 'Sofia Esposito',ini: 'SE', role: 'Senior PM',            rejectedDaysAgo:  9, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
   {
@@ -95,8 +105,8 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Data Analyst',
     dept: 'Data & Insights',
     candidates: [
-      { id: 31, name: 'Raj Patel',     ini: 'RP', role: 'Data Analyst',         rejectedDaysAgo: 28, messageSent: false, previousStage: 'Pre-Call'  },
-      { id: 32, name: 'Mia Fernandez', ini: 'MF', role: 'Junior Analyst',       rejectedDaysAgo:  4, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 31, name: 'Raj Patel',     ini: 'RP', role: 'Data Analyst',         rejectedDaysAgo: 13, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 32, name: 'Mia Fernandez', ini: 'MF', role: 'Junior Analyst',       rejectedDaysAgo:  3, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
 ]
@@ -224,9 +234,45 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
   )
 }
 
+// Varied phrasings so each candidate reads differently — picked deterministically by id
+const PHRASES_LONG = [
+  "they're still waiting to hear.",
+  "silence can feel louder than words.",
+  "that's longer than it should be.",
+  "they haven't heard anything yet.",
+  "that's a long time to sit with uncertainty.",
+]
+const PHRASES_VERY_LONG = [
+  "that's a long time to be in the dark.",
+  "every day of silence adds up.",
+  "they deserve to hear from you.",
+  "uncertainty at this stage isn't kind.",
+  "they've been wondering since then.",
+]
+
 function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline, T, lang }) {
   const [hov, setHov] = useState(false)
-  const urg = urgencyColor(candidate.rejectedDaysAgo)
+  const d = candidate.rejectedDaysAgo
+  const isVeryLong = !messageSent && d > 10
+  const isLong     = !messageSent && d > 5 && d <= 10
+
+  // Pick phrase by id+days so each row gets a distinct voice
+  const phraseKey = candidate.id + d
+  const phrase = isVeryLong
+    ? PHRASES_VERY_LONG[phraseKey % PHRASES_VERY_LONG.length]
+    : PHRASES_LONG[phraseKey % PHRASES_LONG.length]
+
+  const waitLabel = isVeryLong ? `Waiting ${d} days — ${phrase}`
+                  : isLong     ? `Waiting ${d} days — ${phrase}`
+                  : !messageSent && d > 0 ? T.waitDays(d)
+                  : null
+
+  const waitColor = isVeryLong ? C.red : isLong ? '#D97706' : C.muted
+
+  // Subtle row tint: very light amber/red wash for waiting candidates
+  const rowBg = hov
+    ? (isVeryLong ? '#FFF5F5' : isLong ? '#FFFBF2' : '#FFF8F8')
+    : (isVeryLong ? 'rgba(201,57,74,0.025)' : isLong ? 'rgba(217,119,6,0.025)' : C.white)
 
   return (
     <div
@@ -235,13 +281,14 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
       style={{
         display: 'flex', alignItems: 'center', gap: 14,
         padding: '14px 20px',
-        background: hov ? '#FFF8F8' : C.white,
+        background: rowBg,
         borderBottom: `1px solid ${C.border}`,
         transition: 'background 0.13s',
       }}
     >
       <Av id={candidate.id} ini={candidate.ini} />
 
+      {/* Name / role / wait time — all in one text block */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</span>
@@ -252,17 +299,25 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           )}
         </div>
         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{candidate.role}</div>
+        {waitLabel && (
+          <div style={{
+            fontSize: 11, marginTop: 4,
+            fontWeight: (isLong || isVeryLong) ? 600 : 400,
+            color: waitColor,
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}>
+            {isVeryLong && (
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.red, flexShrink: 0, boxShadow: '0 0 4px rgba(201,57,74,0.5)' }} />
+            )}
+            {isLong && (
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D97706', flexShrink: 0 }} />
+            )}
+            {waitLabel}
+          </div>
+        )}
       </div>
 
-      <span style={{
-        fontSize: 10, fontWeight: 700, color: urg,
-        background: candidate.rejectedDaysAgo >= 14 ? '#FEE2E2' : candidate.rejectedDaysAgo >= 7 ? '#FEF3C7' : C.gray,
-        padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap',
-      }}>
-        {daysLabel(candidate.rejectedDaysAgo, lang)}
-      </span>
-
-      {/* Back to pipeline — opens stage-picker modal */}
+      {/* Back to pipeline */}
       <button
         onClick={() => onBackToPipeline(candidate)}
         style={{
@@ -366,6 +421,19 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
               lang={lang}
             />
           ))}
+          {/* Per-group completion note — only when every candidate has been messaged */}
+          {pendingCount === 0 && group.candidates.length > 0 && (
+            <div style={{
+              padding: '11px 20px',
+              background: 'rgba(5,150,105,0.04)',
+              borderTop: `1px solid rgba(5,150,105,0.12)`,
+              display: 'flex', alignItems: 'center', gap: 9,
+              fontSize: 11, color: '#065F46', fontWeight: 500,
+            }}>
+              <span style={{ fontSize: 13 }}>✓</span>
+              {T.allSentInGroup(group.positionTitle)}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -386,6 +454,28 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
     .flatMap(g => g.candidates)
     .filter(c => !sentMap[c.id] && !restoredIds.has(c.id))
     .length
+
+  // Urgent = waiting > 5 days and not yet messaged
+  const urgentCount = REJECTED_BY_POSITION
+    .flatMap(g => g.candidates)
+    .filter(c => !restoredIds.has(c.id) && !sentMap[c.id] && c.rejectedDaysAgo > 5)
+    .length
+
+  // Positive reinforcement banner — fires once per session when urgentCount hits 0
+  const [hadUrgent,  setHadUrgent]  = useState(() => urgentCount > 0)
+  const [showBanner, setShowBanner] = useState(false)
+
+  useEffect(() => {
+    if (urgentCount > 0) setHadUrgent(true)
+  }, [urgentCount])
+
+  useEffect(() => {
+    if (hadUrgent && urgentCount === 0) {
+      setShowBanner(true)
+      const t = setTimeout(() => setShowBanner(false), 6000)
+      return () => clearTimeout(t)
+    }
+  }, [hadUrgent, urgentCount])
 
   const handleWriteMessage = (candidate) => {
     onNavigate?.('craft', { candidate, from: 'not-suitable' })
@@ -472,6 +562,27 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
 
       {/* List */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 40px' }}>
+
+        {/* Positive reinforcement banner — appears when all urgent follow-ups are cleared */}
+        {showBanner && (
+          <div style={{
+            position: 'sticky', top: 0, zIndex: 20,
+            marginBottom: 18,
+            padding: '13px 18px',
+            background: 'rgba(5,150,105,0.08)',
+            border: '1.5px solid rgba(5,150,105,0.22)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            borderRadius: 10,
+            color: '#065F46',
+            fontSize: 13, fontWeight: 500, lineHeight: 1.55,
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>✓</span>
+            {T.bannerMsg}
+          </div>
+        )}
+
         {visibleGroups.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 0', color: C.muted }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>

@@ -1,5 +1,134 @@
 import { useState } from 'react'
 
+// ── Per-role notification content (all share the same navy palette) ───────────
+const NAVY = '#1B2461'
+const NAVY_BG     = 'rgba(27,36,97,0.05)'
+const NAVY_BORDER = 'rgba(27,36,97,0.15)'
+
+const ROLE_NOTIFICATIONS = {
+  recruiter: {
+    headline: '5 candidates waiting to hear from you',
+    body:     'Some have been in the dark for over a week. A message from you would mean a lot right now.',
+    cta:      'Send messages →',
+    screen:   'not-suitable',
+  },
+  'hiring-manager': {
+    headline: '10 CVs ready for your review',
+    body:     'Valentina has flagged top candidates for the UX Designer role. Your input is needed ASAP.',
+    cta:      'Review CVs →',
+    screen:   'hm-cv-review',
+  },
+  interviewer: {
+    headline: '1 interview debrief to complete',
+    body:     'Candidates value your feedback — the sooner you share it, the better their experience.',
+    cta:      'Complete debrief →',
+    screen:   'interviewer-debrief',
+  },
+}
+
+// ── Notification bubble — collapsible to a bell icon ─────────────────────────
+function NotificationBubble({ role, th, onNavigate }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const n = ROLE_NOTIFICATIONS[role]
+  if (!n) return null
+
+  return (
+    <div style={{
+      position: 'absolute', top: 28, right: 32,
+      display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+      gap: 10, zIndex: 10,
+    }}>
+
+      {/* ── Bell toggle ── */}
+      <button
+        onClick={() => setCollapsed(v => !v)}
+        title={collapsed ? 'Show notification' : 'Hide notification'}
+        style={{
+          width: 42, height: 42, borderRadius: '50%',
+          background: NAVY_BG,
+          border: `1.5px solid ${NAVY_BORDER}`,
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 14px rgba(27,36,97,0.12)',
+          transition: 'background 0.18s, box-shadow 0.18s',
+          position: 'relative', fontFamily: 'inherit',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.11)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(27,36,97,0.18)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = NAVY_BG; e.currentTarget.style.boxShadow = '0 2px 14px rgba(27,36,97,0.12)' }}
+      >
+        {/* Bell SVG */}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke={NAVY} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        {/* Unread dot */}
+        <span style={{
+          position: 'absolute', top: 8, right: 8,
+          width: 7, height: 7, borderRadius: '50%',
+          background: '#C9394A',
+          border: '1.5px solid white',
+          boxShadow: '0 0 5px rgba(201,57,74,0.55)',
+        }} />
+      </button>
+
+      {/* ── Expandable card ── */}
+      <div style={{
+        width: 288,
+        background: NAVY_BG,
+        border: `1.5px solid ${NAVY_BORDER}`,
+        borderLeft: `3px solid ${NAVY}`,
+        borderRadius: '0.75rem',
+        padding: '15px 17px 14px',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        boxShadow: '0 8px 32px rgba(27,36,97,0.11), 0 1px 4px rgba(0,0,0,0.04)',
+        // Collapse animation
+        opacity:       collapsed ? 0 : 1,
+        transform:     collapsed ? 'translateY(-6px) scale(0.96)' : 'translateY(0) scale(1)',
+        pointerEvents: collapsed ? 'none' : 'auto',
+        transition:    'opacity 0.22s ease, transform 0.22s ease',
+        transformOrigin: 'top right',
+      }}>
+
+        {/* Headline */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 3,
+            background: NAVY, boxShadow: '0 0 6px rgba(27,36,97,0.35)',
+          }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: NAVY, lineHeight: 1.4 }}>
+            {n.headline}
+          </span>
+        </div>
+
+        {/* Body */}
+        <p style={{ fontSize: 11, color: th.textMid, margin: '0 0 13px', lineHeight: 1.65, paddingLeft: 15 }}>
+          {n.body}
+        </p>
+
+        {/* CTA */}
+        <button
+          onClick={() => onNavigate(n.screen)}
+          style={{
+            width: '100%', padding: '8px 0', borderRadius: 8,
+            background: NAVY, color: 'white',
+            border: 'none', fontSize: 11, fontWeight: 700,
+            cursor: 'pointer', fontFamily: 'inherit',
+            letterSpacing: '0.03em', transition: 'opacity 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          {n.cta}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Role-specific screen configs ──────────────────────────────────────────────
 const ROLE_CONFIGS = {
   recruiter: {
@@ -121,7 +250,9 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
   const hovKey = (idx, id) => `${idx}-${id}`
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+
+      <NotificationBubble role={role} th={th} onNavigate={onNavigate} />
 
       {/* Main area — vertically centered */}
       <div style={{

@@ -58,8 +58,8 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'All CVs reviewed',
     backToPositions:'← Back to positions',
-    allCaughtUp:    "You're all caught up.",
-    allCaughtUpSub: "Every candidate has heard from you. That's what good recruiting looks like.",
+    allCaughtUp:    "All applications reviewed.",
+    allCaughtUpSub: "Every candidate in this batch has been carefully considered. Those moving forward are ready for the next stage.",
     // Empty position
     noCVsImported:  'No CVs imported for this position yet',
     importCVs:      'Import CVs →',
@@ -117,8 +117,8 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'Tutti i CV rivisti',
     backToPositions:'← Torna alle posizioni',
-    allCaughtUp:    'Sei in pari.',
-    allCaughtUpSub: 'Ogni candidato ha ricevuto risposta. È questo il buon reclutamento.',
+    allCaughtUp:    'Tutte le candidature esaminate.',
+    allCaughtUpSub: 'Ogni candidato in questo gruppo è stato attentamente valutato. Chi avanza è pronto per la fase successiva.',
     // Empty position
     noCVsImported:  'Nessun CV importato per questa posizione',
     importCVs:      'Importa CV →',
