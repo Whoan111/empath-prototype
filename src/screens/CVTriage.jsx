@@ -1143,7 +1143,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const [showImporter, setShowImporter] = useState(() =>
     initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0)
   )
-  const [leaving, setLeaving] = useState(false)   // true while card exit-animation is running
+  const [leaving,    setLeaving]    = useState(false)    // true while card exit-animation is running
+  const [leavingDir, setLeavingDir] = useState('right')  // 'left' = rejected, 'right' = advanced
 
   const confirmClose = (reason) => {
     setClosedPositions(s => ({ ...s, [closePending]: { reason } }))
@@ -1182,7 +1183,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
     let nextIdx = cvList.findIndex((c, i) => i > idx && !updated[c.id])
     if (nextIdx === -1) nextIdx = cvList.findIndex(c => !updated[c.id])
 
-    // Kick off 250 ms slide-out, then advance to next card (or show completion)
+    // Kick off 250 ms slide-out (rejected → left, advanced → right)
+    setLeavingDir(choice === 'pass' ? 'left' : 'right')
     setLeaving(true)
     setTimeout(() => {
       if (nextIdx !== -1) goTo(nextIdx)
@@ -1368,23 +1370,27 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           />
         )}
 
-        {/* Still reviewing — slide-out wrapper */}
+        {/* Still reviewing — only the CV document slides; candidate card stays put */}
         {cv && !(decided === total && !leaving) && (
-          <div style={{
-            flex: 1, display: 'flex', overflow: 'hidden',
-            transform: leaving ? 'translateX(100%)' : 'translateX(0)',
-            opacity:   leaving ? 0 : 1,
-            transition: leaving
-              ? 'transform 250ms ease-in, opacity 250ms ease-in'
-              : 'none',
-          }}>
-            <DocumentViewer
-              key={cv?.id}
-              cv={cv}
-              docType={effectiveDocType(cv)}
-              onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}
-              T={T}
-            />
+          <>
+            <div style={{
+              flex: 1, overflow: 'hidden',
+              transform: leaving
+                ? leavingDir === 'left' ? 'translateX(-100%)' : 'translateX(100%)'
+                : 'translateX(0)',
+              opacity: leaving ? 0 : 1,
+              transition: leaving
+                ? 'transform 250ms ease-in, opacity 250ms ease-in'
+                : 'none',
+            }}>
+              <DocumentViewer
+                key={cv?.id}
+                cv={cv}
+                docType={effectiveDocType(cv)}
+                onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}
+                T={T}
+              />
+            </div>
             <CandidateCard
               cv={cv}
               docType={effectiveDocType(cv)}
@@ -1392,7 +1398,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
               onDecide={handleDecide}
               T={T}
             />
-          </div>
+          </>
         )}
 
         {/* Empty position — show inline importer or empty placeholder */}

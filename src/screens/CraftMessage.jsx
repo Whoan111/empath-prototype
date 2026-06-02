@@ -746,7 +746,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
   const handleSend = () => {
     setSent(true)
-    setTimeout(() => setSent(false), 3000)
+    setTimeout(() => setSent(false), 2000)
   }
 
   return (
@@ -911,36 +911,44 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
           {/* Send actions — fixed at bottom */}
           <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 9 }}>
+
+            {/* Send button ↔ sent confirmation (2 s) */}
             {sent ? (
-              <div style={{ padding: '12px 0', background: C.sucBg, borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.sucT }}>
+              <div style={{
+                padding: '11px 0', borderRadius: 9,
+                background: C.sucBg, border: `1px solid #BBF7D0`,
+                textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.sucT,
+              }}>
                 {T.sentMsg(candidate?.name?.split(' ')[0] || 'candidate')}
               </div>
             ) : (
-              <>
-                <button
-                  onClick={handleSend}
-                  style={{
-                    padding: '11px 0', borderRadius: 9, background: C.red, color: 'white',
-                    border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                >
-                  {T.sendBtn}
-                </button>
-                <button
-                  onClick={handleCopy}
-                  style={{
-                    padding: '11px 0', borderRadius: 9,
-                    background: copied ? C.sucBg : C.gray,
-                    color: copied ? C.sucT : C.muted,
-                    border: `1px solid ${copied ? '#BBF7D0' : C.grayB}`,
-                    fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {copied ? T.copiedBtn : T.copyBtn}
-                </button>
-              </>
+              <button
+                onClick={handleSend}
+                style={{
+                  padding: '11px 0', borderRadius: 9, background: C.red, color: 'white',
+                  border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                {T.sendBtn}
+              </button>
             )}
+
+            {/* Copy — always visible */}
+            <button
+              onClick={handleCopy}
+              style={{
+                padding: '11px 0', borderRadius: 9,
+                background: copied ? C.sucBg : C.gray,
+                color: copied ? C.sucT : C.muted,
+                border: `1px solid ${copied ? '#BBF7D0' : C.grayB}`,
+                fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all 0.2s',
+              }}
+            >
+              {copied ? T.copiedBtn : T.copyBtn}
+            </button>
+
+            {/* Preview toggle — always visible */}
             <button
               onClick={() => setInboxView(v => !v)}
               style={{
