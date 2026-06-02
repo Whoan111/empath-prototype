@@ -58,9 +58,13 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'All CVs reviewed',
     backToPositions:'← Back to positions',
+    allCaughtUp:    "You're all caught up.",
+    allCaughtUpSub: "Every candidate has heard from you. That's what good recruiting looks like.",
     // Empty position
     noCVsImported:  'No CVs imported for this position yet',
     importCVs:      'Import CVs →',
+    noWaiting:      'No CVs waiting right now.',
+    noWaitingSub:   "Take a breath. When new applications arrive, they'll show up here.",
     // Batch import inline
     importFor:      (pos) => `Import CVs for ${pos}`,
     dropZone:       'Drop PDF or Word files here',
@@ -113,9 +117,13 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'Tutti i CV rivisti',
     backToPositions:'← Torna alle posizioni',
+    allCaughtUp:    'Sei in pari.',
+    allCaughtUpSub: 'Ogni candidato ha ricevuto risposta. È questo il buon reclutamento.',
     // Empty position
     noCVsImported:  'Nessun CV importato per questa posizione',
     importCVs:      'Importa CV →',
+    noWaiting:      'Nessun CV in attesa.',
+    noWaitingSub:   'Prenditi un respiro. Quando arrivano nuove candidature, appariranno qui.',
     // Batch import inline
     importFor:      (pos) => `Importa CV per ${pos}`,
     dropZone:       'Trascina file PDF o Word qui',
@@ -754,16 +762,29 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
 // ── Triage completion screen ───────────────────────────────────────────────────
 function CompletionScreen({ advancing, passing, onBackToPicker, T }) {
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, background: C.white, padding: '0 40px' }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.sucBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>✓</div>
-      <div style={{ textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>{T.allReviewed}</h2>
-        <p style={{ fontSize: 13, color: C.muted, margin: 0, lineHeight: 1.7 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, background: C.white, padding: '0 64px' }}>
+
+      {/* Illustration — layered circles with checkmark */}
+      <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="44" cy="44" r="42" fill="#ECFDF5"/>
+        <circle cx="44" cy="44" r="30" fill="#D1FAE5"/>
+        <polyline points="27,44 37,54 61,30" stroke="#059669" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+
+      <div style={{ textAlign: 'center', maxWidth: 400 }}>
+        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 28, fontWeight: 400, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
+          {T.allCaughtUp}
+        </h2>
+        <p style={{ fontSize: 14, color: C.muted, margin: '0 0 18px', lineHeight: 1.8 }}>
+          {T.allCaughtUpSub}
+        </p>
+        <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>
           <span style={{ color: C.suc, fontWeight: 600 }}>{advancing} {T.advancing.toLowerCase()}</span>
           {' · '}
           <span style={{ color: C.red, fontWeight: 600 }}>{passing} {T.notFwd.toLowerCase()}</span>
         </p>
       </div>
+
       <button
         onClick={onBackToPicker}
         style={{ padding: '11px 28px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
@@ -784,7 +805,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onOpenCloseModal
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      onClick={() => { if (!isClosed && !isEmpty) onOpen(pos.id) }}
+      onClick={() => { if (!isClosed) onOpen(pos.id) }}
       style={{
         background: hov ? th.cardBgHov : th.cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
@@ -794,9 +815,9 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onOpenCloseModal
         padding: '20px 22px 18px',
         display: 'flex', flexDirection: 'column', gap: 16,
         transition: 'all 0.18s ease',
-        opacity: (isEmpty || isClosed) ? 0.5 : 1,
-        cursor: (!isClosed && !isEmpty) ? 'pointer' : 'default',
-        boxShadow: hov && !isClosed && !isEmpty
+        opacity: isClosed ? 0.45 : isEmpty ? 0.62 : 1,
+        cursor: !isClosed ? 'pointer' : 'default',
+        boxShadow: hov && !isClosed
           ? `0 0 0 1px ${th.redGlow}, 0 8px 28px rgba(0,0,0,0.18)`
           : `0 2px 10px rgba(0,0,0,0.08)`,
       }}
@@ -1203,9 +1224,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const handleOpenPosition = (id) => {
     setActivePosId(id)
     setIdx(0)
-    // Auto-show importer if this position has no CVs yet
-    const hasCVs = (TRIAGE_DATA[id]?.length || 0) > 0 || (importedCVs[id]?.length || 0) > 0
-    setShowImporter(!hasCVs)
+    // Always land on the warm empty state first; user taps "Import CVs" if they want to import
+    setShowImporter(false)
   }
 
   const handleBackToPicker = () => {
@@ -1413,12 +1433,37 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           />
         )}
         {total === 0 && !showImporter && (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: C.muted, background: C.white }}>
-            <div style={{ fontSize: 36 }}>📂</div>
-            <p style={{ fontSize: 14, margin: 0 }}>{T.noCVsImported}</p>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, background: C.white, padding: '0 64px' }}>
+
+            {/* Illustration — inbox tray with a quiet document floating above */}
+            <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="44" cy="44" r="42" fill="#F5F4F3"/>
+              {/* Inbox tray */}
+              <rect x="16" y="52" width="56" height="20" rx="5" fill="white" stroke="#E5E2DF" strokeWidth="1.5"/>
+              <path d="M16 62h16l4 7h16l4-7h16" stroke="#D5CFC9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              {/* Floating document */}
+              <rect x="28" y="18" width="32" height="26" rx="4" fill="white" stroke="#E0DDD9" strokeWidth="1.5"/>
+              <line x1="34" y1="27" x2="54" y2="27" stroke="#ECEAE7" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="34" y1="33" x2="54" y2="33" stroke="#ECEAE7" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="34" y1="39" x2="46" y2="39" stroke="#ECEAE7" strokeWidth="1.5" strokeLinecap="round"/>
+              {/* Three dots — suggesting items on the way */}
+              <circle cx="38" cy="50" r="2" fill="#D5CFC9"/>
+              <circle cx="44" cy="50" r="2" fill="#D5CFC9"/>
+              <circle cx="50" cy="50" r="2" fill="#D5CFC9"/>
+            </svg>
+
+            <div style={{ textAlign: 'center', maxWidth: 400 }}>
+              <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 28, fontWeight: 400, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
+                {T.noWaiting}
+              </h2>
+              <p style={{ fontSize: 14, color: C.muted, margin: 0, lineHeight: 1.8 }}>
+                {T.noWaitingSub}
+              </p>
+            </div>
+
             <button
               onClick={() => setShowImporter(true)}
-              style={{ padding: '8px 18px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ padding: '10px 24px', borderRadius: 9, background: 'transparent', color: C.red, border: `1.5px solid ${C.red}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {T.importCVs}
             </button>
