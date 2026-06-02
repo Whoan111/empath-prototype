@@ -1,31 +1,39 @@
 import { useState } from 'react'
 
-const SCREEN_T = {
-  en: {
-    badge:    'Publicis Sapient · empath',
-    question: 'What would you like to work on today?',
-    btns: [
-      { id: 'triage',       label: 'CV Triage',    sub: 'Review incoming CVs'  },
-      { id: 'not-suitable', label: 'Not Suitable', sub: 'Rejected candidates'  },
-      { id: 'dashboard',    label: 'Dashboard',    sub: 'Active positions'     },
+// ── Role-specific screen configs ──────────────────────────────────────────────
+const ROLE_CONFIGS = {
+  recruiter: {
+    capsule: [
+      { id: 'triage',       label_en: 'CV Triage',    sub_en: 'Review incoming CVs',      label_it: 'Selezione CV',  sub_it: 'Rivedi i CV in arrivo'  },
+      { id: 'not-suitable', label_en: 'Not Suitable', sub_en: 'Rejected candidates',       label_it: 'Non Idoneo',    sub_it: 'Candidati rifiutati'    },
+      { id: 'dashboard',    label_en: 'Dashboard',    sub_en: 'Active positions',          label_it: 'Bacheca',       sub_it: 'Posizioni attive'       },
     ],
-    summary:    'Interview Debriefs',
-    aiInsights: 'AI Insights',
+    bottom: [
+      { id: 'interview-summaries', label_en: 'Interview Debriefs', label_it: 'Debrief Colloqui' },
+      { id: 'insights',            label_en: 'AI Insights',        label_it: 'Analisi AI'        },
+    ],
   },
-  it: {
-    badge:    'Publicis Sapient · empath',
-    question: 'Su cosa vorresti lavorare oggi?',
-    btns: [
-      { id: 'triage',       label: 'Selezione CV', sub: 'Rivedi i CV in arrivo'  },
-      { id: 'not-suitable', label: 'Non Idoneo',   sub: 'Candidati rifiutati'    },
-      { id: 'dashboard',    label: 'Bacheca',       sub: 'Posizioni attive'       },
+  'hiring-manager': {
+    capsule: [
+      { id: 'hm-cv-review',   label_en: 'Review CVs', sub_en: 'CVs assigned by recruiter',  label_it: 'Revisiona CV',  sub_it: 'CV assegnati dal recruiter' },
+      { id: 'hiring-manager', label_en: 'Dashboard',  sub_en: 'Active candidates',           label_it: 'Bacheca',       sub_it: 'Candidati attivi'           },
     ],
-    summary:    'Debrief Colloqui',
-    aiInsights: 'Analisi AI',
+    bottom: [
+      { id: 'decision-list', label_en: 'Decision Reports',   label_it: 'Report Decisionali' },
+      { id: 'debrief-list',  label_en: 'Interview Debriefs', label_it: 'Debrief Colloqui'   },
+    ],
+  },
+  interviewer: {
+    capsule: [
+      { id: 'interviewer-debrief',   label_en: 'Interview Debrief', sub_en: 'Provide feedback',      label_it: 'Debrief Colloquio', sub_it: 'Fornisci feedback'    },
+      { id: 'interviewer-dashboard', label_en: 'My Interviews',     sub_en: 'Interviews performed',  label_it: 'I Miei Colloqui',   sub_it: 'Colloqui effettuati'  },
+    ],
+    bottom: [],
   },
 }
 
-function CapsuleButton({ btn, th, hov, onEnter, onLeave, onClick, isFirst }) {
+// ── Capsule button ─────────────────────────────────────────────────────────────
+function CapsuleButton({ label, sub, th, hov, onEnter, onLeave, onClick, isFirst }) {
   return (
     <button
       onMouseEnter={onEnter}
@@ -66,26 +74,51 @@ function CapsuleButton({ btn, th, hov, onEnter, onLeave, onClick, isFirst }) {
         transition: 'color 0.2s',
         letterSpacing: '-0.02em',
         lineHeight: 1.1,
+        textAlign: 'center',
       }}>
-        {btn.label}
+        {label}
       </div>
       <div style={{
         fontSize: 12,
         color: hov ? th.textMid : th.textDim,
         transition: 'color 0.2s',
         letterSpacing: '0.01em',
+        textAlign: 'center',
       }}>
-        {btn.sub}
+        {sub}
       </div>
     </button>
   )
 }
 
-export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, userName }) {
+// ── Root ───────────────────────────────────────────────────────────────────────
+export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, userName, role = 'recruiter' }) {
   const th = theme
-  const T = SCREEN_T[lang] || SCREEN_T.en
+  const cfg = ROLE_CONFIGS[role] || ROLE_CONFIGS.recruiter
   const [hovId, setHovId] = useState(null)
-  const firstName = userName ? userName.split(' ')[0] : 'there'
+
+  // Use first name only; strip the trailing initial (e.g. "Valentina O." → "Valentina")
+  const firstName = userName
+    ? userName.replace(/\s+[A-Z]\.$/, '').trim().split(' ')[0]
+    : 'there'
+
+  const greeting_en = 'What would you like to work on today?'
+  const greeting_it = 'Su cosa vorresti lavorare oggi?'
+  const question = lang === 'it' ? greeting_it : greeting_en
+
+  const capsuleBtns = cfg.capsule.map(b => ({
+    id:    b.id,
+    label: lang === 'it' ? (b.label_it || b.label_en) : b.label_en,
+    sub:   lang === 'it' ? (b.sub_it   || b.sub_en)   : b.sub_en,
+  }))
+
+  const bottomBtns = cfg.bottom.map(b => ({
+    id:    b.id,
+    label: lang === 'it' ? (b.label_it || b.label_en) : b.label_en,
+  }))
+
+  // Use a compound key so each capsule slot has a unique hover ID
+  const hovKey = (idx, id) => `${idx}-${id}`
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -104,7 +137,7 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
             textTransform: 'uppercase', letterSpacing: '0.14em',
             margin: '0 0 16px',
           }}>
-            {T.badge}
+            Publicis Sapient · empath
           </p>
           <h1 style={{
             fontFamily: 'DM Serif Display, Georgia, serif',
@@ -118,14 +151,15 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
             fontSize: 16, color: th.textMid, margin: 0,
             letterSpacing: '-0.01em', fontWeight: 300,
           }}>
-            {T.question}
+            {question}
           </p>
         </div>
 
-        {/* 3-section capsule */}
+        {/* Capsule */}
         <div style={{
           display: 'flex',
-          width: '100%', maxWidth: 860,
+          width: '100%',
+          maxWidth: capsuleBtns.length === 2 ? 600 : 860,
           borderRadius: '1.25rem',
           overflow: 'hidden',
           border: `1px solid ${th.borderBrt}`,
@@ -134,45 +168,48 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
           background: th.cardBg,
           boxShadow: '0 4px 32px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05)',
         }}>
-          {T.btns.map((btn, i) => (
-            <CapsuleButton
-              key={btn.id}
-              btn={btn}
-              th={th}
-              hov={hovId === btn.id}
-              onEnter={() => setHovId(btn.id)}
-              onLeave={() => setHovId(null)}
-              onClick={() => onNavigate(btn.id)}
-              isFirst={i === 0}
-            />
-          ))}
+          {capsuleBtns.map((btn, i) => {
+            const key = hovKey(i, btn.id)
+            return (
+              <CapsuleButton
+                key={key}
+                label={btn.label}
+                sub={btn.sub}
+                th={th}
+                hov={hovId === key}
+                onEnter={() => setHovId(key)}
+                onLeave={() => setHovId(null)}
+                onClick={() => onNavigate(btn.id)}
+                isFirst={i === 0}
+              />
+            )
+          })}
         </div>
       </div>
 
-      {/* Bottom row: Summary ← → AI Insights */}
-      <div style={{ padding: '0 60px 52px', display: 'flex', justifyContent: 'space-between' }}>
-        {[
-          { label: T.summary,    dest: 'interview-summaries' },
-          { label: T.aiInsights, dest: 'insights' },
-        ].map(({ label, dest }) => (
-          <button
-            key={dest}
-            onClick={() => onNavigate(dest)}
-            style={{
-              padding: '11px 24px', borderRadius: '0.75rem',
-              background: th.cardBg, border: `1px solid ${th.border}`,
-              color: th.textMid, fontSize: 13, fontWeight: 500,
-              cursor: 'pointer', fontFamily: 'inherit',
-              backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = th.text; e.currentTarget.style.borderColor = th.borderBrt }}
-            onMouseLeave={e => { e.currentTarget.style.color = th.textMid; e.currentTarget.style.borderColor = th.border }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Bottom row — only if there are bottom buttons */}
+      {bottomBtns.length > 0 && (
+        <div style={{ padding: '0 60px 52px', display: 'flex', justifyContent: 'space-between' }}>
+          {bottomBtns.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => onNavigate(id)}
+              style={{
+                padding: '11px 24px', borderRadius: '0.75rem',
+                background: th.cardBg, border: `1px solid ${th.border}`,
+                color: th.textMid, fontSize: 13, fontWeight: 500,
+                cursor: 'pointer', fontFamily: 'inherit',
+                backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = th.text; e.currentTarget.style.borderColor = th.borderBrt }}
+              onMouseLeave={e => { e.currentTarget.style.color = th.textMid; e.currentTarget.style.borderColor = th.border }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
     </div>
   )

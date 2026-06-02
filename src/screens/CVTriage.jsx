@@ -775,27 +775,28 @@ function CompletionScreen({ advancing, passing, onBackToPicker, T }) {
 }
 
 // ── Position picker card (same visual style as RecruiterDashboard) ─────────────
-function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T }) {
+function TriagePositionCard({ pos, th, pending, closed, onOpen, onOpenCloseModal, onReopen, T }) {
   const [hov, setHov] = useState(false)
   const isEmpty = pending === 0
+  const isClosed = !!closed
 
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      onClick={() => { if (!closed && !isEmpty) onOpen(pos.id) }}
+      onClick={() => { if (!isClosed && !isEmpty) onOpen(pos.id) }}
       style={{
         background: hov ? th.cardBgHov : th.cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         border: `1px solid ${hov ? th.borderBrt : th.border}`,
-        borderTop: `2.5px solid ${closed ? th.border : hov ? th.red : (isEmpty ? th.border : th.red + '66')}`,
+        borderTop: `2.5px solid ${isClosed ? th.border : hov ? th.red : (isEmpty ? th.border : th.red + '66')}`,
         borderRadius: '0.75rem',
         padding: '20px 22px 18px',
         display: 'flex', flexDirection: 'column', gap: 16,
         transition: 'all 0.18s ease',
-        opacity: (isEmpty || closed) ? 0.5 : 1,
-        cursor: (!closed && !isEmpty) ? 'pointer' : 'default',
-        boxShadow: hov && !closed && !isEmpty
+        opacity: (isEmpty || isClosed) ? 0.5 : 1,
+        cursor: (!isClosed && !isEmpty) ? 'pointer' : 'default',
+        boxShadow: hov && !isClosed && !isEmpty
           ? `0 0 0 1px ${th.redGlow}, 0 8px 28px rgba(0,0,0,0.18)`
           : `0 2px 10px rgba(0,0,0,0.08)`,
       }}
@@ -803,18 +804,22 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-            {!isEmpty && !closed && (
+            {!isEmpty && !isClosed && (
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: th.red, boxShadow: `0 0 6px ${th.redGlow}`, flexShrink: 0 }} />
             )}
             <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
-            {closed && <span style={{ fontSize: 9, fontWeight: 700, color: th.textDim, background: th.surface, border: `1px solid ${th.border}`, padding: '1px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>CLOSED</span>}
+            {isClosed && (
+              closed?.reason === 'hired'
+                ? <span style={{ fontSize: 9, fontWeight: 700, color: '#065F46', background: '#D1FAE5', border: '1px solid #BBF7D0', padding: '1px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>✓ Filled</span>
+                : <span style={{ fontSize: 9, fontWeight: 700, color: th.textDim, background: th.surface, border: `1px solid ${th.border}`, padding: '1px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>🔍 No match</span>
+            )}
           </div>
           <h2
             style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 21, fontWeight: 400, color: th.text, margin: 0, lineHeight: 1.2 }}
           >{pos.title}</h2>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 32, fontWeight: 400, color: (isEmpty || closed) ? th.textDim : th.text, lineHeight: 1 }}>{pending}</div>
+          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 32, fontWeight: 400, color: (isEmpty || isClosed) ? th.textDim : th.text, lineHeight: 1 }}>{pending}</div>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.textDim, marginTop: 2, letterSpacing: '0.08em' }}>
             {isEmpty ? T.noCVs : T.pending}
           </div>
@@ -824,20 +829,20 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 11, color: th.textDim }}>📅 {pos.openDays}d open</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {!closed && !isEmpty && (
+          {!isClosed && !isEmpty && (
             <span style={{ fontSize: 11, fontWeight: 600, color: hov ? th.red : th.textDim, transition: 'color 0.15s', letterSpacing: '0.02em' }}>
               {T.startTriage}
             </span>
           )}
           <button
-            onClick={e => { e.stopPropagation(); onToggleClose(pos.id) }}
-            title={closed ? 'Reopen position' : 'Close position'}
+            onClick={e => { e.stopPropagation(); isClosed ? onReopen(pos.id) : onOpenCloseModal(pos.id) }}
+            title={isClosed ? 'Reopen position' : 'Close position'}
             style={{
               fontSize: 10,
-              fontWeight: closed ? 400 : 600,
-              color: closed ? th.textDim : 'white',
-              background: closed ? 'transparent' : th.red,
-              border: closed ? `1px solid ${th.border}` : 'none',
+              fontWeight: isClosed ? 400 : 600,
+              color: isClosed ? th.textDim : 'white',
+              background: isClosed ? 'transparent' : th.red,
+              border: isClosed ? `1px solid ${th.border}` : 'none',
               borderRadius: 6,
               padding: '4px 10px',
               cursor: 'pointer',
@@ -845,7 +850,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
               transition: 'all 0.13s',
             }}
           >
-            {closed ? T.reopen : T.close}
+            {isClosed ? T.reopen : T.close}
           </button>
         </div>
       </div>
@@ -975,11 +980,145 @@ function InlineBatchImport({ posTitle, onComplete, T }) {
   )
 }
 
+// ── Confetti shapes for celebration ──────────────────────────────────────────
+const CONFETTI_SHAPES = [
+  { color:'#E90130', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
+  { color:'#1B2461', x:18, delay:0.12, size:6,  circle:true,  rotate:0   },
+  { color:'#E90130', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
+  { color:'#FBBF24', x:42, delay:0.18, size:7,  circle:true,  rotate:0   },
+  { color:'#1B2461', x:54, delay:0.03, size:9,  circle:false, rotate:60  },
+  { color:'#E90130', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
+  { color:'#FBBF24', x:76, delay:0.09, size:8,  circle:false, rotate:-45 },
+  { color:'#1B2461', x:88, delay:0.21, size:7,  circle:true,  rotate:0   },
+  { color:'#E90130', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
+  { color:'#FBBF24', x:50, delay:0.33, size:8,  circle:true,  rotate:0   },
+  { color:'#1B2461', x:72, delay:0.24, size:6,  circle:false, rotate:-60 },
+  { color:'#E90130', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
+  { color:'#FBBF24', x:92, delay:0.16, size:5,  circle:false, rotate:20  },
+]
+
+// ── Close position modal (choose reason → celebrate or silently close) ────────
+function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
+  const [phase, setPhase] = useState('choose')
+
+  const choose = (reason) => {
+    if (reason === 'hired') setPhase('celebrate')
+    else onConfirm('no-match')
+  }
+
+  if (phase === 'choose') {
+    return (
+      <div
+        onClick={onCancel}
+        style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.42)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(6px)' }}
+      >
+        <style>{`@keyframes triageModalIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{ background: th.cardBg, borderRadius:'0.875rem', padding:'28px 30px', width:450, border:`1px solid ${th.borderBrt}`, boxShadow:'0 28px 72px rgba(0,0,0,0.2)', animation:'triageModalIn 0.22s ease' }}
+        >
+          <div style={{ fontSize:26, marginBottom:10 }}>🔒</div>
+          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:21, color:th.text, marginBottom:8 }}>
+            Close this position?
+          </div>
+          <p style={{ fontSize:13, color:th.textDim, lineHeight:1.65, margin:'0 0 22px' }}>
+            <strong style={{ color:th.text }}>{pos.title}</strong> will be moved to the archive.
+            No new candidates will be accepted. You can reopen it at any time.
+          </p>
+
+          <div style={{ fontSize:10, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:10 }}>
+            Why are you closing it?
+          </div>
+
+          <button
+            onClick={() => choose('hired')}
+            style={{ width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:9, border:'2px solid rgba(5,150,105,0.22)', background:'rgba(5,150,105,0.05)', cursor:'pointer', fontFamily:'inherit', textAlign:'left', display:'flex', alignItems:'center', gap:13, transition:'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(5,150,105,0.5)'; e.currentTarget.style.background='rgba(5,150,105,0.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(5,150,105,0.22)'; e.currentTarget.style.background='rgba(5,150,105,0.05)' }}
+          >
+            <span style={{ fontSize:22, flexShrink:0 }}>🎯</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#065F46', marginBottom:3 }}>We found the right candidate</div>
+              <div style={{ fontSize:11, color:'#6B7280', lineHeight:1.5 }}>The position has been filled — great work.</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => choose('no-match')}
+            style={{ width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:22, border:`1px solid ${th.border}`, background:th.surface, cursor:'pointer', fontFamily:'inherit', textAlign:'left', display:'flex', alignItems:'center', gap:13, transition:'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor=th.borderBrt; e.currentTarget.style.background=th.surfaceHov }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor=th.border; e.currentTarget.style.background=th.surface }}
+          >
+            <span style={{ fontSize:22, flexShrink:0 }}>🔍</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:th.textMid, marginBottom:3 }}>We didn't find anyone for now</div>
+              <div style={{ fontSize:11, color:th.textDim, lineHeight:1.5 }}>Archived · You can revisit this in the closed positions below.</div>
+            </div>
+          </button>
+
+          <button
+            onClick={onCancel}
+            style={{ width:'100%', padding:'10px', borderRadius:9, border:`1px solid ${th.border}`, background:'transparent', color:th.textMid, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Celebrate phase
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(8px)' }}>
+      <style>{`
+        @keyframes triageConfettiPop{0%{transform:translateY(0) rotate(0deg) scale(1);opacity:0}12%{opacity:1}100%{transform:translateY(-180px) rotate(540deg) scale(0.3);opacity:0}}
+        @keyframes triageCelebrateIn{0%{opacity:0;transform:scale(0.88) translateY(12px)}65%{transform:scale(1.02) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+        @keyframes triageTrophyBounce{0%{transform:scale(0) rotate(-15deg)}55%{transform:scale(1.25) rotate(8deg)}75%{transform:scale(0.92) rotate(-3deg)}100%{transform:scale(1) rotate(0deg)}}
+        @keyframes triageShimmer{0%,100%{opacity:0.5}50%{opacity:1}}
+      `}</style>
+      <div style={{ position:'relative', width:480 }}>
+        {CONFETTI_SHAPES.map((s, i) => (
+          <div key={i} style={{ position:'absolute', left:`${s.x}%`, bottom:'38%', width:s.size, height:s.size, background:s.color, borderRadius:s.circle?'50%':'2px', transform:`rotate(${s.rotate}deg)`, animation:`triageConfettiPop 1.6s cubic-bezier(0.25,0.46,0.45,0.94) ${s.delay}s both`, zIndex:10, pointerEvents:'none' }} />
+        ))}
+        <div style={{ background:th.cardBg, borderRadius:'1.1rem', padding:'40px 34px 32px', border:`1px solid ${th.borderBrt}`, boxShadow:'0 36px 90px rgba(0,0,0,0.24)', animation:'triageCelebrateIn 0.4s cubic-bezier(0.22,0.61,0.36,1) both', textAlign:'center', position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% -10%, rgba(233,1,48,0.08) 0%, transparent 62%)', pointerEvents:'none', animation:'triageShimmer 2.5s ease-in-out infinite' }} />
+          <div style={{ width:72, height:72, borderRadius:'50%', background:'linear-gradient(135deg, rgba(5,150,105,0.15) 0%, rgba(5,150,105,0.06) 100%)', border:'2px solid rgba(5,150,105,0.3)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 22px', animation:'triageTrophyBounce 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both' }}>
+            <span style={{ fontSize:34 }}>🏆</span>
+          </div>
+          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
+            Position filled!
+          </div>
+          <p style={{ fontSize:14, color:th.textMid, lineHeight:1.75, margin:'0 0 6px' }}>
+            You found the right person for <strong style={{ color:th.text }}>{pos.title}</strong>.
+          </p>
+          <p style={{ fontSize:13, color:th.textDim, lineHeight:1.75, margin:'0 0 28px', maxWidth:340, marginLeft:'auto', marginRight:'auto' }}>
+            Great work bringing the right talent to the team — this is what it's all about.
+          </p>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:7, background:th.surface, border:`1px solid ${th.border}`, borderRadius:20, padding:'5px 16px', marginBottom:26, fontSize:11, color:th.textDim }}>
+            <span style={{ color:'#059669', fontWeight:700 }}>✓</span>
+            Position closed · Reopen anytime
+          </div>
+          <div>
+            <button
+              onClick={() => onConfirm('hired')}
+              style={{ padding:'13px 36px', borderRadius:10, background:th.red, color:'white', border:'none', fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.04em', boxShadow:`0 0 28px ${th.redGlow}`, transition:'transform 0.1s' }}
+              onMouseEnter={e => e.currentTarget.style.transform='scale(1.03)'}
+              onMouseLeave={e => e.currentTarget.style.transform='scale(1)'}
+            >
+              Done →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition }) {
-  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)' }
+  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   const [positions, setPositions] = useState(() => {
@@ -996,7 +1135,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const [decisions,        setDecisions]        = useState({})
   const [docTypeOverrides, setDocTypeOverrides] = useState({})
   const [showAddPos,       setShowAddPos]       = useState(false)
-  const [closedPositions,  setClosedPositions]  = useState(new Set())
+  const [closedPositions,  setClosedPositions]  = useState({})   // id → { reason: 'hired' | 'no-match' }
+  const [closePending,     setClosePending]     = useState(null) // position id waiting for close reason
   // Batch import state — importedCVs stores mock CVs for any position that went through inline import
   const [importedCVs,  setImportedCVs]  = useState({})
   // Auto-open the importer if CVTriage was opened with a new position that has no CVs
@@ -1004,9 +1144,11 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
     initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0)
   )
 
-  const toggleClose = (id) => setClosedPositions(s => {
-    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
-  })
+  const confirmClose = (reason) => {
+    setClosedPositions(s => ({ ...s, [closePending]: { reason } }))
+    setClosePending(null)
+  }
+  const reopenPosition = (id) => setClosedPositions(s => { const n = { ...s }; delete n[id]; return n })
 
   const activePos = positions.find(p => p.id === activePosId)
   // Use TRIAGE_DATA first; fall back to anything imported inline this session
@@ -1100,9 +1242,10 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
                 pos={pos}
                 th={th}
                 pending={TRIAGE_DATA[pos.id]?.length || 0}
-                closed={closedPositions.has(pos.id)}
+                closed={closedPositions[pos.id] || null}
                 onOpen={handleOpenPosition}
-                onToggleClose={toggleClose}
+                onOpenCloseModal={(id) => setClosePending(id)}
+                onReopen={reopenPosition}
                 T={T}
               />
             ))}
@@ -1113,6 +1256,18 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
         {showAddPos && (
           <AddPositionModal onAdd={handleAddPosition} onClose={() => setShowAddPos(false)} T={T} />
         )}
+
+        {closePending !== null && (() => {
+          const pos = positions.find(p => p.id === closePending)
+          return pos ? (
+            <TriageCloseModal
+              pos={pos}
+              th={th}
+              onConfirm={confirmClose}
+              onCancel={() => setClosePending(null)}
+            />
+          ) : null
+        })()}
       </div>
     )
   }

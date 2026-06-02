@@ -239,8 +239,8 @@ function generateMessage({ candidate, typeId, context, tone }) {
     : `Dear ${name},`
 
   const closing = warm
-    ? `\n\nWith warm regards,\n\nSarah R.\nTalent Acquisition · Publicis Sapient`
-    : `\n\nBest regards,\n\nSarah R.\nTalent Acquisition · Publicis Sapient`
+    ? `\n\nWith warm regards,\n\nValentina O.\nTalent Acquisition · Publicis Sapient`
+    : `\n\nBest regards,\n\nValentina O.\nTalent Acquisition · Publicis Sapient`
 
   const contextBlock = context ? `\n\n${context}` : ''
 
@@ -664,8 +664,8 @@ function CandidateInboxView({ candidate, subject, message }) {
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1917' }}>Sarah R. </span>
-                <span style={{ fontSize: 11, color: '#888' }}>&lt;sarah.r@publicissapient.com&gt;</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1917' }}>Valentina O. </span>
+                <span style={{ fontSize: 11, color: '#888' }}>&lt;valentina.o@publicissapient.com&gt;</span>
               </div>
               <span style={{ fontSize: 11, color: '#888' }}>{today}, {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>

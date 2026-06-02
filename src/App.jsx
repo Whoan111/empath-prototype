@@ -19,9 +19,9 @@ import NotSuitable               from './screens/NotSuitable'
 import InterviewerDashboard      from './screens/InterviewerDashboard'
 
 const ROLES = {
-  recruiter:       { id:'recruiter',       name:'Valentina O.', ini:'VO', title_en:'Recruiter',         title_it:'Reclutatore',             home:'home'          },
-  'hiring-manager':{ id:'hiring-manager',  name:'Andrea',       ini:'AM', title_en:'Hiring Manager',    title_it:'Responsabile Assunzioni', home:'hiring-manager'},
-  interviewer:     { id:'interviewer',     name:'Alessandro M.',ini:'AL', title_en:'Interviewer',        title_it:'Intervistatore',          home:'interviewer-dashboard'},
+  recruiter:       { id:'recruiter',       name:'Valentina O.', ini:'VO', title_en:'Recruiter',         title_it:'Reclutatore',             home:'home' },
+  'hiring-manager':{ id:'hiring-manager',  name:'Andrea P.',    ini:'AP', title_en:'Hiring Manager',    title_it:'Responsabile Assunzioni', home:'home' },
+  interviewer:     { id:'interviewer',     name:'Alessandro S.',ini:'AL', title_en:'Interviewer',        title_it:'Intervistatore',          home:'home' },
 }
 
 const BUILT = ['home','dashboard','import','screening','triage','not-suitable','kanban','craft',
@@ -29,10 +29,28 @@ const BUILT = ['home','dashboard','import','screening','triage','not-suitable','
   'hiring-manager','questionnaire','debrief-list','insights','hm-cv-review',
   'interviewer-dashboard', 'interviewer-debrief']
 
+// ── Settings panel items ───────────────────────────────────────────────────────
+const SETTINGS_SECTIONS = [
+  [
+    { icon: '👤', label: 'Edit profile'       },
+    { icon: '🔔', label: 'Notifications'      },
+    { icon: '🌐', label: 'Language & region'  },
+    { icon: '🎨', label: 'Appearance'         },
+  ],
+  [
+    { icon: '❓', label: 'Help & support'     },
+    { icon: '✨', label: "What's new"         },
+  ],
+  [
+    { icon: '🚪', label: 'Log out', danger: true },
+  ],
+]
+
 // ── Fixed sidebar ──────────────────────────────────────────────────────────────
-function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggleLang, notifications }) {
+function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggleLang, notifications, collapsed, onToggleCollapse }) {
   const th = theme
-  const [showPicker, setShowPicker] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showPicker,   setShowPicker]   = useState(false)
   const user = ROLES[role]
   const T = TRANSLATIONS[lang] || TRANSLATIONS.en
 
@@ -62,119 +80,256 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
     return screen === id
   }
 
+  const closeAll = () => { setShowSettings(false); setShowPicker(false) }
+
   return (
     <aside style={{
-      width: 218, flexShrink: 0, display: 'flex', flexDirection: 'column',
-      background: th.sidebarBg,
-      backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
-      borderRight: `1px solid ${th.border}`,
+      width: collapsed ? 60 : 218,
+      flexShrink: 0,
+      display: 'flex', flexDirection: 'column',
+      // Transparent when collapsed so only the icon buttons float
+      background: collapsed ? 'transparent' : th.sidebarBg,
+      backdropFilter: collapsed ? 'none' : th.blur,
+      WebkitBackdropFilter: collapsed ? 'none' : th.blur,
+      borderRight: collapsed ? 'none' : `1px solid ${th.border}`,
       position: 'relative', zIndex: 10,
+      transition: 'width 0.24s cubic-bezier(0.4,0,0.2,1)',
+      overflow: 'hidden',
     }}>
       <style>{`
-        .sb-nav-btn:hover { background: rgba(27,36,97,0.06) !important; }
-        .sb-role-opt:hover { background: rgba(27,36,97,0.05) !important; }
-
-        .sb-logo:hover { opacity: 0.75; }
+        .sb-nav-btn:hover   { background: rgba(27,36,97,0.06) !important; }
+        .sb-role-opt:hover  { background: rgba(27,36,97,0.05) !important; }
+        .sb-logo:hover      { opacity: 0.75; }
+        .sb-set-item:hover  { background: rgba(27,36,97,0.04) !important; }
+        .sb-collapse:hover  { background: rgba(27,36,97,0.08) !important; }
+        .sb-name-row:hover  { background: rgba(27,36,97,0.04) !important; }
       `}</style>
 
-      {/* Logo — click → home */}
-      <div
-        className="sb-logo"
-        onClick={() => onNavigate('home')}
-        style={{ padding: '22px 20px 18px', borderBottom: `1px solid ${th.border}`, cursor: 'pointer', transition: 'opacity 0.15s' }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <div style={{ width: 32, height: 32, background: th.red, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: `0 0 14px ${th.redGlow}` }}>♥</div>
-          <span style={{ color: th.text, fontSize: 17, fontFamily: 'DM Serif Display, Georgia, serif', letterSpacing: '-0.01em' }}>empath</span>
-        </div>
-        <div style={{ fontSize: 9, color: th.textDim, letterSpacing: '0.1em', fontWeight: 700 }}>PUBLICIS SAPIENT</div>
-      </div>
+      {/* ══════════════════════════════════════════════
+          COLLAPSED VIEW — ♥ home button + › expand
+          ══════════════════════════════════════════════ */}
+      {collapsed && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 16, gap: 10 }}>
+          {/* ♥ → always home */}
+          <button
+            className="sb-logo"
+            onClick={() => onNavigate('home')}
+            title="Home"
+            style={{
+              width: 38, height: 38, borderRadius: 10,
+              background: th.red, border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, color: 'white',
+              boxShadow: `0 0 14px ${th.redGlow}`,
+              transition: 'opacity 0.15s', fontFamily: 'inherit',
+            }}
+          >♥</button>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {navItems.map((item, i) => {
-          if (!item) return <div key={i} style={{ height: 1, background: th.border, margin: '6px 4px' }} />
-          const active = isActive(item.id)
-          const hasDot = notifications?.[item.id]
-          return (
-            <button key={item.id} className="sb-nav-btn"
-              onClick={() => onNavigate(item.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 9, padding: '8px 11px',
-                borderRadius: 8, border: 'none', cursor: 'pointer',
-                background: active ? 'rgba(233,1,48,0.08)' : 'transparent',
-                color: active ? th.red : th.textDim,
-                fontSize: 12, fontWeight: active ? 600 : 400,
-                textAlign: 'left', width: '100%', fontFamily: 'inherit',
-                borderLeft: `3px solid ${active ? th.red : 'transparent'}`,
-                transition: 'all 0.15s',
-              }}
-            >
-              <span style={{ flex: 1 }}>{item.label}</span>
-              {hasDot && (
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: th.red, flexShrink: 0, boxShadow: `0 0 6px ${th.redGlow}` }} />
-              )}
-            </button>
-          )
-        })}
-      </nav>
-
-      {/* Language switcher — segmented pill */}
-      <div style={{ padding: '10px 12px', borderTop: `1px solid ${th.border}` }}>
-        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: 9, padding: 3, border: `1px solid ${th.border}` }}>
-          {['en', 'it'].map(l => (
-            <button
-              key={l}
-              onClick={() => { if (lang !== l) onToggleLang() }}
-              style={{
-                flex: 1, padding: '5px 0', borderRadius: 7, border: 'none',
-                cursor: lang !== l ? 'pointer' : 'default', fontFamily: 'inherit',
-                fontSize: 11, fontWeight: lang === l ? 700 : 400,
-                background: lang === l ? th.red : 'transparent',
-                color: lang === l ? 'white' : th.textDim,
-                transition: 'all 0.18s', letterSpacing: '0.05em',
-              }}
-            >
-              {l === 'en' ? '🇬🇧 EN' : '🇮🇹 IT'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Role picker popup */}
-      {showPicker && (
-        <div style={{ position: 'absolute', bottom: 68, left: 8, right: 8, background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 12, border: `1px solid ${th.borderBrt}`, overflow: 'hidden', zIndex: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-          <div style={{ padding: '8px 12px 5px', fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>{T.switchView}</div>
-          {Object.values(ROLES).map(r => (
-            <button key={r.id} className="sb-role-opt"
-              onClick={() => { onSwitchRole(r.id); setShowPicker(false) }}
-              style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '9px 12px', border: 'none', cursor: 'pointer', background: role === r.id ? 'rgba(233,1,48,0.07)' : 'transparent', fontFamily: 'inherit' }}
-            >
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: th.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0 }}>{r.ini}</div>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 12, fontWeight: 500, color: th.text }}>{r.name}</div>
-                <div style={{ fontSize: 9, color: th.textDim }}>{lang === 'en' ? r.title_en : r.title_it}</div>
-              </div>
-              {role === r.id && <span style={{ marginLeft: 'auto', fontSize: 10, color: th.red }}>✓</span>}
-            </button>
-          ))}
+          {/* › → expand sidebar */}
+          <button
+            className="sb-collapse"
+            onClick={onToggleCollapse}
+            title="Expand menu"
+            style={{
+              width: 28, height: 28, borderRadius: 8,
+              background: 'rgba(255,255,255,0.82)',
+              border: `1px solid ${th.border}`,
+              backdropFilter: 'blur(8px)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14, color: th.textDim, fontFamily: 'inherit',
+              transition: 'all 0.15s',
+            }}
+          >›</button>
         </div>
       )}
 
-      {/* User chip */}
-      <button
-        onClick={() => setShowPicker(v => !v)}
-        style={{ padding: '12px 14px', borderTop: `1px solid ${th.border}`, display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', cursor: 'pointer', width: '100%', fontFamily: 'inherit', transition: 'background 0.15s' }}
-      >
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: th.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'white', fontWeight: 700, flexShrink: 0, boxShadow: `0 0 10px ${th.redGlow}` }}>
-          {user.ini}
+      {/* ══════════════════════════════════════════════
+          EXPANDED VIEW — full sidebar
+          ══════════════════════════════════════════════ */}
+      {!collapsed && <>
+
+        {/* ── Logo + collapse arrow ── */}
+        <div style={{ padding: '22px 10px 18px 20px', borderBottom: `1px solid ${th.border}`, display: 'flex', alignItems: 'flex-start', gap: 6, whiteSpace: 'nowrap' }}>
+          {/* Logo area — clicks navigate home */}
+          <div
+            className="sb-logo"
+            onClick={() => onNavigate('home')}
+            style={{ flex: 1, cursor: 'pointer', transition: 'opacity 0.15s', overflow: 'hidden' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 32, height: 32, background: th.red, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: `0 0 14px ${th.redGlow}` }}>♥</div>
+              <span style={{ color: th.text, fontSize: 17, fontFamily: 'DM Serif Display, Georgia, serif', letterSpacing: '-0.01em' }}>empath</span>
+            </div>
+            <div style={{ fontSize: 9, color: th.textDim, letterSpacing: '0.1em', fontWeight: 700 }}>PUBLICIS SAPIENT</div>
+          </div>
+          {/* ‹ collapse arrow — near the right border */}
+          <button
+            className="sb-collapse"
+            onClick={onToggleCollapse}
+            title="Collapse sidebar"
+            style={{
+              width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+              border: `1px solid ${th.border}`, background: 'transparent',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, color: th.textDim, fontFamily: 'inherit',
+              transition: 'all 0.15s', marginTop: 5,
+            }}
+          >‹</button>
         </div>
-        <div style={{ textAlign: 'left', flex: 1 }}>
-          <div style={{ color: th.text, fontSize: 12, fontWeight: 500 }}>{user.name}</div>
-          <div style={{ color: th.textDim, fontSize: 9 }}>{lang === 'en' ? user.title_en : user.title_it}</div>
+
+        {/* ── Nav ── */}
+        <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {navItems.map((item, i) => {
+            if (!item) return <div key={i} style={{ height: 1, background: th.border, margin: '6px 4px' }} />
+            const active = isActive(item.id)
+            const hasDot = notifications?.[item.id]
+            return (
+              <button key={item.id} className="sb-nav-btn"
+                onClick={() => onNavigate(item.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 9, padding: '8px 11px',
+                  borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: active ? 'rgba(233,1,48,0.08)' : 'transparent',
+                  color: active ? th.red : th.textDim,
+                  fontSize: 12, fontWeight: active ? 600 : 400,
+                  textAlign: 'left', width: '100%', fontFamily: 'inherit',
+                  borderLeft: `3px solid ${active ? th.red : 'transparent'}`,
+                  transition: 'all 0.15s', whiteSpace: 'nowrap',
+                }}
+              >
+                <span style={{ flex: 1 }}>{item.label}</span>
+                {hasDot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: th.red, flexShrink: 0, boxShadow: `0 0 6px ${th.redGlow}` }} />}
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* ── Language switcher ── */}
+        <div style={{ padding: '10px 12px', borderTop: `1px solid ${th.border}`, whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: 9, padding: 3, border: `1px solid ${th.border}` }}>
+            {['en', 'it'].map(l => (
+              <button key={l} onClick={() => { if (lang !== l) onToggleLang() }}
+                style={{
+                  flex: 1, padding: '5px 0', borderRadius: 7, border: 'none',
+                  cursor: lang !== l ? 'pointer' : 'default', fontFamily: 'inherit',
+                  fontSize: 11, fontWeight: lang === l ? 700 : 400,
+                  background: lang === l ? th.red : 'transparent',
+                  color: lang === l ? 'white' : th.textDim,
+                  transition: 'all 0.18s', letterSpacing: '0.05em',
+                }}
+              >
+                {l === 'en' ? '🇬🇧 EN' : '🇮🇹 IT'}
+              </button>
+            ))}
+          </div>
         </div>
-        <span style={{ color: th.textDim, fontSize: 10 }}>⇅</span>
-      </button>
+
+        {/* ── Profile switcher popup ── */}
+        {showPicker && (
+          <div style={{
+            position: 'absolute', bottom: 62, left: 8, right: 8,
+            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)', borderRadius: 12,
+            border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
+            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.12)',
+          }}>
+            <div style={{ padding: '8px 12px 5px', fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>{T.switchView}</div>
+            {Object.values(ROLES).map(r => (
+              <button key={r.id} className="sb-role-opt"
+                onClick={() => { onSwitchRole(r.id); closeAll() }}
+                style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '9px 12px', border: 'none', cursor: 'pointer', background: role === r.id ? 'rgba(233,1,48,0.07)' : 'transparent', fontFamily: 'inherit' }}
+              >
+                <div style={{ width: 26, height: 26, borderRadius: '50%', background: th.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0 }}>{r.ini}</div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: th.text }}>{r.name}</div>
+                  <div style={{ fontSize: 9, color: th.textDim }}>{lang === 'en' ? r.title_en : r.title_it}</div>
+                </div>
+                {role === r.id && <span style={{ marginLeft: 'auto', fontSize: 10, color: th.red }}>✓</span>}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ── Settings popup ── */}
+        {showSettings && (
+          <div style={{
+            position: 'absolute', bottom: 62, left: 8, right: 8,
+            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)', borderRadius: 12,
+            border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
+            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.12)',
+          }}>
+            <div style={{ padding: '12px 14px 10px', borderBottom: `1px solid ${th.border}` }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Settings</div>
+            </div>
+            {SETTINGS_SECTIONS.map((section, si) => (
+              <div key={si} style={{ borderBottom: si < SETTINGS_SECTIONS.length - 1 ? `1px solid ${th.border}` : 'none', padding: '4px 0' }}>
+                {section.map(item => (
+                  <button key={item.label} className="sb-set-item"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 9,
+                      width: '100%', padding: '8px 14px',
+                      border: 'none', background: 'transparent', cursor: 'default',
+                      fontFamily: 'inherit', color: item.danger ? '#C9394A' : th.textMid,
+                      fontSize: 12, textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    <span style={{ fontSize: 9, color: th.textDim, background: th.surface || '#F5F4F3', padding: '1px 6px', borderRadius: 10, border: `1px solid ${th.border}` }}>soon</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Bottom row: [avatar + name → picker] [⚙ → settings] ── */}
+        <div style={{ borderTop: `1px solid ${th.border}`, display: 'flex', alignItems: 'center' }}>
+
+          {/* Left: name area → profile switcher */}
+          <button
+            className="sb-name-row"
+            onClick={() => { setShowPicker(v => !v); setShowSettings(false) }}
+            style={{
+              flex: 1, padding: '11px 12px 11px 14px',
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: showPicker ? 'rgba(27,36,97,0.04)' : 'transparent',
+              border: 'none', cursor: 'pointer',
+              fontFamily: 'inherit', transition: 'background 0.15s',
+              overflow: 'hidden', whiteSpace: 'nowrap',
+            }}
+          >
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: th.red, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'white', fontWeight: 700, boxShadow: `0 0 8px ${th.redGlow}` }}>
+              {user.ini}
+            </div>
+            <div style={{ textAlign: 'left', overflow: 'hidden', flex: 1 }}>
+              <div style={{ color: th.text, fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+              <div style={{ color: th.textDim, fontSize: 9 }}>{lang === 'en' ? user.title_en : user.title_it}</div>
+            </div>
+          </button>
+
+          {/* Right: ⚙ gear → settings */}
+          <button
+            onClick={() => { setShowSettings(v => !v); setShowPicker(false) }}
+            title="Settings"
+            style={{
+              width: 44, height: 44, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: showSettings ? 'rgba(27,36,97,0.06)' : 'transparent',
+              border: 'none', borderLeft: `1px solid ${th.border}`,
+              cursor: 'pointer', fontFamily: 'inherit',
+              fontSize: 20, color: showSettings ? th.text : th.textDim,
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.06)'; e.currentTarget.style.color = th.text }}
+            onMouseLeave={e => { e.currentTarget.style.background = showSettings ? 'rgba(27,36,97,0.06)' : 'transparent'; e.currentTarget.style.color = showSettings ? th.text : th.textDim }}
+          >
+            ⚙
+          </button>
+        </div>
+
+      </>}
     </aside>
   )
 }
@@ -196,6 +351,7 @@ export default function App() {
   const [screenData,      setScreenData]      = useState(null)
   const [lang,            setLang]            = useState('en')
   const [customPositions, setCustomPositions] = useState([])
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Light mode only
   const theme     = THEMES.light
@@ -213,15 +369,18 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg }}>
+
       <Sidebar
         screen={screen} role={role} theme={theme} lang={lang}
         onNavigate={nav} onSwitchRole={switchRole}
         onToggleLang={() => setLang(l => l === 'en' ? 'it' : 'en')}
         notifications={notifications}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(v => !v)}
       />
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
-        {screen === 'home'                && <HomeScreen                    {...sp} />}
+        {screen === 'home'                && <HomeScreen                    {...sp} role={role} />}
         {screen === 'dashboard'           && <RecruiterDashboard            {...sp} customPositions={customPositions} onAddPosition={p => setCustomPositions(prev => [...prev, p])} />}
         {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} restoreCandidate={screenData?.restoreCandidate} onBack={() => nav('dashboard')} />}
         {screen === 'import'              && <CVImportScreening             lang={lang} initialPosition={screenData?.position} extraPositions={customPositions} onBack={goBack} onNavigate={nav} />}

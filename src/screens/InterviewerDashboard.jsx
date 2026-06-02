@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// InterviewerDashboard.jsx  — Interviewer role · Alessandro M.
+// InterviewerDashboard.jsx  — Interviewer role · Alessandro S.
 //
 //  section='home'    → grid of candidates you've interviewed + outcome status
 //                      "View profile" opens a right-panel inline (no page nav)
@@ -123,7 +123,7 @@ const C = {
 }
 
 // ── Interviewer identity ──────────────────────────────────────────────────────
-const INTERVIEWER = { name: 'Alessandro M.', ini: 'AL', role: 'Senior UX Designer' }
+const INTERVIEWER = { name: 'Alessandro S.', ini: 'AL', role: 'Senior UX Designer' }
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const MY_CANDIDATES = [
@@ -152,7 +152,7 @@ const MY_CANDIDATES = [
       },
       {
         round: 2, type: 'Technical Deep-Dive',
-        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: true,
+        by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: true,
         txt: 'Enthusiastic and highly collaborative. Cultural fit is strong. Could sharpen complex problem-solving under pressure — gave surface-level answers on two edge cases.',
         strengths: ['Cultural fit', 'Collaboration'],
         concerns: ['Problem-solving under pressure'],
@@ -176,7 +176,7 @@ const MY_CANDIDATES = [
     allFeedback: [
       {
         round: 1, type: 'Research Deep-Dive',
-        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: true,
+        by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: true,
         txt: 'Outstanding. Research depth is rare at this level. She thinks in systems and articulates complexity with genuine clarity. Strong recommend.',
         strengths: ['Research depth', 'Systems thinking', 'Communication'],
         concerns: [],

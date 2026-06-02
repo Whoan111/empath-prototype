@@ -854,7 +854,7 @@ function DoneStep({ decisions, config, onGoToDashboard }) {
       <div style={{ textAlign: 'center', maxWidth: 440 }}>
         <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
         <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>
-          All set, Sarah.
+          All set, Valentina.
         </h2>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: '0 0 28px' }}>
           <strong style={{ color: C.text }}>{advancing.length} candidates</strong> have been added to the {pos?.title} screening pipeline.{' '}

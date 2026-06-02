@@ -928,8 +928,8 @@ export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MO
 
   // Current user — derived from role so the debrief form shows the right name
   const currentUser = isHM
-    ? { name: 'Andrea', role: 'Hiring Manager', ini: 'AM' }
-    : { name: 'Alessandro M.', role: 'Senior UX Designer', ini: 'AL' }
+    ? { name: 'Andrea P.', role: 'Hiring Manager', ini: 'AP' }
+    : { name: 'Alessandro S.', role: 'Senior UX Designer', ini: 'AL' }
 
   const [step, setStep] = useState(0)
 

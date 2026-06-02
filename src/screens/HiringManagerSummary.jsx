@@ -26,12 +26,13 @@ const SCREEN_T = {
     notAdvancing:     'Not advancing',
     yourDecision:     'Your decision',
     changeDecision:   'Change decision',
-    movingFwd:        '✓ Moving forward — recruiter will be notified',
-    notMovingFwd:     '✕ Not moving forward — recruiter will be notified',
+    movingFwd:        '✓ Hire suggested — recruiter will be notified',
+    notMovingFwd:     '✕ Rejected — recruiter will be notified',
     anotherRound:     '↺ Another round requested',
-    advance:          '✓ Move forward',
+    suggestHire:      'Suggest hire',
     requestRound:     '↺ Request another round',
-    notForward:       '✕ Not moving forward',
+    reject:           'Reject',
+    unreject:         'Unreject',
     sendUpdate:       '✉ Send update to candidate',
   },
   it: {
@@ -54,12 +55,13 @@ const SCREEN_T = {
     notAdvancing:     'Non avanza',
     yourDecision:     'La tua decisione',
     changeDecision:   'Cambia decisione',
-    movingFwd:        '✓ Avanza — il recruiter verrà notificato',
-    notMovingFwd:     '✕ Non avanza — il recruiter verrà notificato',
+    movingFwd:        '✓ Assunzione suggerita — il recruiter verrà notificato',
+    notMovingFwd:     '✕ Rifiutato — il recruiter verrà notificato',
     anotherRound:     '↺ Altro round richiesto',
-    advance:          '✓ Avanza',
+    suggestHire:      'Suggerisci assunzione',
     requestRound:     '↺ Richiedi altro round',
-    notForward:       '✕ Non avanza',
+    reject:           'Rifiuta',
+    unreject:         'Annulla rifiuto',
     sendUpdate:       '✉ Invia aggiornamento al candidato',
   },
 }
@@ -312,6 +314,43 @@ export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CAN
           </div>
         </div>
 
+        {/* ── Decision panel ── */}
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
+
+          {decision ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 11, background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}` }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
+                {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
+              </div>
+              <button onClick={() => setDecision(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit', padding: '4px 8px' }}>
+                {decision === 'pass' ? T.unreject : T.changeDecision}
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setDecision('advance')}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.suc, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {T.suggestHire}
+              </button>
+              <button
+                onClick={() => setDecision('another-round')}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {T.requestRound}
+              </button>
+              <button
+                onClick={() => setDecision('pass')}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.gray, color: C.muted, border: `1px solid ${C.grayB}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {T.reject}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* ── Interview cards ── */}
         <div style={{ marginBottom: 24 }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
@@ -322,43 +361,6 @@ export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CAN
               <InterviewCard key={iv.id} interview={iv} T={T} />
             ))}
           </div>
-        </div>
-
-        {/* ── Decision panel ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
-
-          {decision ? (
-            <div style={{ padding: '16px 18px', borderRadius: 11, textAlign: 'center', background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}` }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
-                {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
-              </div>
-              <button onClick={() => setDecision(null)} style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>
-                {T.changeDecision}
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setDecision('advance')}
-                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                {T.advance}
-              </button>
-              <button
-                onClick={() => setDecision('another-round')}
-                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                {T.requestRound}
-              </button>
-              <button
-                onClick={() => setDecision('pass')}
-                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.gray, color: C.muted, border: `1px solid ${C.grayB}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                {T.notForward}
-              </button>
-            </div>
-          )}
         </div>
 
       </div>

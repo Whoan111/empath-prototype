@@ -167,11 +167,11 @@ const C = {
 }
 
 // ── Mock data — Andrea P.'s view ───────────────────────────────────────────────
-const HM = { name: 'Andrea', role: 'Hiring Manager', dept: 'Product Design', ini: 'AM' }
+const HM = { name: 'Andrea P.', role: 'Hiring Manager', dept: 'Product Design', ini: 'AP' }
 
 const POSITIONS = [
-  { id: 1, title: 'UX Designer',    dept: 'Product Design', openSince: 'Mar 12', recruiter: 'Sarah R.', totalApplicants: 28, preSelected: 4 },
-  { id: 3, title: 'Product Manager', dept: 'Product',        openSince: 'Apr 28', recruiter: 'Sarah R.', totalApplicants: 19, preSelected: 1 },
+  { id: 1, title: 'UX Designer',    dept: 'Product Design', openSince: 'Mar 12', recruiter: 'Valentina O.', totalApplicants: 28, preSelected: 4 },
+  { id: 3, title: 'Product Manager', dept: 'Product',        openSince: 'Apr 28', recruiter: 'Valentina O.', totalApplicants: 19, preSelected: 1 },
 ]
 
 const PIPELINE = ['Screening', 'Preliminary Call', 'Interviews', 'Offer']
@@ -670,7 +670,23 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
   const pendingCount = allCands.length - advancing - notMoving
 
   return (
-    <div style={{ display: 'flex', height: '100%', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+      <style>{`@keyframes hmBannerIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+
+      {hireBanner && (
+        <div style={{
+          position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 200, pointerEvents: 'none',
+          background: 'rgba(27,36,97,0.1)', border: '1.5px solid rgba(27,36,97,0.3)',
+          backdropFilter: 'blur(16px)', borderRadius: 20, padding: '8px 20px',
+          fontSize: 12, fontWeight: 700, color: '#1B2461',
+          boxShadow: '0 4px 20px rgba(27,36,97,0.15)',
+          animation: 'hmBannerIn 0.3s cubic-bezier(0.22,0.61,0.36,1) both',
+          whiteSpace: 'nowrap',
+        }}>
+          ✓ This will notify the recruiter about your decision
+        </div>
+      )}
 
       {/* ── Top bar ── */}
       <header style={{ padding: '18px 28px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -862,7 +878,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                 <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{T.recruiterContact} {pos?.recruiter}</div>
                 <div style={{ fontSize: 11, color: C.muted }}>{T.recruiterNote}</div>
               </div>
-              <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '4px 10px', borderRadius: 20 }}>sarah.r@publicissapient.com</span>
+              <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '4px 10px', borderRadius: 20 }}>valentina.o@publicissapient.com</span>
             </div>
           )}
         </div>
@@ -884,12 +900,10 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
       </div>
 
       {/* ── Confirm hire modal ── */}
-      {confirmHireId && sortedActive.find(c => c.id === confirmHireId) && (
+      {confirmHireId && allCands.find(c => c.id === confirmHireId) && (
         <ConfirmHireModal
-          candidate={sortedActive.find(c => c.id === confirmHireId)}
-          hasOtherCandidates={sortedActive.filter(c => c.id !== confirmHireId && !decisions[c.id]).length > 0}
+          candidate={allCands.find(c => c.id === confirmHireId)}
           onConfirm={handleConfirmHire}
-          onConfirmMultiple={handleConfirmHireMultiple}
           onCancel={() => setConfirmHireId(null)}
           T={T}
         />
