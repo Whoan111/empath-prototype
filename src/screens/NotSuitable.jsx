@@ -2,34 +2,53 @@ import { useState } from 'react'
 
 const SCREEN_T = {
   en: {
-    back:           '← Back',
-    badge:          'Not Suitable',
-    title:          'Rejected Candidates',
+    back:            '← Back',
+    badge:           'Not Suitable',
+    title:           'Rejected Candidates',
     messagesPending: (n) => `${n} message${n !== 1 ? 's' : ''} pending`,
-    explanation:    'Candidates are listed oldest rejection first — those waiting longer have higher priority for a message.',
-    pipelineNote:   'Use',
-    pipelineBtn:    'Bring back',
-    pipelineNote2:  'to restore a candidate to the active pipeline.',
-    writeMessage:   'Write message',
-    resend:         'Resend',
-    pipeline:       'Bring back',
-    messageSent:    'Message sent',
-    emptyAll:       'All candidates have been messaged or restored.',
+    explanation:     'Candidates are listed oldest rejection first — those waiting longer have higher priority for a message.',
+    pipelineNote:    'Use',
+    pipelineBtn:     'Bring back',
+    pipelineNote2:   'to restore a candidate to the active pipeline.',
+    writeMessage:    'Write message',
+    resend:          'Resend',
+    pipeline:        'Bring back',
+    messageSent:     'Message sent',
+    emptyAll:        'All candidates have been messaged or restored.',
+    // Restore modal
+    restoreTitle:    'Bring back to pipeline',
+    restoreTo:       'Restore to which stage?',
+    restoreConfirm:  'Bring back →',
+    cancel:          'Cancel',
+    stageLabels: {
+      'Pre-Call':  'Pre-Call',
+      Interviews:  'Interviews',
+      Decision:    'Decision',
+    },
   },
   it: {
-    back:           '← Indietro',
-    badge:          'Non Idoneo',
-    title:          'Candidati Rifiutati',
+    back:            '← Indietro',
+    badge:           'Non Idoneo',
+    title:           'Candidati Rifiutati',
     messagesPending: (n) => `${n} ${n !== 1 ? 'messaggi' : 'messaggio'} in attesa`,
-    explanation:    'I candidati sono elencati per data di rifiuto più vecchia — chi aspetta da più tempo ha priorità più alta.',
-    pipelineNote:   'Usa',
-    pipelineBtn:    'Riporta',
-    pipelineNote2:  'per ripristinare un candidato nella pipeline attiva.',
-    writeMessage:   'Scrivi messaggio',
-    resend:         'Reinvia',
-    pipeline:       'Riporta',
-    messageSent:    'Messaggio inviato',
-    emptyAll:       'Tutti i candidati sono stati contattati o ripristinati.',
+    explanation:     'I candidati sono elencati per data di rifiuto più vecchia — chi aspetta da più tempo ha priorità più alta.',
+    pipelineNote:    'Usa',
+    pipelineBtn:     'Riporta',
+    pipelineNote2:   'per ripristinare un candidato nella pipeline attiva.',
+    writeMessage:    'Scrivi messaggio',
+    resend:          'Reinvia',
+    pipeline:        'Riporta',
+    messageSent:     'Messaggio inviato',
+    emptyAll:        'Tutti i candidati sono stati contattati o ripristinati.',
+    restoreTitle:    'Riporta in pipeline',
+    restoreTo:       'In quale fase ripristinare?',
+    restoreConfirm:  'Riporta →',
+    cancel:          'Annulla',
+    stageLabels: {
+      'Pre-Call':  'Pre-Chiamata',
+      Interviews:  'Colloqui',
+      Decision:    'Decisione',
+    },
   },
 }
 
@@ -37,19 +56,21 @@ const C = {
   red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
   text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
   white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
+  navy:  '#1B2461',
 }
 
-// Rejected candidates, sorted oldest rejection first within each position
+// Rejected candidates — sorted oldest rejection first within each position
+// previousStage = the Kanban stage they were in when rejected
 const REJECTED_BY_POSITION = [
   {
     positionId: 1,
     positionTitle: 'UX Designer',
     dept: 'Product Design',
     candidates: [
-      { id: 3,  name: 'Sara Conti',      ini: 'SC', role: 'Junior UX Designer',   rejectedDaysAgo: 18, messageSent: false },
-      { id: 7,  name: 'Davide Russo',    ini: 'DR', role: 'Interaction Designer',  rejectedDaysAgo: 11, messageSent: false },
-      { id: 5,  name: 'Andrea Ricci',    ini: 'AR', role: 'Product Designer',      rejectedDaysAgo:  6, messageSent: true  },
-      { id: 2,  name: 'Marco Bianchi',   ini: 'MB', role: 'Senior UX Designer',    rejectedDaysAgo:  3, messageSent: false },
+      { id: 3,  name: 'Sara Conti',    ini: 'SC', role: 'Junior UX Designer',  rejectedDaysAgo: 18, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 7,  name: 'Davide Russo',  ini: 'DR', role: 'Interaction Designer', rejectedDaysAgo: 11, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 5,  name: 'Andrea Ricci',  ini: 'AR', role: 'Product Designer',     rejectedDaysAgo:  6, messageSent: true,  previousStage: 'Interviews'},
+      { id: 2,  name: 'Marco Bianchi', ini: 'MB', role: 'Senior UX Designer',   rejectedDaysAgo:  3, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
   {
@@ -57,8 +78,8 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Frontend Engineer',
     dept: 'Engineering',
     candidates: [
-      { id: 11, name: 'Nina Patel',      ini: 'NP', role: 'Frontend Dev',         rejectedDaysAgo: 21, messageSent: false },
-      { id: 10, name: 'Thomas Wright',   ini: 'TW', role: 'React Developer',       rejectedDaysAgo:  9, messageSent: true  },
+      { id: 11, name: 'Nina Patel',    ini: 'NP', role: 'Frontend Dev',         rejectedDaysAgo: 21, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 10, name: 'Thomas Wright', ini: 'TW', role: 'React Developer',      rejectedDaysAgo:  9, messageSent: true,  previousStage: 'Interviews'},
     ],
   },
   {
@@ -66,7 +87,7 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Product Manager',
     dept: 'Product',
     candidates: [
-      { id: 20, name: 'Sofia Esposito',  ini: 'SE', role: 'Senior PM',            rejectedDaysAgo: 14, messageSent: false },
+      { id: 20, name: 'Sofia Esposito',ini: 'SE', role: 'Senior PM',            rejectedDaysAgo: 14, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
   {
@@ -74,11 +95,13 @@ const REJECTED_BY_POSITION = [
     positionTitle: 'Data Analyst',
     dept: 'Data & Insights',
     candidates: [
-      { id: 31, name: 'Raj Patel',       ini: 'RP', role: 'Data Analyst',         rejectedDaysAgo: 28, messageSent: false },
-      { id: 32, name: 'Mia Fernandez',   ini: 'MF', role: 'Junior Analyst',       rejectedDaysAgo:  4, messageSent: false },
+      { id: 31, name: 'Raj Patel',     ini: 'RP', role: 'Data Analyst',         rejectedDaysAgo: 28, messageSent: false, previousStage: 'Pre-Call'  },
+      { id: 32, name: 'Mia Fernandez', ini: 'MF', role: 'Junior Analyst',       rejectedDaysAgo:  4, messageSent: false, previousStage: 'Pre-Call'  },
     ],
   },
 ]
+
+const RESTORE_STAGES = ['Pre-Call', 'Interviews', 'Decision']
 
 const AV_PALETTE = [
   ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
@@ -113,6 +136,92 @@ function daysLabel(d, lang) {
   if (d === 0) return 'Today'
   if (d === 1) return '1 day ago'
   return `${d} days ago`
+}
+
+// ── Restore modal ─────────────────────────────────────────────────────────────
+function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
+  const [stage, setStage] = useState(candidate.previousStage || 'Pre-Call')
+
+  return (
+    <div
+      onClick={onCancel}
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.35)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(5px)' }}
+    >
+      <style>{`@keyframes rmIn{from{opacity:0;transform:scale(.95) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: C.white, borderRadius: '0.875rem', padding: '26px 28px', width: 420,
+          border: `1px solid ${C.border}`,
+          boxShadow: '0 24px 64px rgba(0,0,0,0.14)',
+          animation: 'rmIn 0.2s ease',
+        }}
+      >
+        {/* Position badge */}
+        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:C.redBg, border:`1px solid ${C.redL}`, borderRadius:20, padding:'3px 12px', marginBottom:18, fontSize:10, fontWeight:700, color:C.red, letterSpacing:'0.06em' }}>
+          {group.positionTitle} · {group.dept}
+        </div>
+
+        <div style={{ fontFamily:'DM Serif Display, Georgia, serif', fontSize:20, color:C.text, marginBottom:18 }}>
+          {T.restoreTitle}
+        </div>
+
+        {/* Candidate */}
+        <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', background:C.gray, borderRadius:10, marginBottom:22, border:`1px solid ${C.border}` }}>
+          <Av id={candidate.id} ini={candidate.ini} size={40} />
+          <div>
+            <div style={{ fontSize:14, fontWeight:600, color:C.text }}>{candidate.name}</div>
+            <div style={{ fontSize:11, color:C.muted }}>{candidate.role}</div>
+          </div>
+        </div>
+
+        {/* Stage picker */}
+        <div style={{ marginBottom:24 }}>
+          <div style={{ fontSize:10, fontWeight:700, color:C.muted, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
+            {T.restoreTo}
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            {RESTORE_STAGES.map(s => {
+              const sel = stage === s
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStage(s)}
+                  style={{
+                    flex:1, padding:'9px 6px', borderRadius:9,
+                    border: sel ? `2px solid ${C.navy}` : `1px solid ${C.border}`,
+                    background: sel ? C.navy : C.white,
+                    color: sel ? C.white : C.muted,
+                    fontSize:11, fontWeight: sel ? 700 : 400,
+                    cursor:'pointer', fontFamily:'inherit',
+                    transition:'all 0.13s',
+                  }}
+                >
+                  {T.stageLabels[s]}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display:'flex', gap:10 }}>
+          <button
+            onClick={onCancel}
+            style={{ flex:1, padding:'10px', borderRadius:9, border:`1px solid ${C.border}`, background:'transparent', color:C.muted, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}
+          >
+            {T.cancel}
+          </button>
+          <button
+            onClick={() => onConfirm(stage)}
+            style={{ flex:1.4, padding:'10px', borderRadius:9, border:'none', background:C.navy, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em' }}
+          >
+            {T.restoreConfirm}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline, T, lang }) {
@@ -153,9 +262,9 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         {daysLabel(candidate.rejectedDaysAgo, lang)}
       </span>
 
-      {/* Back to pipeline */}
+      {/* Back to pipeline — opens stage-picker modal */}
       <button
-        onClick={onBackToPipeline}
+        onClick={() => onBackToPipeline(candidate)}
         style={{
           padding: '7px 14px', borderRadius: 8,
           background: 'transparent', border: `1px solid ${C.border}`,
@@ -163,7 +272,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           fontFamily: 'inherit', whiteSpace: 'nowrap',
           transition: 'all 0.13s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1B2461'; e.currentTarget.style.color = '#1B2461' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.navy; e.currentTarget.style.color = C.navy }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
         title="Move back to active pipeline"
       >
@@ -252,7 +361,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
               onWriteMessage={onWriteMessage}
               messageSent={sentMap[c.id] ?? c.messageSent}
               onMarkSent={onMarkSent}
-              onBackToPipeline={() => onBackToPipeline(c.id)}
+              onBackToPipeline={(cand) => onBackToPipeline(cand, group)}
               T={T}
               lang={lang}
             />
@@ -270,8 +379,8 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
     REJECTED_BY_POSITION.forEach(g => g.candidates.forEach(c => { map[c.id] = c.messageSent }))
     return map
   })
-  // Track which candidates have been moved back to pipeline (hidden from list)
-  const [restoredIds, setRestoredIds] = useState(new Set())
+  const [restoredIds,    setRestoredIds]    = useState(new Set())
+  const [restorePending, setRestorePending] = useState(null)  // { candidate, group }
 
   const totalPending = REJECTED_BY_POSITION
     .flatMap(g => g.candidates)
@@ -279,16 +388,34 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
     .length
 
   const handleWriteMessage = (candidate) => {
-    onNavigate?.('craft', { candidate })
+    onNavigate?.('craft', { candidate, from: 'not-suitable' })
   }
 
   const handleMarkSent = (id, val) => {
     setSentMap(m => ({ ...m, [id]: val }))
   }
 
-  const handleBackToPipeline = (id) => {
-    setRestoredIds(s => { const n = new Set(s); n.add(id); return n })
-    onNavigate?.('dashboard')
+  // Step 1: open the stage-picker modal
+  const handleBackToPipeline = (candidate, group) => {
+    setRestorePending({ candidate, group })
+  }
+
+  // Step 2: confirmed — remove from list, navigate to the right Kanban column
+  const handleConfirmRestore = (stage) => {
+    const { candidate, group } = restorePending
+    setRestoredIds(s => { const n = new Set(s); n.add(candidate.id); return n })
+    setRestorePending(null)
+
+    const position = { id: group.positionId, title: group.positionTitle, dept: group.dept }
+    const restoreCandidate = {
+      id:    candidate.id,
+      name:  candidate.name,
+      ini:   candidate.ini,
+      role:  candidate.role,
+      stage,           // which column to land in
+      daysAgo: 0,
+    }
+    onNavigate?.('kanban', { position, restoreCandidate })
   }
 
   // Filter out restored candidates
@@ -367,6 +494,16 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
         )}
       </div>
 
+      {/* Restore modal */}
+      {restorePending && (
+        <RestoreModal
+          candidate={restorePending.candidate}
+          group={restorePending.group}
+          T={T}
+          onConfirm={handleConfirmRestore}
+          onCancel={() => setRestorePending(null)}
+        />
+      )}
     </div>
   )
 }

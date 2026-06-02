@@ -13,7 +13,7 @@
 //   onNavigate()  — parent navigation handler
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -163,7 +163,7 @@ const MSG_TYPES = [
     desc: 'Formal next-stage interview invite',
     color: C.war, bg: C.warBg,
     contextLabel: 'Interview format, date, interviewers',
-    contextPlaceholder: 'e.g. 1-hr panel with the design team, 15 June on Zoom, Marco T. and Elena C. will join…',
+    contextPlaceholder: 'e.g. 1-hr panel with the design team, 15 June on Zoom, Andrea P. and Elena C. will join…',
     subject: (name) => `Interview invitation — ${name}`,
   },
   {
@@ -342,18 +342,44 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-// ── Dictation button (prototype) ──────────────────────────────────────────────
+// ── Dictation button — uses Web Speech API when available ─────────────────────
 function DictateButton({ onDictate }) {
   const [recording, setRecording] = useState(false)
+  const recognitionRef = useRef(null)
+
   const toggle = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+
     if (recording) {
+      recognitionRef.current?.stop()
       setRecording(false)
-      // Prototype: insert simulated dictated text
-      onDictate(' [Dictated note — candidate showed strong potential in systems thinking and collaborative problem-solving]')
-    } else {
+      return
+    }
+
+    if (SR) {
+      const r = new SR()
+      r.continuous       = true
+      r.interimResults   = false
+      r.lang             = 'en-US'
+      r.onresult = (e) => {
+        const text = Array.from(e.results).map(res => res[0].transcript).join(' ')
+        onDictate(' ' + text)
+      }
+      r.onend  = () => setRecording(false)
+      r.onerror = () => setRecording(false)
+      recognitionRef.current = r
+      r.start()
       setRecording(true)
+    } else {
+      // Fallback simulation for browsers without Speech API
+      setRecording(true)
+      setTimeout(() => {
+        onDictate(' Candidate showed strong potential in design systems thinking and collaborative problem-solving.')
+        setRecording(false)
+      }, 1800)
     }
   }
+
   return (
     <button
       onClick={toggle}
@@ -386,7 +412,7 @@ function DictateButton({ onDictate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Compose
 // ─────────────────────────────────────────────────────────────────────────────
-function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
+function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
   const [candidate, setCandidate] = useState(initialCandidate || null)
   const [typeId,    setTypeId]    = useState('rejection')
   const [context,   setContext]   = useState('')
@@ -404,7 +430,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
     <div style={{ flex: 1, overflow: 'auto', padding: '30px 36px', maxWidth: 900, margin: '0 auto', width: '100%' }}>
       {/* Back */}
       <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 26, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
-        {T.backDash}
+        {backLabel || T.backDash}
       </button>
 
       {/* Title */}
@@ -935,8 +961,18 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function CraftMessage({ lang = 'en', candidate = null, onBack, onNavigate }) {
+const BACK_LABELS = {
+  'not-suitable':   '← Not suitable',
+  'dashboard':      '← Back to Dashboard',
+  'recruiter-summary': '← Interview report',
+  'interview-summaries': '← Interview debriefs',
+  'hiring-manager': '← Dashboard',
+  'hiring-summary': '← Decision report',
+}
+
+export default function CraftMessage({ lang = 'en', candidate = null, from = 'dashboard', onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
+  const backLabel = BACK_LABELS[from] || '← Back'
   const [step,  setStep]  = useState('compose')
   const [draft, setDraft] = useState(null)
 
@@ -951,6 +987,7 @@ export default function CraftMessage({ lang = 'en', candidate = null, onBack, on
         <ComposeStep
           initialCandidate={candidate}
           onBack={onBack}
+          backLabel={backLabel}
           onGenerate={handleGenerate}
           T={T}
         />

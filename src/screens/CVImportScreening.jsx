@@ -70,7 +70,7 @@ const POSITIONS = [
 ]
 
 const MANAGERS = [
-  { id: 1, ini: 'MT', name: 'Marco T.',  dept: 'Product Design'  },
+  { id: 1, ini: 'AP', name: 'Andrea P.', dept: 'Product Design'  },
   { id: 2, ini: 'LS', name: 'Laura S.',  dept: 'Engineering'     },
   { id: 3, ini: 'AM', name: 'Andrea M.', dept: 'Product'         },
   { id: 4, ini: 'SE', name: 'Sofia E.',  dept: 'Data & Insights' },
@@ -206,7 +206,7 @@ function ManagerChip({ mgr, selected, onClick }) {
 }
 
 // ── STEP 1 — Import ───────────────────────────────────────────────────────────
-function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId = null }) {
+function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId = null, positions = POSITIONS }) {
   const [posId,    setPosId]    = useState(initialPosId)
   const [mgrId,    setMgrId]    = useState(initialMgrId)
   const [dragging, setDragging] = useState(false)
@@ -252,7 +252,7 @@ function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId =
           {T.posLabel}
         </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-          {POSITIONS.map(p => (
+          {positions.map(p => (
             <button
               key={p.id}
               onClick={() => setPosId(p.id)}
@@ -372,7 +372,7 @@ function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId =
         <button
           onClick={() => {
             if (!canProceed) return
-            const position = POSITIONS.find(p => p.id === Number(posId))
+            const position = positions.find(p => p.id === Number(posId))
             // Go directly to CV Triage for the selected position
             onNavigate('triage', { position })
           }}
@@ -883,9 +883,9 @@ function DoneStep({ decisions, config, onGoToDashboard }) {
 // Props:
 //   onBack()            — navigate back to the recruiter dashboard
 //   onNavigate(screen, data?) — navigate to another screen
-export default function CVImportScreening({ lang = 'en', initialPosition = null, onBack, onNavigate }) {
+export default function CVImportScreening({ lang = 'en', initialPosition = null, extraPositions = [], onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
-  // Pre-derive manager id that matches the incoming position's dept (if any)
+  const allPositions = [...POSITIONS, ...extraPositions]
   const initialMgrId = initialPosition
     ? (MANAGERS.find(m => m.dept === initialPosition.dept)?.id ?? null)
     : null
@@ -897,6 +897,7 @@ export default function CVImportScreening({ lang = 'en', initialPosition = null,
         T={T}
         initialPosId={initialPosition?.id ?? null}
         initialMgrId={initialMgrId}
+        positions={allPositions}
       />
     </div>
   )

@@ -20,7 +20,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 const SCREEN_T = {
   en: {
     back:             '← Back',
-    badge:            'Interview Summary',
+    badge:            'Interview Debrief',
     stepOf:           (s, t) => `Step ${s} of ${t} · Fields marked`,
     required:         'are required',
     steps:            ['Context', 'Ratings', 'Feedback'],
@@ -67,14 +67,14 @@ const SCREEN_T = {
     whatNext:         '✦ What happens next',
     submitBtn:        'Submit feedback ✓',
     // Done
-    doneTitle:        'Summary submitted',
-    doneSub:          (name) => `Your input for ${name} has been saved and will inform the decision summary and any candidate updates.`,
+    doneTitle:        'Debrief submitted',
+    doneSub:          (name) => `Your input for ${name} has been saved and will inform the decision debrief and any candidate updates.`,
     yourRec:          'Your recommendation',
-    hmMessage:        'As hiring manager, you can now view the consolidated decision summary across all interviewers and make your final call.',
+    hmMessage:        'As hiring manager, you can now view the consolidated decision debrief across all interviewers and make your final call.',
     notifyTitle:      '🔔 You will be notified when a decision is made',
     notifyText:       'Thank you for taking the time — your input makes the decision better and the candidate update more meaningful.',
     viewBrief:        '📊 View decision report',
-    backSummaries:    '← Interview summaries',
+    backSummaries:    '← Interview debriefs',
     backDashboard:    '← My dashboard',
     // Misc
     skipped:          'Skipped',
@@ -93,7 +93,7 @@ const SCREEN_T = {
   },
   it: {
     back:             '← Indietro',
-    badge:            'Sommario colloquio',
+    badge:            'Debrief colloquio',
     stepOf:           (s, t) => `Passaggio ${s} di ${t} · I campi con`,
     required:         'sono obbligatori',
     steps:            ['Contesto', 'Valutazioni', 'Feedback'],
@@ -140,14 +140,14 @@ const SCREEN_T = {
     whatNext:         '✦ Cosa succede dopo',
     submitBtn:        'Invia feedback ✓',
     // Done
-    doneTitle:        'Sommario inviato',
-    doneSub:          (name) => `Il tuo contributo per ${name} è stato salvato e informerà il sommario decisionale.`,
+    doneTitle:        'Debrief inviato',
+    doneSub:          (name) => `Il tuo contributo per ${name} è stato salvato e informerà il debrief decisionale.`,
     yourRec:          'La tua raccomandazione',
-    hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il sommario decisionale consolidato e prendere la decisione finale.',
+    hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il debrief decisionale consolidato e prendere la decisione finale.',
     notifyTitle:      '🔔 Sarai notificato quando verrà presa una decisione',
     notifyText:       'Grazie per il tuo tempo — il tuo contributo rende la decisione migliore e l\'aggiornamento al candidato più significativo.',
     viewBrief:        '📊 Visualizza report decisionale',
-    backSummaries:    '← Sommari colloqui',
+    backSummaries:    '← Debrief colloqui',
     backDashboard:    '← La mia bacheca',
     // Misc
     skipped:          'Saltato',
@@ -182,9 +182,7 @@ const MOCK_CANDIDATE = {
   role: 'UX Designer', pos: 'UX Designer',
 }
 
-// ── Current user (auto-filled — no selector needed) ──────────────────────────
-// In production this comes from the auth context.
-const CURRENT_USER = { name: 'Marco T.', role: 'Hiring Manager', ini: 'MT' }
+// ── Current user — defined per-role inside the component ─────────────────────
 
 // ── Interview type quick-select ───────────────────────────────────────────────
 const INTERVIEW_TYPES = [
@@ -844,7 +842,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
           <ul style={{ margin: 0, paddingLeft: 15, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
             <li>Your feedback is saved to {candidate.name.split(' ')[0]}'s profile</li>
             {isHM
-              ? <li>As hiring manager, you can view the full decision summary across all interviewers</li>
+              ? <li>As hiring manager, you can view the full decision debrief across all interviewers</li>
               : <li>You will be notified when a decision for {candidate.name.split(' ')[0]} has been made</li>
             }
             <li>Your observations help shape a growth-oriented, honest update for the candidate</li>
@@ -903,25 +901,17 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
         </div>
       )}
 
-      {/* Navigation — always offer both summaries + dashboard */}
+      {/* Navigation — Interview summaries + My dashboard */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', marginTop: 8 }}>
-        {isHM && (
-          <button
-            onClick={() => onNavigate?.('hiring-summary')}
-            style={{ padding: '11px 28px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
-          >
-            {T.viewBrief}
-          </button>
-        )}
         <button
           onClick={() => onNavigate?.(summariesScreen)}
-          style={{ padding: '10px 28px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
+          style={{ padding: '11px 28px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
         >
           {T.backSummaries}
         </button>
         <button
           onClick={() => onNavigate?.(homeScreen)}
-          style={{ padding: '10px 28px', borderRadius: 10, background: 'transparent', color: C.muted, border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
+          style={{ padding: '10px 28px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
         >
           {T.backDashboard}
         </button>
@@ -935,6 +925,12 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
 // ─────────────────────────────────────────────────────────────────────────────
 export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, summariesScreen = 'debrief-list', homeScreen = 'hiring-manager', onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
+
+  // Current user — derived from role so the debrief form shows the right name
+  const currentUser = isHM
+    ? { name: 'Andrea', role: 'Hiring Manager', ini: 'AM' }
+    : { name: 'Alessandro M.', role: 'Senior UX Designer', ini: 'AL' }
+
   const [step, setStep] = useState(0)
 
   const [context,  setContext]  = useState({ interviewDate: '', interviewType: '' })
@@ -985,7 +981,7 @@ export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MO
               context={context}
               onChange={updateContext}
               onNext={() => setStep(1)}
-              currentUser={CURRENT_USER}
+              currentUser={currentUser}
               T={T}
             />
           )}

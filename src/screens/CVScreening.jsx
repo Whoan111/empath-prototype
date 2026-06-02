@@ -132,7 +132,7 @@ const C = {
 
 // ── Mock data (used when no props are passed) ─────────────────────────────────
 const MOCK_POSITION = { id: 1, title: 'UX Designer', dept: 'Product Design' }
-const MOCK_MANAGER  = { id: 1, name: 'Marco T.', ini: 'MT' }
+const MOCK_MANAGER  = { id: 1, name: 'Andrea P.', ini: 'AP' }
 
 const MOCK_CVS = [
   {

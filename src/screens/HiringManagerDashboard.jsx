@@ -24,9 +24,9 @@ const SCREEN_T = {
     pendingReview:     (n) => `${n} pending review`,
     advancing:         (n) => `✓ ${n} advancing`,
     archived:          (n) => `✕ ${n} archived`,
-    debrief:           '📝 Interview Summaries',
-    pendingDebriefs:   (n) => `${n} interview summar${n > 1 ? 'ies' : 'y'} pending — `,
-    viewDebriefs:      'View summaries →',
+    debrief:           '📝 Interview Debriefs',
+    pendingDebriefs:   (n) => `${n} interview debrief${n !== 1 ? 's' : ''} pending — `,
+    viewDebriefs:      'View debriefs →',
     preSelectedTitle:  'Pre-selected candidates',
     preSelectedSub:    (since) => `You are seeing only candidates that passed the recruiter's screening · Open since ${since}`,
     sortScore:         '↓ Highest score first',
@@ -36,7 +36,7 @@ const SCREEN_T = {
     colStage:          'Stage',
     colInterviews:     'Interviews performed',
     colFit:            'Candidate fit',
-    colSummary:        'Summary',
+    colSummary:        'Debrief',
     colDecision:       'Decision',
     colActions:        'Actions',
     allReviewed:       'All candidates have been reviewed',
@@ -44,9 +44,9 @@ const SCREEN_T = {
     noPreSelectedSub:  "The recruiter will add candidates here after screening.",
     recruiterContact:  'Recruiter:',
     recruiterNote:     'Reach out to the recruiter for any logistics, scheduling, or messaging updates.',
-    debriefBtn:        'Summary',
-    briefBtn:          'Summary',
-    postDebrief:       '📝 Interview Summaries',
+    debriefBtn:        'Debrief',
+    briefBtn:          'Debrief',
+    postDebrief:       '📝 Interview Debriefs',
     yourDecision:      'Your decision',
     advancingPill:     '✓ Advancing',
     notMovingPill:     '✕ Not moving forward',
@@ -57,19 +57,20 @@ const SCREEN_T = {
     noFeedback:        'No feedback yet',
     noFeedbackSub:     'Feedbacks appear after interviews are completed and the post-interview questionnaire is filled in.',
     fillForm:          'Fill post-interview form',
-    openBrief:         '📊 Open full decision summary →',
-    notesPrivate:      'Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter\'s summary.',
+    openBrief:         '📊 Open full decision debrief →',
+    notesPrivate:      'Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter\'s debrief.',
     savedNote:         'Saved note',
     saveNote:          'Save note',
     suggestHire:       'Suggest to hire',
     rejectBtn:         'Reject',
+    requestRound:      'Request interview round',
     confirmHireTitle:  'Suggest to hire?',
     confirmHireMsg:    (name) => `Are you sure you want to suggest the recruiter to hire ${name}?`,
     hireMultiple:      'Hire multiple',
     confirmYes:        'Yes, suggest',
     confirmCancel:     'Cancel',
     viewSummary:       'View report →',
-    completeSummary:   'Complete summary',
+    completeSummary:   'Complete debrief',
     archivedSection:   (n) => `Not moving forward — ${n} archived`,
     archivedSaved:     'Saved · Recruiter notified',
     archivedPill:      'Archived',
@@ -90,9 +91,9 @@ const SCREEN_T = {
     pendingReview:     (n) => `${n} in attesa di revisione`,
     advancing:         (n) => `✓ ${n} avanzano`,
     archived:          (n) => `✕ ${n} archiviati`,
-    debrief:           '📝 Sommari Colloqui',
-    pendingDebriefs:   (n) => `${n} sommario${n > 1 ? 'i' : ''} colloquio in attesa — `,
-    viewDebriefs:      'Vedi sommari →',
+    debrief:           '📝 Debrief Colloqui',
+    pendingDebriefs:   (n) => `${n} debrief colloquio in attesa — `,
+    viewDebriefs:      'Vedi debrief →',
     preSelectedTitle:  'Candidati pre-selezionati',
     preSelectedSub:    (since) => `Vedi solo i candidati che hanno superato lo screening del recruiter · Aperto da ${since}`,
     sortScore:         '↓ Punteggio più alto',
@@ -102,7 +103,7 @@ const SCREEN_T = {
     colStage:          'Fase',
     colInterviews:     'Colloqui effettuati',
     colFit:            'Idoneità candidato',
-    colSummary:        'Sommario',
+    colSummary:        'Debrief',
     colDecision:       'Decisione',
     colActions:        'Azioni',
     allReviewed:       'Tutti i candidati sono stati esaminati',
@@ -110,9 +111,9 @@ const SCREEN_T = {
     noPreSelectedSub:  'Il recruiter aggiungerà candidati qui dopo lo screening.',
     recruiterContact:  'Recruiter:',
     recruiterNote:     'Contatta il recruiter per logistica, pianificazione o aggiornamenti messaggi.',
-    debriefBtn:        'Sommario',
-    briefBtn:          'Sommario',
-    postDebrief:       '📝 Sommari Colloqui',
+    debriefBtn:        'Debrief',
+    briefBtn:          'Debrief',
+    postDebrief:       '📝 Debrief Colloqui',
     yourDecision:      'La tua decisione',
     advancingPill:     '✓ Avanza',
     notMovingPill:     '✕ Non avanza',
@@ -123,19 +124,20 @@ const SCREEN_T = {
     noFeedback:        'Nessun feedback ancora',
     noFeedbackSub:     'I feedback appaiono dopo le interviste e la compilazione del questionario post-intervista.',
     fillForm:          'Compila il modulo post-intervista',
-    openBrief:         '📊 Apri sommario decisionale completo →',
+    openBrief:         '📊 Apri debrief decisionale completo →',
     notesPrivate:      'Le tue note sono private e visibili solo a te. Aiutano a informare la tua decisione.',
     savedNote:         'Nota salvata',
     saveNote:          'Salva nota',
     suggestHire:       'Suggerisci assunzione',
     rejectBtn:         'Rifiuta',
+    requestRound:      'Richiedi altro colloquio',
     confirmHireTitle:  'Suggerisci assunzione?',
     confirmHireMsg:    (name) => `Sei sicuro di voler suggerire al recruiter di assumere ${name}?`,
     hireMultiple:      'Assumi più candidati',
     confirmYes:        'Sì, suggerisci',
     confirmCancel:     'Annulla',
     viewSummary:       'Vedi report →',
-    completeSummary:   'Completa sommario',
+    completeSummary:   'Completa debrief',
     archivedSection:   (n) => `Non avanza — ${n} archiviati`,
     archivedSaved:     'Salvato · Recruiter notificato',
     archivedPill:      'Archiviato',
@@ -164,7 +166,7 @@ const C = {
   hmBg: '#F5F7FF', hmBorder: '#D4D9F0',
 }
 
-// ── Mock data — Marco T.'s view ───────────────────────────────────────────────
+// ── Mock data — Andrea P.'s view ───────────────────────────────────────────────
 const HM = { name: 'Andrea', role: 'Hiring Manager', dept: 'Product Design', ini: 'AM' }
 
 const POSITIONS = [
@@ -184,7 +186,7 @@ const PRE_SELECTED = {
       fb: [
         {
           round: 1, type: 'Portfolio Review',
-          by: 'Marco T.', byRole: 'Hiring Manager', date: '14 May', score: 4,
+          by: 'Andrea P.', byRole: 'Hiring Manager', date: '14 May', score: 4,
           txt: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps. I would be comfortable having her on the team.',
           strengths: ['Portfolio depth', 'Communication', 'Growth mindset'],
           concerns: ['Design systems experience'],
@@ -205,7 +207,7 @@ const PRE_SELECTED = {
       fb: [
         {
           round: 1, type: 'Portfolio Review',
-          by: 'Marco T.', byRole: 'Hiring Manager', date: '14 May', score: 5,
+          by: 'Andrea P.', byRole: 'Hiring Manager', date: '14 May', score: 5,
           txt: 'Excellent strategic thinking. Leads with empathy — exactly what the team needs. Strong recommend from my side.',
           strengths: ['Strategic thinking', 'Leadership', 'Empathy-driven design'],
           concerns: [],
@@ -233,7 +235,7 @@ const PRE_SELECTED = {
       fb: [
         {
           round: 1, type: 'Research Deep-Dive',
-          by: 'Marco T.', byRole: 'Hiring Manager', date: '6 May', score: 5,
+          by: 'Andrea P.', byRole: 'Hiring Manager', date: '6 May', score: 5,
           txt: 'Outstanding. Research depth is rare at this level. She thinks in systems and articulates complexity with clarity.',
           strengths: ['Research depth', 'Systems thinking', 'Communication'],
           concerns: [],
@@ -323,6 +325,7 @@ function Av({ id, ini, size = 36 }) {
 function DecisionPill({ dec, T }) {
   if (!dec) return <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, fontWeight: 500 }}>{T.pendingDecision}</span>
   if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.sucT, background: C.sucBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.advancingPill}</span>
+  if (dec === 'request-round') return <span style={{ fontSize: 11, color: C.warT, background: C.warBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>↺ {T.requestRound}</span>
   return <span style={{ fontSize: 11, color: C.red, background: '#FEE2E2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.notMovingPill}</span>
 }
 
@@ -490,19 +493,22 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
         <div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>{T.yourDecision}</div>
 
         {decision ? (
-          <div style={{ padding: '11px 14px', borderRadius: 9, background: decision === 'advancing' ? C.sucBg : '#FEF2F2', border: `1px solid ${decision === 'advancing' ? '#BBF7D0' : '#FECACA'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: decision === 'advancing' ? C.sucT : C.red }}>
-              {decision === 'advancing' ? T.advancingPill : T.notMovingPill}
+          <div style={{ padding: '11px 14px', borderRadius: 9, background: decision === 'advancing' ? C.sucBg : decision === 'request-round' ? C.warBg : '#FEF2F2', border: `1px solid ${decision === 'advancing' ? '#BBF7D0' : decision === 'request-round' ? '#FDE68A' : '#FECACA'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: decision === 'advancing' ? C.sucT : decision === 'request-round' ? C.warT : C.red }}>
+              {decision === 'advancing' ? T.advancingPill : decision === 'request-round' ? `↺ ${T.requestRound}` : T.notMovingPill}
             </span>
             <button onClick={() => onDecide(candidate.id, null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>{T.undo}</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => onDecide(candidate.id, 'not-moving-forward')} style={{ flex: 1, padding: '10px 0', borderRadius: 9, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              {T.notMovingBtn}
-            </button>
-            <button onClick={() => onDecide(candidate.id, 'advancing')} style={{ flex: 1, padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button onClick={() => onDecide(candidate.id, 'advancing')} style={{ padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.advanceBtn}
+            </button>
+            <button onClick={() => onDecide(candidate.id, 'request-round')} style={{ padding: '10px 0', borderRadius: 9, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              ↺ {T.requestRound}
+            </button>
+            <button onClick={() => onDecide(candidate.id, 'not-moving-forward')} style={{ padding: '10px 0', borderRadius: 9, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {T.notMovingBtn}
             </button>
           </div>
         )}
@@ -556,7 +562,7 @@ function ArchivedSection({ candidates, onRestore, T }) {
 }
 
 // ── Suggest-to-hire confirmation modal ───────────────────────────────────────
-function ConfirmHireModal({ candidate, hasOtherCandidates, onConfirm, onConfirmMultiple, onCancel, T }) {
+function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
   return (
     <div
       onClick={onCancel}
@@ -587,14 +593,6 @@ function ConfirmHireModal({ candidate, hasOtherCandidates, onConfirm, onConfirmM
           >
             {T.confirmYes}
           </button>
-          {hasOtherCandidates && (
-            <button
-              onClick={onConfirmMultiple}
-              style={{ padding: '12px 0', borderRadius: 10, background: C.sucBg, color: C.sucT, border: '1px solid #BBF7D0', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
-              {T.hireMultiple}
-            </button>
-          )}
           <button
             onClick={onCancel}
             style={{ padding: '10px 0', borderRadius: 10, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
@@ -618,12 +616,13 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
   const [comments,           setComments]           = useState({})    // id → string
   const [sortBy,             setSortBy]             = useState('score') // 'score' | 'activity' | 'name'
   const [confirmHireId,      setConfirmHireId]      = useState(null)  // candidate id pending hire confirmation
+  const [hireBanner,         setHireBanner]         = useState(null)  // candidate name for navy banner
 
   const pos      = POSITIONS.find(p => p.id === activePosId)
   const allCands = PRE_SELECTED[activePosId] || []
 
-  // Split: active (no decision or advancing) vs archived (not-moving-forward)
-  const active   = allCands.filter(c => decisions[c.id] !== 'not-moving-forward')
+  // Split: active (Interviews-stage only, not archived) vs archived (not-moving-forward)
+  const active   = allCands.filter(c => decisions[c.id] !== 'not-moving-forward' && c.stage === 'Interviews')
   const archived = allCands.filter(c => decisions[c.id] === 'not-moving-forward')
 
   // Fit order for sorting: strongly-advance > advance > null
@@ -656,13 +655,13 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
   const handleSuggestHire = (id) => setConfirmHireId(id)
 
   const handleConfirmHire = () => {
+    const cand = allCands.find(c => c.id === confirmHireId)
     decide(confirmHireId, 'advancing')
     setConfirmHireId(null)
-  }
-
-  const handleConfirmHireMultiple = () => {
-    sortedActive.filter(c => !decisions[c.id]).forEach(c => decide(c.id, 'advancing'))
-    setConfirmHireId(null)
+    if (cand) {
+      setHireBanner(cand.name.split(' ')[0])
+      setTimeout(() => setHireBanner(null), 4000)
+    }
   }
 
   // Summary stats
@@ -767,8 +766,8 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
           {/* Candidate table */}
           <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1.6fr 200px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-              {[T.colCandidate, T.colStage, T.colInterviews, T.colFit, T.colSummary, T.colActions].map(h => (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1fr', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+              {[T.colCandidate, T.colInterviews, T.colActions].map(h => (
                 <span key={h} style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
               ))}
             </div>
@@ -780,19 +779,18 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
             )}
 
             {sortedActive.map((c, i) => {
-              const dec       = decisions[c.id]
-              const isSel     = selectedCandidate?.id === c.id
-              const sumStatus = SUMMARY_STATUS[c.id] || 'not-started'
+              const dec  = decisions[c.id]
+              const isSel = selectedCandidate?.id === c.id
 
               return (
                 <div
                   key={c.id}
                   onClick={() => setSelectedCandidate(isSel ? null : c)}
                   style={{
-                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1.6fr 200px',
+                    display: 'grid', gridTemplateColumns: '2fr 100px 1fr',
                     alignItems: 'center', padding: '13px 20px',
                     borderBottom: i < sortedActive.length - 1 ? `1px solid ${C.border}` : 'none',
-                    background: isSel ? C.redBg : sumStatus === 'pending' ? '#FFFCF0' : 'white',
+                    background: isSel ? C.redBg : 'white',
                     cursor: 'pointer', transition: 'background 0.1s',
                   }}
                 >
@@ -805,42 +803,13 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                     </div>
                   </div>
 
-                  {/* Stage */}
-                  <span style={{ fontSize: 11, color: C.text }}>{c.stage === 'Preliminary Call' ? T.preCall : c.stage}</span>
-
                   {/* Interviews done */}
                   <span style={{ fontSize: 13, fontWeight: 600, color: c.interviewsDone > 0 ? C.text : C.muted }}>
                     {c.interviewsDone}
                   </span>
 
-                  {/* Candidate fit */}
-                  <FitPill rec={CANDIDATE_FIT[c.id]} T={T} />
-
-                  {/* Summary — action button */}
-                  <div onClick={e => e.stopPropagation()}>
-                    {sumStatus === 'complete' && (
-                      <button
-                        onClick={() => onNavigate?.('hiring-summary', { candidate: c })}
-                        style={{ padding: '5px 10px', borderRadius: 7, border: `1.5px solid ${C.border}`, background: 'white', color: C.inf, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-                      >
-                        {T.viewSummary}
-                      </button>
-                    )}
-                    {sumStatus === 'pending' && (
-                      <button
-                        onClick={() => onNavigate?.('questionnaire', { candidate: c })}
-                        style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-                      >
-                        {T.completeSummary}
-                      </button>
-                    )}
-                    {sumStatus === 'not-started' && (
-                      <span style={{ fontSize: 11, color: C.muted }}>—</span>
-                    )}
-                  </div>
-
-                  {/* Actions — Suggest to hire / Reject */}
-                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  {/* Actions */}
+                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                     {dec ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <DecisionPill dec={dec} T={T} />
@@ -850,13 +819,19 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                       <>
                         <button
                           onClick={() => handleSuggestHire(c.id)}
-                          style={{ padding: '6px 10px', borderRadius: 7, background: C.suc, color: 'white', border: 'none', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: C.suc, color: 'white', border: 'none', fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           {T.suggestHire}
                         </button>
                         <button
+                          onClick={() => decide(c.id, 'request-round')}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                        >
+                          ↺ {T.requestRound}
+                        </button>
+                        <button
                           onClick={() => decide(c.id, 'not-moving-forward')}
-                          style={{ padding: '6px 10px', borderRadius: 7, background: '#FEF2F2', color: C.red, border: '1px solid #FECACA', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: '#FEF2F2', color: C.red, border: '1px solid #FECACA', fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           {T.rejectBtn}
                         </button>

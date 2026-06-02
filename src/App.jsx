@@ -73,7 +73,7 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
       <style>{`
         .sb-nav-btn:hover { background: rgba(27,36,97,0.06) !important; }
         .sb-role-opt:hover { background: rgba(27,36,97,0.05) !important; }
-        .sb-lang:hover { border-color: ${th.red} !important; color: ${th.red} !important; }
+
         .sb-logo:hover { opacity: 0.75; }
       `}</style>
 
@@ -119,14 +119,26 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
         })}
       </nav>
 
-      {/* Language toggle */}
+      {/* Language switcher — segmented pill */}
       <div style={{ padding: '10px 12px', borderTop: `1px solid ${th.border}` }}>
-        <button className="sb-lang"
-          onClick={onToggleLang}
-          style={{ width: '100%', padding: '6px 8px', borderRadius: 8, border: `1px solid ${th.border}`, background: 'transparent', color: th.textMid, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', letterSpacing: '0.04em' }}
-        >
-          {lang === 'en' ? '🇮🇹 IT' : '🇬🇧 EN'}
-        </button>
+        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.05)', borderRadius: 9, padding: 3, border: `1px solid ${th.border}` }}>
+          {['en', 'it'].map(l => (
+            <button
+              key={l}
+              onClick={() => { if (lang !== l) onToggleLang() }}
+              style={{
+                flex: 1, padding: '5px 0', borderRadius: 7, border: 'none',
+                cursor: lang !== l ? 'pointer' : 'default', fontFamily: 'inherit',
+                fontSize: 11, fontWeight: lang === l ? 700 : 400,
+                background: lang === l ? th.red : 'transparent',
+                color: lang === l ? 'white' : th.textDim,
+                transition: 'all 0.18s', letterSpacing: '0.05em',
+              }}
+            >
+              {l === 'en' ? '🇬🇧 EN' : '🇮🇹 IT'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Role picker popup */}
@@ -179,10 +191,11 @@ function ComingSoon({ screen, onBack, theme }) {
 }
 
 export default function App() {
-  const [role,       setRole]       = useState('recruiter')
-  const [screen,     setScreen]     = useState('home')
-  const [screenData, setScreenData] = useState(null)
-  const [lang,       setLang]       = useState('en')
+  const [role,            setRole]            = useState('recruiter')
+  const [screen,          setScreen]          = useState('home')
+  const [screenData,      setScreenData]      = useState(null)
+  const [lang,            setLang]            = useState('en')
+  const [customPositions, setCustomPositions] = useState([])
 
   // Light mode only
   const theme     = THEMES.light
@@ -209,13 +222,13 @@ export default function App() {
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
         {screen === 'home'                && <HomeScreen                    {...sp} />}
-        {screen === 'dashboard'           && <RecruiterDashboard            {...sp} />}
-        {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} onBack={() => nav('dashboard')} />}
-        {screen === 'import'              && <CVImportScreening             lang={lang} initialPosition={screenData?.position} onBack={goBack} onNavigate={nav} />}
+        {screen === 'dashboard'           && <RecruiterDashboard            {...sp} customPositions={customPositions} onAddPosition={p => setCustomPositions(prev => [...prev, p])} />}
+        {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} restoreCandidate={screenData?.restoreCandidate} onBack={() => nav('dashboard')} />}
+        {screen === 'import'              && <CVImportScreening             lang={lang} initialPosition={screenData?.position} extraPositions={customPositions} onBack={goBack} onNavigate={nav} />}
         {screen === 'screening'           && <CVScreening                   lang={lang} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
         {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} />}
         {screen === 'not-suitable'        && <NotSuitable                   lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
-        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} template={screenData?.template || null} onBack={goBack} onNavigate={nav} />}
+        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} template={screenData?.template || null} from={screenData?.from || 'dashboard'} onBack={() => nav(screenData?.from || 'dashboard')} onNavigate={nav} />}
         {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} />}
         {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} lang={lang} />}
         {screen === 'recruiter-summary'   && <RecruiterSummary              lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}

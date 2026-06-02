@@ -61,6 +61,14 @@ const SCREEN_T = {
     // Empty position
     noCVsImported:  'No CVs imported for this position yet',
     importCVs:      'Import CVs →',
+    // Batch import inline
+    importFor:      (pos) => `Import CVs for ${pos}`,
+    dropZone:       'Drop PDF or Word files here',
+    dropHint:       'or click to browse · Multiple files supported',
+    dropTypes:      'PDF, DOCX — max 10 MB each',
+    analysingOf:    (n, tot) => `Analysing ${n} of ${tot} CVs…`,
+    fileAnalysed:   'Analysed ✓',
+    fileWaiting:    'Waiting…',
   },
   it: {
     // Position picker
@@ -108,6 +116,14 @@ const SCREEN_T = {
     // Empty position
     noCVsImported:  'Nessun CV importato per questa posizione',
     importCVs:      'Importa CV →',
+    // Batch import inline
+    importFor:      (pos) => `Importa CV per ${pos}`,
+    dropZone:       'Trascina file PDF o Word qui',
+    dropHint:       'o clicca per sfogliare · Più file supportati',
+    dropTypes:      'PDF, DOCX — max 10 MB ciascuno',
+    analysingOf:    (n, tot) => `Analisi di ${n} su ${tot} CV…`,
+    fileAnalysed:   'Analizzato ✓',
+    fileWaiting:    'In attesa…',
   },
 }
 
@@ -837,6 +853,128 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
   )
 }
 
+// ── Inline batch-import panel (replaces navigation to CVImportScreening) ──────
+const IMPORT_FILES = [
+  { name: 'GiuliaRossi_CV.pdf',    size: '1.2 MB' },
+  { name: 'MarcoBianchi_CV.pdf',   size: '890 KB' },
+  { name: 'SaraConti_CV.pdf',      size: '760 KB' },
+  { name: 'LucaFerrari_CV.pdf',    size: '1.5 MB' },
+  { name: 'AndreaRicci_CV.pdf',    size: '1.1 MB' },
+  { name: 'ElenaMarino_CV.pdf',    size: '980 KB' },
+  { name: 'DavideRusso_CV.pdf',    size: '1.4 MB' },
+  { name: 'ChiaraLombardi_CV.pdf', size: '2.1 MB' },
+]
+
+function InlineBatchImport({ posTitle, onComplete, T }) {
+  const [phase,    setPhase]    = useState('drop')  // 'drop' | 'loading'
+  const [progress, setProgress] = useState(0)
+  const [loaded,   setLoaded]   = useState(0)
+  const total = IMPORT_FILES.length
+
+  const startImport = () => {
+    if (phase !== 'drop') return
+    setPhase('loading')
+    let prog = 0
+    const timer = setInterval(() => {
+      prog += 7
+      const capped = Math.min(100, prog)
+      setProgress(capped)
+      setLoaded(Math.round((capped / 100) * total))
+      if (capped >= 100) {
+        clearInterval(timer)
+        // Use position 1's CVs as mock imported data
+        setTimeout(() => onComplete(TRIAGE_DATA[1]), 350)
+      }
+    }, 80)
+  }
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: C.white, padding: '32px 40px' }}>
+      <div style={{ width: '100%', maxWidth: 520 }}>
+
+        {/* Title */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+            {T.badge}
+          </div>
+          <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
+            {T.importFor(posTitle)}
+          </h2>
+        </div>
+
+        {/* Drop zone */}
+        {phase === 'drop' && (
+          <div
+            onClick={startImport}
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); startImport() }}
+            style={{
+              border: `2px dashed ${C.border}`,
+              borderRadius: 14, padding: '52px 28px',
+              textAlign: 'center', cursor: 'pointer',
+              background: C.gray, transition: 'border-color 0.2s, background 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.background = C.redBg }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.gray }}
+          >
+            <div style={{ fontSize: 44, marginBottom: 14 }}>📂</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>
+              {T.dropZone}
+            </div>
+            <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>
+              {T.dropHint}<br />
+              <span style={{ fontSize: 11 }}>{T.dropTypes}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Loading phase */}
+        {phase === 'loading' && (
+          <div>
+            {/* Progress bar + label */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.muted, marginBottom: 8 }}>
+              <span>{T.analysingOf(loaded, total)}</span>
+              <span style={{ fontWeight: 600, color: C.red }}>{progress}%</span>
+            </div>
+            <div style={{ background: C.gray, borderRadius: 6, height: 6, marginBottom: 22, overflow: 'hidden' }}>
+              <div style={{ height: '100%', background: C.red, borderRadius: 6, width: `${progress}%`, transition: 'width 0.08s linear' }} />
+            </div>
+
+            {/* File list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {IMPORT_FILES.map((f, i) => {
+                const done = i < loaded
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '9px 14px', borderRadius: 9,
+                      background: C.white,
+                      border: `1px solid ${done ? C.border : C.border}`,
+                      opacity: done ? 1 : 0.38,
+                      transition: 'opacity 0.25s',
+                    }}
+                  >
+                    <span style={{ fontSize: 18 }}>📄</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{f.name}</div>
+                      <div style={{ fontSize: 10, color: done ? C.suc : C.muted }}>
+                        {done ? T.fileAnalysed : T.fileWaiting}
+                      </div>
+                    </div>
+                    {done && <span style={{ fontSize: 13, color: C.suc, fontWeight: 700 }}>✓</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
@@ -859,13 +997,22 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const [docTypeOverrides, setDocTypeOverrides] = useState({})
   const [showAddPos,       setShowAddPos]       = useState(false)
   const [closedPositions,  setClosedPositions]  = useState(new Set())
+  // Batch import state — importedCVs stores mock CVs for any position that went through inline import
+  const [importedCVs,  setImportedCVs]  = useState({})
+  // Auto-open the importer if CVTriage was opened with a new position that has no CVs
+  const [showImporter, setShowImporter] = useState(() =>
+    initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0)
+  )
 
   const toggleClose = (id) => setClosedPositions(s => {
     const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
   })
 
   const activePos = positions.find(p => p.id === activePosId)
-  const cvList    = TRIAGE_DATA[activePosId] || []
+  // Use TRIAGE_DATA first; fall back to anything imported inline this session
+  const cvList    = (TRIAGE_DATA[activePosId]?.length
+    ? TRIAGE_DATA[activePosId]
+    : importedCVs[activePosId]) || []
   const cv        = cvList[idx]
   const total     = cvList.length
   const decided   = cvList.filter(c => decisions[c.id]).length
@@ -902,6 +1049,9 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const handleOpenPosition = (id) => {
     setActivePosId(id)
     setIdx(0)
+    // Auto-show importer if this position has no CVs yet
+    const hasCVs = (TRIAGE_DATA[id]?.length || 0) > 0 || (importedCVs[id]?.length || 0) > 0
+    setShowImporter(!hasCVs)
   }
 
   const handleBackToPicker = () => {
@@ -1029,16 +1179,19 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
 
       {/* Main content area */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Left: candidates list */}
-        <CandidateListPanel
-          cvList={cvList}
-          currentIdx={idx}
-          decisions={decisions}
-          onSelect={goTo}
-          advancing={advancing}
-          passing={passing}
-          T={T}
-        />
+
+        {/* Left: candidates list — only shown when there are CVs */}
+        {total > 0 && (
+          <CandidateListPanel
+            cvList={cvList}
+            currentIdx={idx}
+            decisions={decisions}
+            onSelect={goTo}
+            advancing={advancing}
+            passing={passing}
+            T={T}
+          />
+        )}
 
         {/* All decided → completion screen */}
         {total > 0 && decided === total && (
@@ -1070,12 +1223,25 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           </>
         )}
 
-        {/* Empty position */}
-        {total === 0 && (
+        {/* Empty position — show inline importer or empty placeholder */}
+        {total === 0 && showImporter && (
+          <InlineBatchImport
+            posTitle={activePos?.title || ''}
+            onComplete={(cvs) => {
+              setImportedCVs(d => ({ ...d, [activePosId]: cvs }))
+              setShowImporter(false)
+            }}
+            T={T}
+          />
+        )}
+        {total === 0 && !showImporter && (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: C.muted, background: C.white }}>
             <div style={{ fontSize: 36 }}>📂</div>
             <p style={{ fontSize: 14, margin: 0 }}>{T.noCVsImported}</p>
-            <button onClick={() => onNavigate?.('import')} style={{ padding: '8px 18px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button
+              onClick={() => setShowImporter(true)}
+              style={{ padding: '8px 18px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
               {T.importCVs}
             </button>
           </div>

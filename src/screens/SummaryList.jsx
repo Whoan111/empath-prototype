@@ -30,16 +30,16 @@ const TEXT = {
     back:             '← Back',
     recruiterBadge:   'Recruiter',
     hmBadge:          'Hiring Manager',
-    preCallTitle:     'Interview Summaries',
+    preCallTitle:     'Interview Debriefs',
     decisionTitle:    'Decision Report',
-    preCallDesc:      'Candidates who have completed all interviews and are ready for a decision. Use these summaries to get up to speed before making the final call.',
-    decisionDesc:     'Your pre-selected candidates across all positions. Review consolidated feedback and make your decisions here or inside each summary.',
+    preCallDesc:      'Candidates who have completed all interviews and are ready for a decision. Use these debriefs to get up to speed before making the final call.',
+    decisionDesc:     'Your pre-selected candidates across all positions. Review consolidated feedback and make your decisions here or inside each debrief.',
     overdue:          'OVERDUE',
     total:            'TOTAL',
     decided:          'DECIDED',
-    summaryPending:   'SUMMARY PENDING',
+    summaryPending:   'DEBRIEF PENDING',
     noMatch:          'No candidates match this filter',
-    openSummary:      'Open summary →',
+    openSummary:      'Open debrief →',
     openReport:       'Open report →',
     today:            'Today',
     daysAgo:          d => `${d}d ago`,
@@ -50,15 +50,16 @@ const TEXT = {
     colInterviews:    'Interviews performed',
     colFit:           'Candidate fit',
     colAction:        'Action',
+    colInterviewReport: 'Interview report',
     colStage:         'Stage',
-    colSummary:       'Summary',
+    colSummary:       'Debrief',
     colDecision:      'Decision',
     advancing:        '✓ Advancing',
     notMoving:        '✕ Not moving fwd',
     undo:             'undo',
-    fillSummary:      'Fill summary →',
-    summaryPendingMsg: n => `⏳ ${n} interview summar${n > 1 ? 'ies' : 'y'} pending`,
-    summaryUnlock:    'Complete the interview summary to unlock the full decision summary for these candidates.',
+    fillSummary:      'Fill debrief →',
+    summaryPendingMsg: n => `⏳ ${n} interview debrief${n !== 1 ? 's' : ''} pending`,
+    summaryUnlock:    'Complete the interview debrief to unlock the full decision debrief for these candidates.',
     strongAdvance:    'Strong advance',
     averageFit:       'Average fit',
     notAdvancing:     'Not advancing',
@@ -67,16 +68,16 @@ const TEXT = {
     back:             '← Indietro',
     recruiterBadge:   'Reclutatore',
     hmBadge:          'Responsabile Assunzioni',
-    preCallTitle:     'Sommari Colloqui',
+    preCallTitle:     'Debrief Colloqui',
     decisionTitle:    'Report Decisionale',
-    preCallDesc:      'Candidati che hanno completato tutti i colloqui e sono pronti per una decisione. Usa questi sommari per informarti prima di prendere la decisione finale.',
-    decisionDesc:     'I tuoi candidati pre-selezionati per tutte le posizioni. Leggi il feedback consolidato e prendi le tue decisioni qui o all\'interno di ogni sommario.',
+    preCallDesc:      'Candidati che hanno completato tutti i colloqui e sono pronti per una decisione. Usa questi debrief per informarti prima di prendere la decisione finale.',
+    decisionDesc:     'I tuoi candidati pre-selezionati per tutte le posizioni. Leggi il feedback consolidato e prendi le tue decisioni qui o all\'interno di ogni debrief.',
     overdue:          'IN RITARDO',
     total:            'TOTALE',
     decided:          'DECISI',
-    summaryPending:   'SOMMARIO PENDENTE',
+    summaryPending:   'DEBRIEF PENDENTE',
     noMatch:          'Nessun candidato corrisponde al filtro',
-    openSummary:      'Apri sommario →',
+    openSummary:      'Apri debrief →',
     openReport:       'Apri report →',
     today:            'Oggi',
     daysAgo:          d => `${d}g fa`,
@@ -87,15 +88,16 @@ const TEXT = {
     colInterviews:    'Colloqui effettuati',
     colFit:           'Idoneità candidato',
     colAction:        'Azione',
+    colInterviewReport: 'Report colloquio',
     colStage:         'Fase',
-    colSummary:       'Sommario',
+    colSummary:       'Debrief',
     colDecision:      'Decisione',
     advancing:        '✓ Avanza',
     notMoving:        '✕ Non prosegue',
     undo:             'annulla',
-    fillSummary:      'Compila sommario →',
-    summaryPendingMsg: n => `⏳ ${n} sommario${n > 1 ? 'i' : ''} colloquio in attesa`,
-    summaryUnlock:    'Completa il sommario del colloquio per sbloccare il sommario completo per questi candidati.',
+    fillSummary:      'Compila debrief →',
+    summaryPendingMsg: n => `⏳ ${n} debrief colloquio in attesa`,
+    summaryUnlock:    'Completa il debrief del colloquio per sbloccare il debrief completo per questi candidati.',
     strongAdvance:    'Forte avanzamento',
     averageFit:       'Idoneità media',
     notAdvancing:     'Non avanza',
@@ -181,8 +183,8 @@ function UrgencyPill({ days, T }) {
 }
 
 function SummaryStatusPill({ status }) {
-  if (status === 'complete')    return <span style={{ background: C.sucBg,  color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ Summary done</span>
-  if (status === 'pending')     return <span style={{ background: C.warBg,  color: C.warT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>⏳ Summary pending</span>
+  if (status === 'complete')    return <span style={{ background: C.sucBg,  color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ Debrief done</span>
+  if (status === 'pending')     return <span style={{ background: C.warBg,  color: C.warT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>⏳ Debrief pending</span>
   return                               <span style={{ background: C.gray,   color: C.muted,fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>— No interviews yet</span>
 }
 
@@ -219,14 +221,12 @@ function StagePill({ stage }) {
 
 // ── Pre-call row (Interview Summaries — post-interview only) ──────────────────
 function PreCallRow({ c, onOpen, T }) {
-  const isUrgent = c.lastContact >= 7
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px',
+      display: 'grid', gridTemplateColumns: '2fr 1.2fr 0.8fr 1.2fr 130px',
       alignItems: 'center', padding: '14px 22px',
-      background: isUrgent ? '#FFF8F8' : C.white,
+      background: C.white,
       borderBottom: `1px solid ${C.border}`,
-      transition: 'background 0.1s',
     }}>
       {/* Candidate */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
@@ -238,8 +238,6 @@ function PreCallRow({ c, onOpen, T }) {
       </div>
       {/* Position */}
       <span style={{ fontSize: 11, color: C.muted }}>{c.pos}</span>
-      {/* Last contact */}
-      <UrgencyPill days={c.lastContact} T={T} />
       {/* Interviews count */}
       <span style={{ fontSize: 13, fontWeight: 600, color: C.text, display: 'block', textAlign: 'center' }}>{c.interviewsDone}</span>
       {/* Candidate fit */}
@@ -249,39 +247,74 @@ function PreCallRow({ c, onOpen, T }) {
         onClick={() => onOpen(c)}
         style={{ padding: '7px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
       >
-        {T.openSummary}
+        {T.openReport}
       </button>
     </div>
   )
 }
 
-// ── Decision row ──────────────────────────────────────────────────────────────
-function DecisionRow({ c, onOpen, T }) {
+// ── Decision card ─────────────────────────────────────────────────────────────
+function DecisionCard({ c, onOpen, T }) {
+  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 0.5fr 160px',
-      alignItems: 'center', padding: '14px 22px',
-      background: C.white,
-      borderBottom: `1px solid ${C.border}`,
-      transition: 'background 0.1s',
-    }}>
-      {/* Candidate */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-        <Av id={c.id} ini={c.ini} size={38} />
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{c.name}</div>
-          <div style={{ fontSize: 10, color: C.muted }}>{c.role} · {c.pos}</div>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: C.white,
+        border: `1.5px solid ${hovered ? C.red : C.border}`,
+        borderRadius: 14,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: hovered ? '0 6px 24px rgba(201,57,74,0.10)' : '0 2px 8px rgba(0,0,0,0.04)',
+        transition: 'all 0.18s',
+        cursor: 'default',
+      }}
+    >
+      {/* Card header stripe */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${C.red}, #F87171)` }} />
+
+      {/* Body */}
+      <div style={{ padding: '18px 20px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        {/* Candidate identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Av id={c.id} ini={c.ini} size={42} />
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{c.name}</div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{c.role}</div>
+          </div>
+        </div>
+
+        {/* Position tag */}
+        <div style={{ display: 'inline-flex', alignSelf: 'flex-start' }}>
+          <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, border: `1px solid ${C.border}` }}>
+            {c.pos}
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: C.border }} />
+
+        {/* Stat row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.redBg, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: C.red, flexShrink: 0 }}>
+            {c.interviewsDone}
+          </div>
+          <span style={{ fontSize: 11, color: C.muted }}>{T.colInterviews}</span>
         </div>
       </div>
-      {/* Interviews performed */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone}</span>
-      {/* Open report */}
-      <button
-        onClick={() => onOpen(c)}
-        style={{ padding: '7px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-      >
-        {T.openReport}
-      </button>
+
+      {/* Footer / CTA */}
+      <div style={{ padding: '0 16px 16px' }}>
+        <button
+          onClick={() => onOpen(c)}
+          style={{ width: '100%', padding: '9px 0', borderRadius: 9, background: hovered ? C.red : C.redBg, color: hovered ? 'white' : C.red, border: `1.5px solid ${C.red}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s', letterSpacing: '0.01em' }}
+        >
+          {T.openReport}
+        </button>
+      </div>
     </div>
   )
 }
@@ -307,17 +340,13 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
     ? candidates
     : candidates.filter(c => c.pos === effectiveFilter)
 
-  const urgentCount = isPreCall ? candidates.filter(c => c.lastContact >= 7).length : 0
-
   const handleOpen = (c) => {
     const dest = isPreCall ? 'recruiter-summary' : 'hiring-summary'
     onNavigate?.(dest, { candidate: c })
   }
 
-  const preCallHeaders = [T.colCandidate, T.colPosition, T.colLastContact, T.colInterviews, T.colFit, T.colAction]
-  const decHeaders     = [T.colCandidate, T.colInterviews, T.colAction]
-  const headers        = isPreCall ? preCallHeaders : decHeaders
-  const cols           = isPreCall ? '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px' : '1fr 0.5fr 160px'
+  const headers = [T.colCandidate, T.colPosition, T.colInterviews, T.colFit, T.colInterviewReport]
+  const cols    = '2fr 1.2fr 0.8fr 1.2fr 130px'
 
   return (
     <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
@@ -344,12 +373,6 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
 
           {/* Stats */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
-            {isPreCall && urgentCount > 0 && (
-              <div style={{ background: '#FEE2E2', borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: '1px solid #FECACA' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>{urgentCount}</div>
-                <div style={{ fontSize: 10, color: C.red, fontWeight: 600 }}>{T.overdue}</div>
-              </div>
-            )}
             <div style={{ background: C.white, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidates.length}</div>
               <div style={{ fontSize: 10, color: C.muted, fontWeight: 600 }}>{T.total}</div>
@@ -370,28 +393,35 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
           ))}
         </div>
 
-        {/* Table */}
-        <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 16px rgba(201,57,74,0.04)' }}>
-          {/* Column headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: cols, padding: '10px 22px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-            {headers.map((h, i) => (
-              <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: isPreCall && i === 3 ? 'center' : 'left' }}>{h}</span>
-            ))}
-          </div>
-
-          {/* Rows */}
-          {filtered.map(c =>
-            isPreCall
-              ? <PreCallRow key={c.id} c={c} onOpen={handleOpen} T={T} />
-              : <DecisionRow key={c.id} c={c} onOpen={handleOpen} T={T} />
-          )}
-
-          {filtered.length === 0 && (
-            <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>
-              {T.noMatch}
+        {/* Pre-call: table layout */}
+        {isPreCall && (
+          <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 16px rgba(201,57,74,0.04)' }}>
+            {/* Column headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: cols, padding: '10px 22px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+              {headers.map((h, i) => (
+                <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: i === 2 ? 'center' : 'left' }}>{h}</span>
+              ))}
             </div>
-          )}
-        </div>
+            {filtered.map(c => <PreCallRow key={c.id} c={c} onOpen={handleOpen} T={T} />)}
+            {filtered.length === 0 && (
+              <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>{T.noMatch}</div>
+            )}
+          </div>
+        )}
+
+        {/* Decision: card grid layout */}
+        {!isPreCall && (
+          <>
+            {filtered.length === 0
+              ? <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>{T.noMatch}</div>
+              : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+                  {filtered.map(c => <DecisionCard key={c.id} c={c} onOpen={handleOpen} T={T} />)}
+                </div>
+              )
+            }
+          </>
+        )}
 
       </div>
     </div>

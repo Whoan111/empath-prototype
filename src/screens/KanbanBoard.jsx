@@ -11,7 +11,7 @@
 // Props: theme, themeMode, lang (from App), position, onBack, onNavigate
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { STAGE_TOKENS, STAGES, TRANSLATIONS } from '../designSystem'
 
 // ── Staleness computation (dual: opacity + saturation) ───────────────────────
@@ -277,14 +277,20 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
       </div>
 
       {/* Info pills */}
-      <div style={{ display:'flex', gap:5, marginBottom:7, flexWrap:'wrap' }}>
-        <span style={{ fontSize:9, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'2px 7px', borderRadius:20, backdropFilter:'blur(4px)' }}>
-          {candidate.loc}
-        </span>
-        <span style={{ fontSize:9, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'2px 7px', borderRadius:20 }}>
-          {candidate.exp}
-        </span>
-      </div>
+      {(candidate.loc || candidate.exp) && (
+        <div style={{ display:'flex', gap:5, marginBottom:7, flexWrap:'wrap' }}>
+          {candidate.loc && (
+            <span style={{ fontSize:9, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'2px 7px', borderRadius:20, backdropFilter:'blur(4px)' }}>
+              {candidate.loc}
+            </span>
+          )}
+          {candidate.exp && (
+            <span style={{ fontSize:9, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'2px 7px', borderRadius:20 }}>
+              {candidate.exp}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Skills */}
       {candidate.skills?.length > 0 && (
@@ -501,7 +507,7 @@ const INIT = {
 const VIS_STAGES = STAGES.filter(s => s !== 'Screening')
 
 // ─────────────────────────────────────────────────────────────────────────────
-export default function KanbanBoard({ position, theme, themeMode, lang, onBack, onNavigate }) {
+export default function KanbanBoard({ position, restoreCandidate, theme, themeMode, lang, onBack, onNavigate }) {
   const pos    = position || { id:1, title:'UX Designer', dept:'Product Design' }
   const posId  = pos.id ?? 1
   const th     = theme
@@ -510,13 +516,30 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
 
   const [candidates, setCandidates] = useState(() => {
     const base = INIT[posId] || {}
-    return VIS_STAGES.reduce((acc, s) => ({ ...acc, [s]: base[s] || [] }), {})
+    const init = VIS_STAGES.reduce((acc, s) => ({ ...acc, [s]: base[s] || [] }), {})
+    // Inject a restored candidate into the right column
+    if (restoreCandidate) {
+      const { stage, ...cand } = restoreCandidate
+      const targetStage = VIS_STAGES.includes(stage) ? stage : 'Pre-Call'
+      init[targetStage] = [{ ...cand, daysAgo: 0 }, ...(init[targetStage] || [])]
+    }
+    return init
   })
-  const [pendingMove,  setPendingMove]  = useState(null)
-  const [celebration,  setCelebration]  = useState(null)
-  const [dragState,    setDragState]    = useState({ id:null, from:null })
-  const [dragOverCol,  setDragOverCol]  = useState(null)
-  const [selectedInfo, setSelectedInfo] = useState(null)   // { candidate, stage }
+  const [pendingMove,     setPendingMove]     = useState(null)
+  const [celebration,     setCelebration]     = useState(null)
+  const [dragState,       setDragState]       = useState({ id:null, from:null })
+  const [dragOverCol,     setDragOverCol]     = useState(null)
+  const [selectedInfo,    setSelectedInfo]    = useState(null)   // { candidate, stage }
+  const [restoredBanner,  setRestoredBanner]  = useState(
+    restoreCandidate ? { name: restoreCandidate.name, stage: restoreCandidate.stage } : null
+  )
+
+  // Auto-dismiss the restored banner after 3.5 s
+  useEffect(() => {
+    if (!restoredBanner) return
+    const t = setTimeout(() => setRestoredBanner(null), 3500)
+    return () => clearTimeout(t)
+  }, [restoredBanner])
 
   const handleSelect = (candidate, stage) => {
     setSelectedInfo(prev => prev?.candidate.id === candidate.id ? null : { candidate, stage })
@@ -568,6 +591,7 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
         @keyframes popIn{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
         @keyframes fadeOut{0%{opacity:1}65%{opacity:1}100%{opacity:0}}
         @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        @keyframes restoreIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
       `}</style>
 
       {/* Header */}
@@ -596,7 +620,24 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
       </div>
 
       {/* Board + profile panel */}
-      <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
+      <div style={{ flex:1, display:'flex', overflow:'hidden', position:'relative' }}>
+
+        {/* Restored banner */}
+        {restoredBanner && (
+          <div style={{
+            position:'absolute', top:14, left:'50%', transform:'translateX(-50%)',
+            zIndex:200, pointerEvents:'none',
+            background:'rgba(27,36,97,0.1)', border:'1.5px solid rgba(27,36,97,0.3)',
+            backdropFilter:'blur(16px)', borderRadius:20, padding:'8px 20px',
+            fontSize:12, fontWeight:700, color:'#1B2461',
+            boxShadow:'0 4px 20px rgba(27,36,97,0.15)',
+            whiteSpace:'nowrap', letterSpacing:'0.01em',
+            animation:'restoreIn 0.3s cubic-bezier(0.22,0.61,0.36,1) both',
+          }}>
+            ✓ {restoredBanner.name} restored to {restoredBanner.stage}
+          </div>
+        )}
+
         <div style={{ flex:1, overflowX:'auto', overflowY:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
           {VIS_STAGES.map(stage => (
             <Column

@@ -15,7 +15,7 @@
 //                    checklist, portfolio link, HM notes, Accept / Reject
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useReducer } from 'react'
+import { useState } from 'react'
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -699,56 +699,42 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Reducer — atomic state for CV review (decisions + selection in one update)
-// ─────────────────────────────────────────────────────────────────────────────
-const initialReviewState = {
-  decisions:        {},
-  selectedId:       ASSIGNED_CANDIDATES[0]?.id ?? null,
-  savedNotes:       {},
-  docTypeOverrides: {},
-}
-
-function reviewReducer(state, action) {
-  switch (action.type) {
-    case 'DECIDE': {
-      const { id, value } = action
-      if (value === null) {
-        const decisions = { ...state.decisions }
-        delete decisions[id]
-        return { ...state, decisions }
-      }
-      const decisions = { ...state.decisions, [id]: value }
-      // Find next unreviewed candidate in one atomic step
-      const next = ASSIGNED_CANDIDATES.find(c => !decisions[c.id])
-      return { ...state, decisions, selectedId: next ? next.id : state.selectedId }
-    }
-    case 'SELECT':
-      return { ...state, selectedId: action.id }
-    case 'SAVE_NOTE':
-      return { ...state, savedNotes: { ...state.savedNotes, [action.id]: action.text } }
-    case 'SET_DOC_TYPE':
-      return { ...state, docTypeOverrides: { ...state.docTypeOverrides, [action.id]: action.t } }
-    default:
-      return state
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main export
+// Main export  (idx-based — same pattern as CVTriage, no stacking bug)
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
 
-  const [state, dispatch] = useReducer(reviewReducer, initialReviewState)
-  const { decisions, selectedId, savedNotes, docTypeOverrides } = state
+  const [idx,              setIdx]              = useState(0)
+  const [decisions,        setDecisions]        = useState({})
+  const [savedNotes,       setSavedNotes]       = useState({})
+  const [docTypeOverrides, setDocTypeOverrides] = useState({})
 
-  const handleDecide    = (id, value) => dispatch({ type: 'DECIDE',    id, value })
-  const handleSaveNotes = (id, text)  => dispatch({ type: 'SAVE_NOTE', id, text  })
-  const setSelectedId   = (id)        => dispatch({ type: 'SELECT',    id        })
+  const all = ASSIGNED_CANDIDATES
+  const cv  = idx >= 0 && idx < all.length ? all[idx] : null
 
-  const all          = ASSIGNED_CANDIDATES
-  const selected     = all.find(c => c.id === selectedId) ?? null
-  const currentIdx   = all.findIndex(c => c.id === selectedId)
+  const goTo = (i) => setIdx(i)
+
+  const handleDecide = (id, value) => {
+    if (value === null) {
+      setDecisions(d => { const n = { ...d }; delete n[id]; return n })
+      return
+    }
+    const updated = { ...decisions, [id]: value }
+    setDecisions(updated)
+    // Auto-advance to next unreviewed candidate (setTimeout lets the decision
+    // render settle before the panels swap — prevents stacking flicker)
+    let nextIdx = all.findIndex((c, i) => i > idx && !updated[c.id])
+    if (nextIdx === -1) nextIdx = all.findIndex(c => !updated[c.id])
+    if (nextIdx !== -1) setTimeout(() => goTo(nextIdx), 300)
+  }
+
+  const handleSaveNotes    = (id, text) => setSavedNotes(n => ({ ...n, [id]: text }))
+  const handleOverrideType = (id, t)    => setDocTypeOverrides(o => ({ ...o, [id]: t }))
+  const handleSelectById   = (id)       => {
+    const i = all.findIndex(c => c.id === id)
+    if (i !== -1) setIdx(i)
+  }
+
   const acceptedCount = all.filter(c => decisions[c.id] === 'accept').length
   const rejectedCount = all.filter(c => decisions[c.id] === 'reject').length
   const toReviewCount = all.length - acceptedCount - rejectedCount
@@ -774,7 +760,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
         {all.length > 0 && (
           <>
             <div style={{ width: 1, height: 20, background: C.border }} />
-            <span style={{ fontSize: 12, color: C.muted }}>{currentIdx + 1} / {all.length}</span>
+            <span style={{ fontSize: 12, color: C.muted }}>{cv ? idx + 1 : 0} / {all.length}</span>
           </>
         )}
 
@@ -812,28 +798,28 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
         ) : (
           <>
             <CandidateListPanel
-              selectedId={selectedId}
+              selectedId={cv?.id ?? null}
               decisions={decisions}
-              onSelect={setSelectedId}
+              onSelect={handleSelectById}
               T={T}
             />
-            {selected && (
+            {cv && (
               <>
                 <DocumentViewer
-                  key={selected.id}
-                  cv={selected}
-                  docType={effectiveDocType(selected)}
-                  onOverrideType={(t) => dispatch({ type: 'SET_DOC_TYPE', id: selected.id, t })}
+                  key={cv.id}
+                  cv={cv}
+                  docType={effectiveDocType(cv)}
+                  onOverrideType={(t) => handleOverrideType(cv.id, t)}
                   T={T}
                 />
                 <HMCandidatePanel
-                  key={selected.id}
-                  candidate={selected}
-                  decision={decisions[selected.id] ?? null}
-                  notes={savedNotes[selected.id] || ''}
+                  key={cv.id}
+                  candidate={cv}
+                  decision={decisions[cv.id] ?? null}
+                  notes={savedNotes[cv.id] || ''}
                   onDecide={handleDecide}
                   onSaveNotes={handleSaveNotes}
-                  onClose={() => setSelectedId(null)}
+                  onClose={() => setIdx(-1)}
                   T={T}
                 />
               </>

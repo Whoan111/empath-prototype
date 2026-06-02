@@ -1,92 +1,71 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// HiringManagerSummary.jsx
-// Place in: src/screens/HiringManagerSummary.jsx
-//
-// Decision brief for the hiring manager: aggregated view of all interview
-// feedbacks for a candidate, with an AI synthesis to help make the final call.
-//
-// Props:
-//   candidate    — candidate object (optional, defaults to mock data)
-//   onBack()     — navigate back
-//   onNavigate() — parent navigation handler
+// HiringManagerSummary.jsx  —  Decision Report (hiring manager view)
+// Redesigned to match the RecruiterSummary report layout.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
 
 const SCREEN_T = {
   en: {
-    back:              '← Back',
-    applied:           'Applied',
-    interviewsDone:    (n) => `${n} interviews completed`,
-    recommendAdvance:  (a, t) => `${a} of ${t} recommend advancing`,
-    feedbackTitle:     'Interview feedback',
-    clickCollapse:     'Click any card to collapse',
-    empath:            '✦ Empath synthesis',
-    overallFit:        'Overall candidate fit',
-    fitBreakdown:      'Fit breakdown',
-    strengths:         'Consistent strengths',
-    developAreas:      'Development areas',
-    consensus:         'Interviewer consensus',
-    recommendation:    '✦ Recommendation',
-    advanceRec:        '✓ Advance recommended',
-    lowRisk:           'Low risk',
-    strongAdvance:     'Strong advance',
-    averageFit:        'Average fit',
-    notAdvancing:      'Not advancing',
-    yourDecision:      'Your decision',
-    changeDecision:    'Change decision',
-    movingFwd:         '✓ Moving forward — recruiter will be notified',
-    notMovingFwd:      '✕ Not moving forward — recruiter will be notified',
-    anotherRound:      '↺ Another round requested',
-    advance:           '✓ Move forward',
-    requestRound:      '↺ Request another round',
-    notForward:        '✕ Not moving forward',
-    sendUpdate:        '✉ Send update to candidate',
-    roundLabel:        (n) => `Round ${n}:`,
-    highlights:        'Highlights',
-    areasToDevp:       'Areas to develop',
-    advancePill:       '✓ Advance',
-    passPill:          '✕ Pass',
+    back:             '← Decision report',
+    badge:            'Decision Report',
+    applied:          'Applied',
+    empath:           '✦ Empath synthesis',
+    recommend:        'RECOMMEND',
+    feedback:         'Interview feedback',
+    rounds:           (n) => `${n} round${n !== 1 ? 's' : ''}`,
+    strengths:        'What went well',
+    improvements:     'To develop',
+    interviewerNote:  'Interviewer note',
+    communication:    'Communication',
+    culturalFit:      'Cultural fit',
+    technicalSkills:  'Technical skills',
+    growthPotential:  'Growth potential',
+    strongAdvance:    'Strong advance',
+    averageFit:       'Average fit',
+    notAdvancing:     'Not advancing',
+    yourDecision:     'Your decision',
+    changeDecision:   'Change decision',
+    movingFwd:        '✓ Moving forward — recruiter will be notified',
+    notMovingFwd:     '✕ Not moving forward — recruiter will be notified',
+    anotherRound:     '↺ Another round requested',
+    advance:          '✓ Move forward',
+    requestRound:     '↺ Request another round',
+    notForward:       '✕ Not moving forward',
+    sendUpdate:       '✉ Send update to candidate',
   },
   it: {
-    back:              '← Indietro',
-    applied:           'Candidato il',
-    interviewsDone:    (n) => `${n} interviste completate`,
-    recommendAdvance:  (a, t) => `${a} di ${t} raccomandano di avanzare`,
-    feedbackTitle:     'Feedback interviste',
-    clickCollapse:     'Clicca su una scheda per ridurla',
-    empath:            '✦ Sintesi Empath',
-    overallFit:        'Idoneità complessiva',
-    fitBreakdown:      'Dettaglio idoneità',
-    strengths:         'Punti di forza costanti',
-    developAreas:      'Aree di sviluppo',
-    consensus:         'Consenso intervistatori',
-    recommendation:    '✦ Raccomandazione',
-    advanceRec:        '✓ Avanzamento raccomandato',
-    lowRisk:           'Rischio basso',
-    strongAdvance:     'Forte avanzamento',
-    averageFit:        'Idoneità media',
-    notAdvancing:      'Non avanza',
-    yourDecision:      'La tua decisione',
-    changeDecision:    'Cambia decisione',
-    movingFwd:         '✓ Avanza — il recruiter verrà notificato',
-    notMovingFwd:      '✕ Non avanza — il recruiter verrà notificato',
-    anotherRound:      '↺ Altro round richiesto',
-    advance:           '✓ Avanza',
-    requestRound:      '↺ Richiedi altro round',
-    notForward:        '✕ Non avanza',
-    sendUpdate:        '✉ Invia aggiornamento al candidato',
-    roundLabel:        (n) => `Round ${n}:`,
-    highlights:        'Punti salienti',
-    areasToDevp:       'Aree da sviluppare',
-    advancePill:       '✓ Avanza',
-    passPill:          '✕ Non avanza',
+    back:             '← Report decisionale',
+    badge:            'Report Decisionale',
+    applied:          'Candidato il',
+    empath:           '✦ Sintesi Empath',
+    recommend:        'RACCOMANDA',
+    feedback:         'Feedback colloqui',
+    rounds:           (n) => `${n} round${n !== 1 ? 's' : ''}`,
+    strengths:        'Cosa è andato bene',
+    improvements:     'Da sviluppare',
+    interviewerNote:  'Nota intervistatore',
+    communication:    'Comunicazione',
+    culturalFit:      'Fit culturale',
+    technicalSkills:  'Competenze tecniche',
+    growthPotential:  'Potenziale di crescita',
+    strongAdvance:    'Forte avanzamento',
+    averageFit:       'Idoneità media',
+    notAdvancing:     'Non avanza',
+    yourDecision:     'La tua decisione',
+    changeDecision:   'Cambia decisione',
+    movingFwd:        '✓ Avanza — il recruiter verrà notificato',
+    notMovingFwd:     '✕ Non avanza — il recruiter verrà notificato',
+    anotherRound:     '↺ Altro round richiesto',
+    advance:          '✓ Avanza',
+    requestRound:     '↺ Richiedi altro round',
+    notForward:       '✕ Non avanza',
+    sendUpdate:       '✉ Invia aggiornamento al candidato',
   },
 }
 
-// ── Brand tokens ──────────────────────────────────────────────────────────────
 const C = {
-  red:   '#C9394A', redH: '#A82D3B', redL: '#FECDD3', redBg: '#FFF5F6',
+  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
   text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
   white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
   suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
@@ -102,73 +81,52 @@ const MOCK_CANDIDATE = {
   appliedDate: '10 Apr 2026',
 }
 
-// Three interviewers — richer dataset for the decision brief
+// Map 'strong'/'fit'/'not-fit' → percentage for dimension bars
+const fitToValue = (fit) => fit === 'strong' ? 90 : fit === 'fit' ? 72 : 45
+
 const MOCK_INTERVIEWS = [
   {
     id: 1, round: 1, type: 'Portfolio & Experience Review',
-    interviewer: 'Marco T.', interviewerRole: 'Hiring Manager', avatarIni: 'MT',
-    date: '14 May 2026', duration: '60 min',
-    overallFit: 'strongly-advance',
-    fitCriteria: { communication: 'strong', technicalSkill: 'fit', culturalFit: 'strong', growthPotential: 'strong' },
-    summary: 'Strong portfolio and excellent communication skills. Giulia clearly understands user-centred design and can articulate her decisions well. Some gaps in design systems knowledge, but she demonstrates strong motivation to grow.',
-    highlights: [
+    interviewer: 'Andrea P.', interviewerRole: 'Hiring Manager', avatarIni: 'AP',
+    date: '14 May 2026', fit: 'strongly-advance',
+    positives: [
       'Led end-to-end redesign that increased task completion by 34%',
       'Confidently walked through research-led decisions with real data',
-      "Asked thoughtful questions about the team's design process",
+      'Asked thoughtful questions about the design process',
     ],
-    concerns: ['Design systems depth needs development'],
-    recommendation: 'advance',
+    improvements: ['Design systems depth needs development'],
     note: 'I would be comfortable having her join the team. The systems knowledge is teachable — the mindset is not.',
+    dimensions: { communication: 90, culturalFit: 88, technicalSkills: 72, growthPotential: 92 },
   },
   {
     id: 2, round: 2, type: 'Technical Deep-Dive',
     interviewer: 'Elena C.', interviewerRole: 'Tech Lead', avatarIni: 'EC',
-    date: '17 May 2026', duration: '45 min',
-    overallFit: 'advance',
-    fitCriteria: { communication: 'fit', technicalSkill: 'fit', culturalFit: 'strong', growthPotential: 'fit' },
-    summary: 'Enthusiastic and highly collaborative. Cultural alignment is strong — she would fit in well. Complex problem-solving under pressure could be developed further, but her growth mindset is evident.',
-    highlights: [
+    date: '17 May 2026', fit: 'advance',
+    positives: [
       'Demonstrated strong empathy for end-users throughout',
       'Responded openly to difficult hypotheticals rather than deflecting',
       'Flagged a potential accessibility issue in the design exercise unprompted',
     ],
-    concerns: ['Could develop more structured problem decomposition under pressure'],
-    recommendation: 'advance',
+    improvements: ['Could develop more structured problem decomposition under pressure'],
     note: 'Culture fit is a clear yes. Technically she needs support on systems but she\'s coachable.',
+    dimensions: { communication: 84, culturalFit: 91, technicalSkills: 68, growthPotential: 85 },
   },
   {
     id: 3, round: 3, type: 'Values & Leadership Potential',
     interviewer: 'Andrea P.', interviewerRole: 'Design Director', avatarIni: 'AP',
-    date: '20 May 2026', duration: '30 min',
-    overallFit: 'strongly-advance',
-    fitCriteria: { communication: 'strong', technicalSkill: 'strong', culturalFit: 'strong', growthPotential: 'strong' },
-    summary: 'Outstanding. Giulia brings a rare combination of strategic thinking and genuine empathy. She speaks about design in terms of people, not just pixels. The team would grow with her.',
-    highlights: [
+    date: '20 May 2026', fit: 'strongly-advance',
+    positives: [
       'Articulated a clear point of view on inclusive design without prompting',
       'Described a situation where she pushed back on stakeholders constructively',
       'Asked about the team\'s design maturity and what growing it would look like',
     ],
-    concerns: [],
-    recommendation: 'advance',
+    improvements: [],
     note: 'Strong recommend. This is the kind of designer who elevates everyone around them.',
+    dimensions: { communication: 95, culturalFit: 94, technicalSkills: 86, growthPotential: 97 },
   },
 ]
 
-// AI synthesis data
-const SYNTHESIS = {
-  overallFit: 'strongly-advance',
-  fitCriteria: [
-    { label: 'Communication',    fit: 'strong' },
-    { label: 'Technical skill',  fit: 'fit'    },
-    { label: 'Cultural fit',     fit: 'strong' },
-    { label: 'Growth potential', fit: 'strong' },
-  ],
-  strengths: ['User empathy', 'Communication', 'Research depth', 'Cultural alignment', 'Growth mindset'],
-  concerns: ['Design systems experience', 'Problem-solving under pressure'],
-  recommendation: 'advance',
-  rationale: "All three interviewers recommend advancing Giulia. Her communication skills, cultural alignment, and growth mindset are consistently assessed as strong fits. The one area of development — design systems — is framed as coachable by all reviewers, not as a blocker. The Design Director's assessment is particularly encouraging: she brings strategic thinking that elevates the people around her.",
-  riskLevel: 'low',
-}
+const SYNTHESIS_RATIONALE = "All three interviewers recommend advancing Giulia. Her communication skills, cultural alignment, and growth mindset are consistently assessed as strong fits. The one development area — design systems — is framed as coachable by all reviewers, not as a blocker. The Design Director's assessment is particularly encouraging: she brings strategic thinking that elevates the people around her."
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
@@ -177,7 +135,7 @@ const AV_PALETTE = [
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 
-function Av({ id, ini, size = 36 }) {
+function Av({ id, ini, size = 40 }) {
   const [bg, color] = avColor(id || 1)
   return (
     <div style={{ width: size, height: size, borderRadius: '50%', background: bg, color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.31, fontWeight: 600 }}>
@@ -186,142 +144,118 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-// ── Fit pill ──────────────────────────────────────────────────────────────────
-function FitPill({ fit, size = 'normal', T }) {
-  const fontSize = size === 'small' ? 9 : 11
-  const pad = size === 'small' ? '2px 7px' : '3px 9px'
-  if (fit === 'strongly-advance') return <span style={{ background: C.sucBg, color: C.sucT, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>★ {T?.strongAdvance || 'Strong advance'}</span>
-  if (fit === 'advance') return <span style={{ background: C.warBg, color: C.warT, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>◎ {T?.averageFit || 'Average fit'}</span>
-  return <span style={{ background: '#FEE2E2', color: C.red, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>✕ {T?.notAdvancing || 'Not advancing'}</span>
+function FitPill({ fit, T }) {
+  if (fit === 'strongly-advance') return (
+    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+  )
+  if (fit === 'advance') return (
+    <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+  )
+  return (
+    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
+  )
 }
 
-// ── Fit row (replaces ScoreBar) ───────────────────────────────────────────────
-function FitRow({ label, fit }) {
-  const cfg = fit === 'strong'
-    ? { label: 'Strong fit', color: C.suc, bg: C.sucBg }
-    : fit === 'fit'
-    ? { label: 'Fit',        color: C.war, bg: C.warBg }
-    : { label: 'Not fit',    color: C.red, bg: '#FEE2E2' }
+function DimBar({ label, value, color }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 9, padding: '6px 10px', background: C.gray, borderRadius: 8 }}>
-      <span style={{ fontSize: 12, color: C.text }}>{label}</span>
-      <span style={{ background: cfg.bg, color: cfg.color, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{cfg.label}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+      <span style={{ fontSize: 10, color: C.muted, whiteSpace: 'nowrap', width: 120, flexShrink: 0 }}>{label}</span>
+      <div style={{ flex: 1, height: 4, background: C.grayB, borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 3 }} />
+      </div>
+      <span style={{ fontSize: 10, fontWeight: 700, color, width: 28, textAlign: 'right', flexShrink: 0 }}>{value}</span>
     </div>
   )
 }
 
-// ── Interviewer avatar cluster ────────────────────────────────────────────────
-function AvatarCluster({ interviews }) {
-  const colors = ['#FECDD3','#DBEAFE','#D1FAE5']
-  const fgColors = [C.red, C.inf, C.suc]
-  return (
-    <div style={{ display: 'flex' }}>
-      {interviews.map((iv, i) => (
-        <div
-          key={iv.id}
-          title={`${iv.interviewer} — ${iv.interviewerRole}`}
-          style={{ width: 28, height: 28, borderRadius: '50%', background: colors[i], color: fgColors[i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, border: '2px solid white', marginLeft: i > 0 ? -8 : 0, zIndex: interviews.length - i }}
-        >
-          {iv.avatarIni}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// ── Interview feedback card ───────────────────────────────────────────────────
-function FeedbackCard({ interview, T }) {
-  const [open, setOpen] = useState(true)
-  const avColors = [['#FECDD3',C.red],['#DBEAFE',C.inf],['#D1FAE5',C.suc]]
-  const [bg, color] = avColors[(interview.id - 1) % 3]
+// ── Interview report card ─────────────────────────────────────────────────────
+function InterviewCard({ interview, T }) {
+  const borderColor = interview.fit === 'strongly-advance' ? C.suc
+                    : interview.fit === 'advance'          ? C.war
+                    : C.red
+  const dimColor    = borderColor
+  const avColors = [['#FECDD3', C.red], ['#DBEAFE', C.inf], ['#D1FAE5', C.suc]]
+  const [avBg, avCol] = avColors[(interview.id - 1) % 3]
+  const dims = interview.dimensions
 
   return (
-    <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+    <div style={{
+      background: C.white,
+      border: `1px solid ${C.border}`,
+      borderLeft: `4px solid ${borderColor}`,
+      borderRadius: 13,
+      overflow: 'hidden',
+    }}>
       {/* Card header */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '15px 18px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}
-      >
-        {/* Interviewer avatar */}
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: bg, color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: avBg, color: avCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
           {interview.avatarIni}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{interview.interviewer}</span>
-            <span style={{ fontSize: 11, color: C.muted }}>· {interview.interviewerRole}</span>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>
+            {interview.interviewer}
+            <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6 }}>· {interview.interviewerRole}</span>
           </div>
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
-            {T.roundLabel(interview.round)} {interview.type} · {interview.date} · {interview.duration}
+          <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>
+            Round {interview.round} · {interview.type} · {interview.date}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <FitPill fit={interview.overallFit} size="normal" T={T} />
-          <span style={{ color: C.muted, fontSize: 13, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▾</span>
-        </div>
-      </button>
+        <FitPill fit={interview.fit} T={T} />
+      </div>
 
       {/* Card body */}
-      {open && (
-        <div style={{ padding: '0 18px 18px', borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-          {/* Summary */}
-          <p style={{ fontSize: 13, color: C.text, lineHeight: 1.8, padding: '11px 13px', background: C.gray, borderRadius: 9, borderLeft: `3px solid ${color}`, margin: '0 0 14px' }}>
-            {interview.summary}
-          </p>
+      <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          {/* Per-criteria fit */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px', marginBottom: 14 }}>
-            {Object.entries(interview.fitCriteria).map(([key, fit]) => {
-              const label = key.replace(/([A-Z])/g, ' $1').trim()
-              const fitCfg = fit === 'strong' ? { label:'Strong', color:C.suc, bg:C.sucBg } : fit === 'fit' ? { label:'Fit', color:C.war, bg:C.warBg } : { label:'Not fit', color:C.red, bg:'#FEE2E2' }
-              return (
-                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '4px 8px', background: C.gray, borderRadius: 6 }}>
-                  <span style={{ color: C.muted, textTransform: 'capitalize' }}>{label}</span>
-                  <span style={{ background: fitCfg.bg, color: fitCfg.color, fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 20 }}>{fitCfg.label}</span>
-                </div>
-              )
-            })}
+        {/* Strengths */}
+        <div style={{ background: C.sucBg, borderRadius: 9, padding: '10px 13px' }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+            ✓ {T.strengths}
           </div>
-
-          {/* Highlights */}
-          {interview.highlights.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.highlights}</p>
-              {interview.highlights.map((h, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
-                  <span style={{ color: C.suc, fontSize: 12, flexShrink: 0, marginTop: 1 }}>✓</span>
-                  <span style={{ fontSize: 12, color: C.text, lineHeight: 1.6 }}>{h}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Concerns */}
-          {interview.concerns.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.areasToDevp}</p>
-              {interview.concerns.map((c, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
-                  <span style={{ color: C.war, fontSize: 12, flexShrink: 0, marginTop: 1 }}>△</span>
-                  <span style={{ fontSize: 12, color: C.text, lineHeight: 1.6 }}>{c}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Interviewer's personal note */}
-          {interview.note && (
-            <div style={{ background: bg, borderRadius: 9, padding: '10px 13px', borderLeft: `3px solid ${color}` }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>
-                {interview.interviewer}'s note
-              </p>
-              <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
-                "{interview.note}"
-              </p>
-            </div>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {interview.positives.map((p, i) => (
+              <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+                <span style={{ color: C.suc, fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+
+        {/* Improvements */}
+        {interview.improvements.length > 0 && (
+          <div style={{ background: C.warBg, borderRadius: 9, padding: '10px 13px' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+              ⚠ {T.improvements}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {interview.improvements.map((p, i) => (
+                <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
+                  <span style={{ color: C.war, fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                  <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Note */}
+        {interview.note && (
+          <div style={{ background: C.gray, borderRadius: 9, padding: '10px 13px', borderLeft: `3px solid ${C.grayB}` }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>
+              ℹ {T.interviewerNote}
+            </div>
+            <p style={{ fontSize: 12, color: C.text, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>"{interview.note}"</p>
+          </div>
+        )}
+
+        {/* Dimension bars */}
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 11, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <DimBar label={T.communication}    value={dims.communication}    color={dimColor} />
+          <DimBar label={T.culturalFit}      value={dims.culturalFit}      color={dimColor} />
+          <DimBar label={T.technicalSkills}  value={dims.technicalSkills}  color={dimColor} />
+          <DimBar label={T.growthPotential}  value={dims.growthPotential}  color={dimColor} />
+        </div>
+      </div>
     </div>
   )
 }
@@ -329,139 +263,74 @@ function FeedbackCard({ interview, T }) {
 // ── Root ──────────────────────────────────────────────────────────────────────
 export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
-  const [decision, setDecision] = useState(null) // 'advance' | 'pass' | 'another-round'
+  const [decision, setDecision] = useState(null)
 
   const interviews = MOCK_INTERVIEWS
-  const advCount   = interviews.filter(i => i.recommendation === 'advance').length
+  const advCount   = interviews.filter(i => i.fit !== 'not-advancing').length
+  const overallFit = interviews.every(i => i.fit === 'strongly-advance') ? 'strongly-advance'
+                   : interviews.some(i => i.fit === 'strongly-advance') ? 'strongly-advance'
+                   : 'advance'
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 36px 48px' }}>
 
-      {/* ── Left: interview feed ── */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '28px 28px 40px' }}>
         {/* Back */}
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 13, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'inherit' }}>
           {T.back}
         </button>
 
-        {/* Candidate header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 26, padding: '16px 20px', background: C.white, borderRadius: 13, border: `1px solid ${C.border}` }}>
-          <Av id={candidate.id} ini={candidate.ini} size={52} />
+        {/* ── Report header card ── */}
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
+          <div style={{ height: 4, background: `linear-gradient(90deg, ${C.red}, #F87171)` }} />
+          <div style={{ padding: '20px 24px 18px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+            <Av id={candidate.id} ini={candidate.ini} size={52} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{T.badge}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+                <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: 0 }}>
+                  {candidate.name}
+                </h1>
+                <FitPill fit={overallFit} T={T} />
+              </div>
+              <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
+                {candidate.role} · {candidate.pos} · {T.applied} {candidate.appliedDate}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Empath AI snapshot ── */}
+        <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>
-              {candidate.name}
-            </h1>
-            <div style={{ fontSize: 13, color: C.muted }}>{candidate.role} · {candidate.pos}</div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{T.applied} {candidate.appliedDate} · {T.interviewsDone(interviews.length)}</div>
+            <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>{T.empath}</p>
+            <p style={{ fontSize: 13, color: C.text, lineHeight: 1.75, margin: 0 }}>{SYNTHESIS_RATIONALE}</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-            <AvatarCluster interviews={interviews} />
-            <span style={{ fontSize: 11, color: C.muted }}>
-              {T.recommendAdvance(advCount, interviews.length)}
-            </span>
+          <div style={{ background: C.sucBg, borderRadius: 10, padding: '10px 14px', textAlign: 'center', border: '1px solid #BBF7D0', flexShrink: 0 }}>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
+            <div style={{ fontSize: 9, color: C.sucT, fontWeight: 700, marginTop: 3, letterSpacing: '0.05em' }}>{T.recommend}</div>
           </div>
         </div>
 
-        {/* Section heading */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.feedbackTitle}</h2>
-          <span style={{ fontSize: 11, color: C.muted }}>{T.clickCollapse}</span>
-        </div>
-
-        {/* Interview cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-          {interviews.map(iv => (
-            <FeedbackCard key={iv.id} interview={iv} T={T} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Right: AI synthesis + decision ── */}
-      <aside style={{ width: 320, borderLeft: `1px solid ${C.border}`, background: C.white, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 22px' }}>
-
-          {/* Overall fit */}
-          <div style={{ textAlign: 'center', marginBottom: 24, padding: '20px 16px', background: C.redBg, borderRadius: 13, border: `1px solid ${C.border}` }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>{T.empath}</p>
-            <div style={{ marginBottom: 8 }}>
-              <FitPill fit={SYNTHESIS.overallFit} size="normal" T={T} />
-            </div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 6 }}>{T.overallFit}</div>
-          </div>
-
-          {/* Fit breakdown */}
-          <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>{T.fitBreakdown}</p>
-            {SYNTHESIS.fitCriteria.map(c => (
-              <FitRow key={c.label} label={c.label} fit={c.fit} />
+        {/* ── Interview cards ── */}
+        <div style={{ marginBottom: 24 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+            {T.feedback} · {T.rounds(interviews.length)}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+            {interviews.map(iv => (
+              <InterviewCard key={iv.id} interview={iv} T={T} />
             ))}
-          </div>
-
-          {/* Strengths */}
-          <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.strengths}</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {SYNTHESIS.strengths.map(s => (
-                <span key={s} style={{ background: C.sucBg, color: C.sucT, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500 }}>{s}</span>
-              ))}
-            </div>
-          </div>
-
-          {/* Concerns */}
-          <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.developAreas}</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {SYNTHESIS.concerns.map(s => (
-                <span key={s} style={{ background: C.warBg, color: C.warT, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500 }}>{s}</span>
-              ))}
-            </div>
-          </div>
-
-          {/* Interviewer consensus */}
-          <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>{T.consensus}</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {interviews.map(iv => {
-                const ivColors = [['#FECDD3',C.red],['#DBEAFE',C.inf],['#D1FAE5',C.suc]]
-                const [bg, col] = ivColors[(iv.id - 1) % 3]
-                return (
-                  <div key={iv.id} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '9px 12px', background: C.gray, borderRadius: 9 }}>
-                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: bg, color: col, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
-                      {iv.avatarIni}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 500, color: C.text }}>{iv.interviewer}</div>
-                      <div style={{ fontSize: 9, color: C.muted }}>{iv.interviewerRole}</div>
-                    </div>
-                    <FitPill fit={iv.overallFit} size="small" T={T} />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* AI rationale */}
-          <div style={{ background: C.redBg, borderRadius: 11, padding: '13px 14px', border: `1px solid ${C.border}`, marginBottom: 8 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.recommendation}</p>
-            <p style={{ fontSize: 12, color: C.text, lineHeight: 1.8, margin: 0 }}>
-              {SYNTHESIS.rationale}
-            </p>
-            <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 7 }}>
-              <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
-                {T.advanceRec}
-              </span>
-              <span style={{ fontSize: 11, color: C.muted }}>{T.lowRisk}</span>
-            </div>
           </div>
         </div>
 
         {/* ── Decision panel ── */}
-        <div style={{ padding: '16px 22px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 9 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 2px' }}>{T.yourDecision}</p>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
 
           {decision ? (
-            <div style={{ padding: '14px 16px', borderRadius: 11, background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}`, textAlign: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
+            <div style={{ padding: '16px 18px', borderRadius: 11, textAlign: 'center', background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}` }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
                 {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
               </div>
               <button onClick={() => setDecision(null)} style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>
@@ -469,35 +338,30 @@ export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CAN
               </button>
             </div>
           ) : (
-            <>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setDecision('advance')}
-                style={{ padding: '11px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.advance}
               </button>
               <button
                 onClick={() => setDecision('another-round')}
-                style={{ padding: '11px 0', borderRadius: 9, background: C.warBg, color: C.warT, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.requestRound}
               </button>
               <button
                 onClick={() => setDecision('pass')}
-                style={{ padding: '11px 0', borderRadius: 9, background: C.gray, color: C.muted, border: 'none', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, minWidth: 160, padding: '12px 0', borderRadius: 10, background: C.gray, color: C.muted, border: `1px solid ${C.grayB}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.notForward}
               </button>
-              <button
-                onClick={() => onNavigate?.('craft', { candidate })}
-                style={{ padding: '9px 0', borderRadius: 9, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                {T.sendUpdate}
-              </button>
-            </>
+            </div>
           )}
         </div>
-      </aside>
+
+      </div>
     </div>
   )
 }

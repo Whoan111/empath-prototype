@@ -15,44 +15,239 @@ const POSITIONS = [
     stages:{'Pre-Call':1, Interviews:1, Decision:1, Offer:0} },
 ]
 
-// ── Close-position confirmation modal ────────────────────────────────────────
-function CloseConfirmModal({ pos, th, onConfirm, onCancel }) {
-  return (
-    <div
-      onClick={onCancel}
-      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.35)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(5px)' }}
-    >
+// ── Confetti shapes for celebration ──────────────────────────────────────────
+const CONFETTI_SHAPES = [
+  { color:'#E90130', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
+  { color:'#1B2461', x:18, delay:0.12, size:6,  circle:true,  rotate:0   },
+  { color:'#E90130', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
+  { color:'#FBBF24', x:42, delay:0.18, size:7,  circle:true,  rotate:0   },
+  { color:'#1B2461', x:54, delay:0.03, size:9,  circle:false, rotate:60  },
+  { color:'#E90130', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
+  { color:'#FBBF24', x:76, delay:0.09, size:8,  circle:false, rotate:-45 },
+  { color:'#1B2461', x:88, delay:0.21, size:7,  circle:true,  rotate:0   },
+  { color:'#E90130', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
+  { color:'#FBBF24', x:50, delay:0.33, size:8,  circle:true,  rotate:0   },
+  { color:'#1B2461', x:72, delay:0.24, size:6,  circle:false, rotate:-60 },
+  { color:'#E90130', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
+  { color:'#FBBF24', x:92, delay:0.16, size:5,  circle:false, rotate:20  },
+]
+
+// ── Close-position modal (choose reason → celebrate or silently close) ────────
+function ClosePositionModal({ pos, th, onConfirm, onCancel }) {
+  const [phase, setPhase] = useState('choose') // 'choose' | 'celebrate'
+
+  const choose = (reason) => {
+    if (reason === 'hired') {
+      setPhase('celebrate')
+    } else {
+      onConfirm('no-match')
+    }
+  }
+
+  // ── Phase 1: choose reason ─────────────────────────────────────────────────
+  if (phase === 'choose') {
+    return (
       <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: th.cardBg, borderRadius:'0.875rem', padding:'28px 30px', width:420,
-          border:`1px solid ${th.borderBrt}`,
-          boxShadow:'0 24px 64px rgba(0,0,0,0.16)',
-          animation:'modalIn 0.2s ease',
-        }}
+        onClick={onCancel}
+        style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.42)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(6px)' }}
       >
-        <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
-        <div style={{ fontSize:28, marginBottom:10 }}>🔒</div>
-        <div style={{ fontFamily:'DM Serif Display, serif', fontSize:20, color:th.text, marginBottom:10 }}>
-          Close this position?
-        </div>
-        <p style={{ fontSize:13, color:th.textDim, lineHeight:1.65, margin:'0 0 24px' }}>
-          <strong style={{ color:th.text }}>{pos.title}</strong> will be moved to Closed positions.
-          No new candidates will be accepted. You can reopen it at any time.
-        </p>
-        <div style={{ display:'flex', gap:10 }}>
+        <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{
+            background: th.cardBg, borderRadius:'0.875rem', padding:'28px 30px', width:450,
+            border:`1px solid ${th.borderBrt}`,
+            boxShadow:'0 28px 72px rgba(0,0,0,0.2)',
+            animation:'modalIn 0.22s ease',
+          }}
+        >
+          <div style={{ fontSize:26, marginBottom:10 }}>🔒</div>
+          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:21, color:th.text, marginBottom:8 }}>
+            Close this position?
+          </div>
+          <p style={{ fontSize:13, color:th.textDim, lineHeight:1.65, margin:'0 0 22px' }}>
+            <strong style={{ color:th.text }}>{pos.title}</strong> will be moved to the archive.
+            No new candidates will be accepted. You can reopen it at any time.
+          </p>
+
+          <div style={{ fontSize:10, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:10 }}>
+            Why are you closing it?
+          </div>
+
+          {/* Option A — Found the right candidate */}
+          <button
+            onClick={() => choose('hired')}
+            style={{
+              width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:9,
+              border:`2px solid rgba(5,150,105,0.22)`,
+              background:`rgba(5,150,105,0.05)`,
+              cursor:'pointer', fontFamily:'inherit', textAlign:'left',
+              display:'flex', alignItems:'center', gap:13,
+              transition:'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(5,150,105,0.5)'; e.currentTarget.style.background = 'rgba(5,150,105,0.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(5,150,105,0.22)'; e.currentTarget.style.background = 'rgba(5,150,105,0.05)' }}
+          >
+            <span style={{ fontSize:22, flexShrink:0 }}>🎯</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#065F46', marginBottom:3 }}>
+                We found the right candidate
+              </div>
+              <div style={{ fontSize:11, color:'#6B7280', lineHeight:1.5 }}>
+                The position has been filled — great work.
+              </div>
+            </div>
+          </button>
+
+          {/* Option B — Didn't find anyone */}
+          <button
+            onClick={() => choose('no-match')}
+            style={{
+              width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:22,
+              border:`1px solid ${th.border}`,
+              background:th.surface,
+              cursor:'pointer', fontFamily:'inherit', textAlign:'left',
+              display:'flex', alignItems:'center', gap:13,
+              transition:'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = th.borderBrt; e.currentTarget.style.background = th.surfaceHov }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = th.border; e.currentTarget.style.background = th.surface }}
+          >
+            <span style={{ fontSize:22, flexShrink:0 }}>🔍</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:th.textMid, marginBottom:3 }}>
+                We didn't find anyone for now
+              </div>
+              <div style={{ fontSize:11, color:th.textDim, lineHeight:1.5 }}>
+                Archived · You can revisit this in the closed positions below.
+              </div>
+            </div>
+          </button>
+
           <button
             onClick={onCancel}
-            style={{ flex:1, padding:'10px', borderRadius:9, border:`1px solid ${th.border}`, background:'transparent', color:th.textMid, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}
+            style={{ width:'100%', padding:'10px', borderRadius:9, border:`1px solid ${th.border}`, background:'transparent', color:th.textMid, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}
           >
             Cancel
           </button>
-          <button
-            onClick={onConfirm}
-            style={{ flex:1.2, padding:'10px', borderRadius:9, border:'none', background:th.red, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em' }}
+        </div>
+      </div>
+    )
+  }
+
+  // ── Phase 2: celebration ───────────────────────────────────────────────────
+  return (
+    <div
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:300, backdropFilter:'blur(8px)' }}
+    >
+      <style>{`
+        @keyframes confettiPop {
+          0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+          12%  { opacity: 1; }
+          100% { transform: translateY(-180px) rotate(540deg) scale(0.3); opacity: 0; }
+        }
+        @keyframes celebrateIn {
+          0%   { opacity: 0; transform: scale(0.88) translateY(12px); }
+          65%  { transform: scale(1.02) translateY(-2px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes trophyBounce {
+          0%   { transform: scale(0) rotate(-15deg); }
+          55%  { transform: scale(1.25) rotate(8deg); }
+          75%  { transform: scale(0.92) rotate(-3deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes shimmerPulse {
+          0%, 100% { opacity: 0.5; }
+          50%       { opacity: 1; }
+        }
+      `}</style>
+
+      <div style={{ position:'relative', width:480 }}>
+
+        {/* Confetti particles */}
+        {CONFETTI_SHAPES.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              position:'absolute',
+              left:`${s.x}%`,
+              bottom:'38%',
+              width: s.size, height: s.size,
+              background: s.color,
+              borderRadius: s.circle ? '50%' : '2px',
+              transform: `rotate(${s.rotate}deg)`,
+              animation: `confettiPop 1.6s cubic-bezier(0.25,0.46,0.45,0.94) ${s.delay}s both`,
+              zIndex: 10,
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+
+        {/* Card */}
+        <div
+          style={{
+            background: th.cardBg,
+            borderRadius:'1.1rem', padding:'40px 34px 32px',
+            border:`1px solid ${th.borderBrt}`,
+            boxShadow:'0 36px 90px rgba(0,0,0,0.24)',
+            animation: 'celebrateIn 0.4s cubic-bezier(0.22,0.61,0.36,1) both',
+            textAlign: 'center',
+            position: 'relative', overflow: 'hidden',
+          }}
+        >
+          {/* Radial glow background */}
+          <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%, rgba(233,1,48,0.08) 0%, transparent 62%)`, pointerEvents:'none', animation:'shimmerPulse 2.5s ease-in-out infinite' }} />
+
+          {/* Trophy */}
+          <div
+            style={{
+              width:72, height:72, borderRadius:'50%',
+              background:'linear-gradient(135deg, rgba(5,150,105,0.15) 0%, rgba(5,150,105,0.06) 100%)',
+              border:'2px solid rgba(5,150,105,0.3)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              margin:'0 auto 22px',
+              animation:'trophyBounce 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both',
+            }}
           >
-            Close position
-          </button>
+            <span style={{ fontSize:34 }}>🏆</span>
+          </div>
+
+          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
+            Congratulations, Valentina!
+          </div>
+
+          <p style={{ fontSize:14, color:th.textMid, lineHeight:1.75, margin:'0 0 6px' }}>
+            You found the right person for{' '}
+            <strong style={{ color:th.text }}>{pos.title}</strong>.
+          </p>
+          <p style={{ fontSize:13, color:th.textDim, lineHeight:1.75, margin:'0 0 28px', maxWidth:340, marginLeft:'auto', marginRight:'auto' }}>
+            Great work bringing the right talent to the team — this is what it's all about.
+            The hard work paid off.
+          </p>
+
+          {/* Pill note */}
+          <div style={{ display:'inline-flex', alignItems:'center', gap:7, background:th.surface, border:`1px solid ${th.border}`, borderRadius:20, padding:'5px 16px', marginBottom:26, fontSize:11, color:th.textDim }}>
+            <span style={{ color:'#059669', fontWeight:700 }}>✓</span>
+            Position closed · Reopen anytime from the archive below
+          </div>
+
+          <div>
+            <button
+              onClick={() => onConfirm('hired')}
+              style={{
+                padding:'13px 36px', borderRadius:10, background:th.red, color:'white',
+                border:'none', fontSize:14, fontWeight:700, cursor:'pointer',
+                fontFamily:'inherit', letterSpacing:'0.04em',
+                boxShadow:`0 0 28px ${th.redGlow}`,
+                transition:'transform 0.1s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Done →
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -60,7 +255,7 @@ function CloseConfirmModal({ pos, th, onConfirm, onCancel }) {
 }
 
 // ── New Position modal ─────────────────────────────────────────────────────────
-function NewPositionModal({ th, onClose, onNavigate }) {
+function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
   const [title, setTitle] = useState('')
   const [dept,  setDept]  = useState('')
 
@@ -68,10 +263,10 @@ function NewPositionModal({ th, onClose, onNavigate }) {
 
   const handle = (goToTriage) => {
     if (!canSubmit) return
-    const newPos = { id: Date.now(), title: title.trim(), dept: dept.trim(), count: 0, openDays: 0 }
+    const newPos = { id: Date.now(), title: title.trim(), dept: dept.trim() || 'New Department', total: 0, openDays: 0, stages: {} }
+    onCreated?.(newPos)
     onClose()
     if (goToTriage) onNavigate('triage', { position: newPos })
-    // If not going to triage, the position is silently created (prototype behaviour)
   }
 
   const inputStyle = {
@@ -163,12 +358,12 @@ function NewPositionModal({ th, onClose, onNavigate }) {
 }
 
 // ── Closed positions archive (collapsible) ────────────────────────────────────
-function ClosedPositionsSection({ positions, th, T, stageT, onReopen }) {
+function ClosedPositionsSection({ positions, th, T, onReopen }) {
   const [open, setOpen] = useState(false)
   if (!positions.length) return null
+
   return (
     <div style={{ marginTop:28 }}>
-      {/* Section divider */}
       <button
         onClick={() => setOpen(o => !o)}
         style={{ display:'flex', alignItems:'center', gap:10, width:'100%', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:'inherit', marginBottom: open ? 12 : 0 }}
@@ -187,24 +382,48 @@ function ClosedPositionsSection({ positions, th, T, stageT, onReopen }) {
 
       {open && (
         <div style={{ background:th.cardBg, border:`1px solid ${th.border}`, borderRadius:'0.75rem', overflow:'hidden' }}>
-          {positions.map((p, i) => (
-            <div key={p.id} style={{ display:'flex', alignItems:'center', gap:14, padding:'13px 20px', borderBottom: i < positions.length - 1 ? `1px solid ${th.border}` : 'none', opacity:0.65 }}>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:9, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>{p.dept}</div>
-                <div style={{ fontFamily:'DM Serif Display, serif', fontSize:15, color:th.text }}>{p.title}</div>
-              </div>
-              <span style={{ fontSize:9, fontWeight:700, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'2px 8px', borderRadius:20, letterSpacing:'0.06em', flexShrink:0 }}>CLOSED</span>
-              <span style={{ fontSize:10, color:th.textDim, flexShrink:0 }}>📅 {T.openDays(p.openDays)}</span>
-              <button
-                onClick={() => onReopen(p.id)}
-                style={{ fontSize:10, fontWeight:600, color:th.textMid, background:'transparent', border:`1px solid ${th.border}`, borderRadius:6, padding:'4px 12px', cursor:'pointer', fontFamily:'inherit', flexShrink:0, transition:'all 0.13s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = th.navy; e.currentTarget.style.color = th.navy }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = th.border; e.currentTarget.style.color = th.textMid }}
+          {positions.map((p, i) => {
+            const hired   = p.closeReason === 'hired'
+            const last    = i === positions.length - 1
+            return (
+              <div
+                key={p.id}
+                style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 20px', borderBottom: last ? 'none' : `1px solid ${th.border}`, opacity: hired ? 0.85 : 0.6 }}
               >
-                Reopen
-              </button>
-            </div>
-          ))}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:9, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>{p.dept}</div>
+                  <div style={{ fontFamily:'DM Serif Display, serif', fontSize:15, color:th.text }}>{p.title}</div>
+                  {!hired && (
+                    <div style={{ fontSize:10, color:th.textDim, marginTop:3 }}>
+                      No match found · You can revisit this anytime.
+                    </div>
+                  )}
+                </div>
+
+                {/* Reason badge */}
+                {hired ? (
+                  <span style={{ fontSize:9, fontWeight:700, color:'#065F46', background:'rgba(5,150,105,0.1)', border:'1px solid rgba(5,150,105,0.25)', padding:'3px 9px', borderRadius:20, letterSpacing:'0.06em', flexShrink:0, whiteSpace:'nowrap' }}>
+                    ✓ Filled
+                  </span>
+                ) : (
+                  <span style={{ fontSize:9, fontWeight:700, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'3px 9px', borderRadius:20, letterSpacing:'0.06em', flexShrink:0, whiteSpace:'nowrap' }}>
+                    🔍 No match
+                  </span>
+                )}
+
+                <span style={{ fontSize:10, color:th.textDim, flexShrink:0 }}>📅 {T.openDays(p.openDays)}</span>
+
+                <button
+                  onClick={() => onReopen(p.id)}
+                  style={{ fontSize:10, fontWeight:600, color:th.textMid, background:'transparent', border:`1px solid ${th.border}`, borderRadius:6, padding:'4px 12px', cursor:'pointer', fontFamily:'inherit', flexShrink:0, transition:'all 0.13s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = th.navy; e.currentTarget.style.color = th.navy }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = th.border; e.currentTarget.style.color = th.textMid }}
+                >
+                  Reopen
+                </button>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
@@ -325,23 +544,27 @@ function SpontaneousCard({ th, stageT, T, onOpen }) {
   )
 }
 
-export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate }) {
+export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate, customPositions = [], onAddPosition }) {
   const T      = TRANSLATIONS[lang]
   const th     = theme
   const stageT = STAGE_TOKENS[themeMode]
   const hour   = new Date().getHours()
   const total  = POSITIONS.reduce((s,p) => s + p.total, 0)
-  const [closedPositions, setClosedPositions] = useState(new Set())
+
+  // closed positions: id → { reason: 'hired' | 'no-match' }
+  const [closedPositions, setClosedPositions] = useState({})
   const [showNewPosition,  setShowNewPosition]  = useState(false)
   const [closePending,     setClosePending]     = useState(null)   // pos object | null
 
   const requestClose = (pos) => setClosePending(pos)
-  const confirmClose = () => {
+
+  const confirmClose = (reason) => {
     if (!closePending) return
-    setClosedPositions(s => { const n = new Set(s); n.add(closePending.id); return n })
+    setClosedPositions(s => ({ ...s, [closePending.id]: { reason } }))
     setClosePending(null)
   }
-  const reopenPos = (id) => setClosedPositions(s => { const n = new Set(s); n.delete(id); return n })
+
+  const reopenPos = (id) => setClosedPositions(s => { const n = { ...s }; delete n[id]; return n })
 
   const stats = [
     { label: T.totalCandidates, value: total,                                                            color: th.text              },
@@ -349,6 +572,12 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate 
     { label: T.offerStage,      value: POSITIONS.reduce((s,p) => s+(p.stages.Offer||0), 0),              color: stageT.Offer.accent      },
     { label: T.avgDaysOpen,     value: Math.round(POSITIONS.reduce((s,p) => s+p.openDays, 0)/POSITIONS.length)+'d', color: stageT['Pre-Call'].accent },
   ]
+
+  const openPositions   = POSITIONS.filter(p => !closedPositions[p.id])
+  const openCustom      = customPositions.filter(p => !closedPositions[p.id])
+  const closedAll       = [...POSITIONS, ...customPositions]
+    .filter(p => !!closedPositions[p.id])
+    .map(p => ({ ...p, closeReason: closedPositions[p.id].reason }))
 
   return (
     <div style={{ flex:1, overflow:'auto' }}>
@@ -364,7 +593,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate 
               {T.greeting(hour)}, Valentina
             </h1>
             <p style={{ fontSize:13, color:th.textDim, margin:0 }}>
-              {POSITIONS.length} {T.openPositions.toLowerCase()} · {total} {T.totalCandidates.toLowerCase()}
+              {openPositions.length + openCustom.length} {T.openPositions.toLowerCase()} · {total} {T.totalCandidates.toLowerCase()}
             </p>
           </div>
           <button
@@ -391,9 +620,14 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate 
           <div style={{ flex:1, height:1, background:th.border }} />
         </div>
 
-        {/* Open position cards (only non-closed) */}
+        {/* Open position cards */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-          {POSITIONS.filter(p => !closedPositions.has(p.id)).map(pos => (
+          {openPositions.map(pos => (
+            <PositionCard key={pos.id} pos={pos} th={th} stageT={stageT} T={T}
+              onOpen={p => onNavigate?.('kanban', { position:p })}
+              onCloseRequest={requestClose} />
+          ))}
+          {openCustom.map(pos => (
             <PositionCard key={pos.id} pos={pos} th={th} stageT={stageT} T={T}
               onOpen={p => onNavigate?.('kanban', { position:p })}
               onCloseRequest={requestClose} />
@@ -404,8 +638,8 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate 
 
         {/* Closed positions archive */}
         <ClosedPositionsSection
-          positions={POSITIONS.filter(p => closedPositions.has(p.id))}
-          th={th} T={T} stageT={stageT}
+          positions={closedAll}
+          th={th} T={T}
           onReopen={reopenPos}
         />
 
@@ -417,12 +651,13 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate 
           th={th}
           onClose={() => setShowNewPosition(false)}
           onNavigate={onNavigate}
+          onCreated={onAddPosition}
         />
       )}
 
-      {/* Close position confirmation */}
+      {/* Close position modal */}
       {closePending && (
-        <CloseConfirmModal
+        <ClosePositionModal
           pos={closePending}
           th={th}
           onConfirm={confirmClose}
