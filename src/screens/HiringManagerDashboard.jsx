@@ -61,6 +61,15 @@ const SCREEN_T = {
     notesPrivate:      'Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter\'s summary.',
     savedNote:         'Saved note',
     saveNote:          'Save note',
+    suggestHire:       'Suggest to hire',
+    rejectBtn:         'Reject',
+    confirmHireTitle:  'Suggest to hire?',
+    confirmHireMsg:    (name) => `Are you sure you want to suggest the recruiter to hire ${name}?`,
+    hireMultiple:      'Hire multiple',
+    confirmYes:        'Yes, suggest',
+    confirmCancel:     'Cancel',
+    viewSummary:       'View report →',
+    completeSummary:   'Complete summary',
     archivedSection:   (n) => `Not moving forward — ${n} archived`,
     archivedSaved:     'Saved · Recruiter notified',
     archivedPill:      'Archived',
@@ -118,6 +127,15 @@ const SCREEN_T = {
     notesPrivate:      'Le tue note sono private e visibili solo a te. Aiutano a informare la tua decisione.',
     savedNote:         'Nota salvata',
     saveNote:          'Salva nota',
+    suggestHire:       'Suggerisci assunzione',
+    rejectBtn:         'Rifiuta',
+    confirmHireTitle:  'Suggerisci assunzione?',
+    confirmHireMsg:    (name) => `Sei sicuro di voler suggerire al recruiter di assumere ${name}?`,
+    hireMultiple:      'Assumi più candidati',
+    confirmYes:        'Sì, suggerisci',
+    confirmCancel:     'Annulla',
+    viewSummary:       'Vedi report →',
+    completeSummary:   'Completa sommario',
     archivedSection:   (n) => `Non avanza — ${n} archiviati`,
     archivedSaved:     'Salvato · Recruiter notificato',
     archivedPill:      'Archiviato',
@@ -147,7 +165,7 @@ const C = {
 }
 
 // ── Mock data — Marco T.'s view ───────────────────────────────────────────────
-const HM = { name: 'Marco T.', role: 'Hiring Manager', dept: 'Product Design', ini: 'MT' }
+const HM = { name: 'Andrea', role: 'Hiring Manager', dept: 'Product Design', ini: 'AM' }
 
 const POSITIONS = [
   { id: 1, title: 'UX Designer',    dept: 'Product Design', openSince: 'Mar 12', recruiter: 'Sarah R.', totalApplicants: 28, preSelected: 4 },
@@ -269,17 +287,17 @@ function SummaryBadge({ status }) {
 function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
-    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ★ {T.strongAdvance}
     </span>
   )
   if (rec === 'advance') return (
-    <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+    <span style={{ background: C.warBg, color: C.warT, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ◎ {T.averageFit}
     </span>
   )
   return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ✕ {T.notAdvancing}
     </span>
   )
@@ -537,6 +555,58 @@ function ArchivedSection({ candidates, onRestore, T }) {
   )
 }
 
+// ── Suggest-to-hire confirmation modal ───────────────────────────────────────
+function ConfirmHireModal({ candidate, hasOtherCandidates, onConfirm, onConfirmMultiple, onCancel, T }) {
+  return (
+    <div
+      onClick={onCancel}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,23,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, backdropFilter: 'blur(4px)' }}
+    >
+      <style>{`@keyframes hmModalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: C.white, borderRadius: 14, padding: '26px 28px', width: 400, boxShadow: '0 8px 40px rgba(0,0,0,0.2)', animation: 'hmModalIn 0.2s ease' }}
+      >
+        <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, marginBottom: 14 }}>
+          {T.confirmHireTitle}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '12px 14px', background: C.sucBg, borderRadius: 10, border: '1px solid #BBF7D0' }}>
+          <Av id={candidate.id} ini={candidate.ini} size={40} />
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.stage}</div>
+          </div>
+        </div>
+        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: '0 0 22px' }}>
+          {T.confirmHireMsg(candidate.name.split(' ')[0])}
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button
+            onClick={onConfirm}
+            style={{ padding: '12px 0', borderRadius: 10, background: C.suc, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            {T.confirmYes}
+          </button>
+          {hasOtherCandidates && (
+            <button
+              onClick={onConfirmMultiple}
+              style={{ padding: '12px 0', borderRadius: 10, background: C.sucBg, color: C.sucT, border: '1px solid #BBF7D0', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              {T.hireMultiple}
+            </button>
+          )}
+          <button
+            onClick={onCancel}
+            style={{ padding: '10px 0', borderRadius: 10, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            {T.confirmCancel}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard
 // ─────────────────────────────────────────────────────────────────────────────
@@ -547,6 +617,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
   const [decisions,          setDecisions]          = useState({})    // id → 'advancing' | 'not-moving-forward'
   const [comments,           setComments]           = useState({})    // id → string
   const [sortBy,             setSortBy]             = useState('score') // 'score' | 'activity' | 'name'
+  const [confirmHireId,      setConfirmHireId]      = useState(null)  // candidate id pending hire confirmation
 
   const pos      = POSITIONS.find(p => p.id === activePosId)
   const allCands = PRE_SELECTED[activePosId] || []
@@ -580,6 +651,18 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
 
   const saveComment = (id, text) => {
     setComments(c => ({ ...c, [id]: text }))
+  }
+
+  const handleSuggestHire = (id) => setConfirmHireId(id)
+
+  const handleConfirmHire = () => {
+    decide(confirmHireId, 'advancing')
+    setConfirmHireId(null)
+  }
+
+  const handleConfirmHireMultiple = () => {
+    sortedActive.filter(c => !decisions[c.id]).forEach(c => decide(c.id, 'advancing'))
+    setConfirmHireId(null)
   }
 
   // Summary stats
@@ -630,30 +713,6 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
         </div>
       </header>
 
-      {/* ── Pending debrief banner ── */}
-      {(() => {
-        const allCandsPending = Object.values(PRE_SELECTED).flat()
-        const pendingDebriefs = allCandsPending.filter(c => SUMMARY_STATUS[c.id] === 'pending')
-        if (!pendingDebriefs.length) return null
-        return (
-          <div style={{ padding: '10px 28px', background: '#FFFBEB', borderBottom: `1px solid #FDE68A`, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-            <span style={{ fontSize: 16 }}>⏳</span>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: C.warT }}>
-                {T.pendingDebriefs(pendingDebriefs.length)}</span>
-              <span style={{ fontSize: 12, color: C.war }}>
-                {pendingDebriefs.map(c => c.name.split(' ')[0]).join(', ')}
-              </span>
-            </div>
-            <button
-              onClick={() => onNavigate?.('debrief-list')}
-              style={{ padding: '6px 14px', borderRadius: 8, background: C.war, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
-            >
-              {T.viewDebriefs}
-            </button>
-          </div>
-        )
-      })()}
 
       {/* ── Body ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -708,8 +767,8 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
           {/* Candidate table */}
           <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1.2fr 1fr 1.1fr 130px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-              {[T.colCandidate, T.colStage, T.colInterviews, T.colFit, T.colSummary, T.colDecision, T.colActions].map(h => (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1.6fr 200px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+              {[T.colCandidate, T.colStage, T.colInterviews, T.colFit, T.colSummary, T.colActions].map(h => (
                 <span key={h} style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
               ))}
             </div>
@@ -721,8 +780,8 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
             )}
 
             {sortedActive.map((c, i) => {
-              const dec    = decisions[c.id]
-              const isSel  = selectedCandidate?.id === c.id
+              const dec       = decisions[c.id]
+              const isSel     = selectedCandidate?.id === c.id
               const sumStatus = SUMMARY_STATUS[c.id] || 'not-started'
 
               return (
@@ -730,7 +789,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                   key={c.id}
                   onClick={() => setSelectedCandidate(isSel ? null : c)}
                   style={{
-                    display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1.2fr 1fr 1.1fr 130px',
+                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1.6fr 200px',
                     alignItems: 'center', padding: '13px 20px',
                     borderBottom: i < sortedActive.length - 1 ? `1px solid ${C.border}` : 'none',
                     background: isSel ? C.redBg : sumStatus === 'pending' ? '#FFFCF0' : 'white',
@@ -750,44 +809,57 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                   <span style={{ fontSize: 11, color: C.text }}>{c.stage === 'Preliminary Call' ? T.preCall : c.stage}</span>
 
                   {/* Interviews done */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                    <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, color: c.interviewsDone > 0 ? C.text : C.muted, lineHeight: 1 }}>
-                      {c.interviewsDone}
-                    </span>
-                    <span style={{ fontSize: 10, color: C.muted }}>
-                      {c.interviewsDone === 1 ? 'round' : 'rounds'}
-                    </span>
-                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: c.interviewsDone > 0 ? C.text : C.muted }}>
+                    {c.interviewsDone}
+                  </span>
 
                   {/* Candidate fit */}
                   <FitPill rec={CANDIDATE_FIT[c.id]} T={T} />
 
-                  {/* Summary status */}
-                  <SummaryBadge status={sumStatus} />
-
-                  {/* Decision */}
-                  <DecisionPill dec={dec} T={T} />
-
-                  {/* Actions */}
-                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => onNavigate?.('hiring-summary', { candidate: c })}
-                      style={{ padding: '5px 9px', borderRadius: 7, border: `1.5px solid ${C.border}`, background: 'white', color: C.text, fontSize: 10, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
-                    >
-                      {T.briefBtn}
-                    </button>
+                  {/* Summary — action button */}
+                  <div onClick={e => e.stopPropagation()}>
+                    {sumStatus === 'complete' && (
+                      <button
+                        onClick={() => onNavigate?.('hiring-summary', { candidate: c })}
+                        style={{ padding: '5px 10px', borderRadius: 7, border: `1.5px solid ${C.border}`, background: 'white', color: C.inf, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                      >
+                        {T.viewSummary}
+                      </button>
+                    )}
                     {sumStatus === 'pending' && (
                       <button
                         onClick={() => onNavigate?.('questionnaire', { candidate: c })}
-                        style={{ padding: '5px 9px', borderRadius: 7, border: 'none', background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                        style={{ padding: '5px 10px', borderRadius: 7, border: 'none', background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                       >
-                        {T.debriefBtn}
+                        {T.completeSummary}
                       </button>
                     )}
-                    {!dec && sumStatus !== 'pending' && (
+                    {sumStatus === 'not-started' && (
+                      <span style={{ fontSize: 11, color: C.muted }}>—</span>
+                    )}
+                  </div>
+
+                  {/* Actions — Suggest to hire / Reject */}
+                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {dec ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <DecisionPill dec={dec} T={T} />
+                        <button onClick={() => decide(c.id, null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: C.muted, fontFamily: 'inherit' }}>{T.undo}</button>
+                      </div>
+                    ) : (
                       <>
-                        <button onClick={() => decide(c.id, 'advancing')} style={{ padding: '5px 7px', borderRadius: 7, border: 'none', background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Advance">✓</button>
-                        <button onClick={() => decide(c.id, 'not-moving-forward')} style={{ padding: '5px 7px', borderRadius: 7, border: 'none', background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Not moving forward">✕</button>
+                        <button
+                          onClick={() => handleSuggestHire(c.id)}
+                          style={{ padding: '6px 10px', borderRadius: 7, background: C.suc, color: 'white', border: 'none', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                        >
+                          {T.suggestHire}
+                        </button>
+                        <button
+                          onClick={() => decide(c.id, 'not-moving-forward')}
+                          style={{ padding: '6px 10px', borderRadius: 7, background: '#FEF2F2', color: C.red, border: '1px solid #FECACA', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                        >
+                          {T.rejectBtn}
+                        </button>
                       </>
                     )}
                   </div>
@@ -835,6 +907,18 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
           />
         )}
       </div>
+
+      {/* ── Confirm hire modal ── */}
+      {confirmHireId && sortedActive.find(c => c.id === confirmHireId) && (
+        <ConfirmHireModal
+          candidate={sortedActive.find(c => c.id === confirmHireId)}
+          hasOtherCandidates={sortedActive.filter(c => c.id !== confirmHireId && !decisions[c.id]).length > 0}
+          onConfirm={handleConfirmHire}
+          onConfirmMultiple={handleConfirmHireMultiple}
+          onCancel={() => setConfirmHireId(null)}
+          T={T}
+        />
+      )}
     </div>
   )
 }

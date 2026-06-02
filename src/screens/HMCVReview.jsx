@@ -15,7 +15,7 @@
 //                    checklist, portfolio link, HM notes, Accept / Reject
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react'
+import { useState, useReducer } from 'react'
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -447,7 +447,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T }) {
 }
 
 // ── Right: enhanced HM candidate panel ───────────────────────────────────────
-function HMCandidatePanel({ candidate, decision, hardVerified, notes, onDecide, onVerifySkill, onSaveNotes, onClose, T }) {
+function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, onClose, T }) {
   const [draftNotes, setDraftNotes] = useState(notes || '')
   const [savedFlash, setSavedFlash] = useState(false)
 
@@ -456,9 +456,6 @@ function HMCandidatePanel({ candidate, decision, hardVerified, notes, onDecide, 
     setSavedFlash(true)
     setTimeout(() => setSavedFlash(false), 2000)
   }
-
-  const allVerified = candidate.hardSkills.length > 0
-    && candidate.hardSkills.every((_, i) => hardVerified[i])
 
   return (
     <aside style={{ width: 348, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
@@ -492,11 +489,8 @@ function HMCandidatePanel({ candidate, decision, hardVerified, notes, onDecide, 
 
         {/* Recruiter's assessment */}
         <div style={{ background: '#FFFCF0', borderRadius: 10, padding: '13px 14px', border: `1px solid #FDE68A` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-              {T.recruiterAssessment}
-            </div>
-            <Stars score={candidate.recruiterScore} size={11} />
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+            {T.recruiterAssessment}
           </div>
           <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: '0 0 10px' }}>
             {candidate.recruiterNote}
@@ -530,55 +524,6 @@ function HMCandidatePanel({ candidate, decision, hardVerified, notes, onDecide, 
               {T.portfolio}
             </div>
             <span style={{ fontSize: 12, color: C.muted }}>{T.noPortfolio}</span>
-          </div>
-        )}
-
-        {/* Hard skills checklist */}
-        {candidate.hardSkills.length > 0 && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                {T.hardSkills}
-              </div>
-              {allVerified && (
-                <span style={{ fontSize: 9, fontWeight: 600, color: C.suc, background: C.sucBg, padding: '2px 7px', borderRadius: 20 }}>
-                  {T.allVerified}
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: 10, color: C.muted, marginBottom: 10, lineHeight: 1.5 }}>{T.hardSkillsNote}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {candidate.hardSkills.map((skill, i) => {
-                const checked = hardVerified[i] ?? false
-                return (
-                  <button
-                    key={i}
-                    onClick={() => onVerifySkill(candidate.id, i, !checked)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '9px 12px', borderRadius: 8,
-                      border: `1.5px solid ${checked ? '#BBF7D0' : C.border}`,
-                      background: checked ? C.sucBg : C.white,
-                      cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
-                      transition: 'all 0.15s',
-                    }}
-                  >
-                    <div style={{
-                      width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                      border: `2px solid ${checked ? C.suc : C.border}`,
-                      background: checked ? C.suc : 'transparent',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 9, color: 'white', transition: 'all 0.15s',
-                    }}>
-                      {checked && '✓'}
-                    </div>
-                    <span style={{ fontSize: 12, color: checked ? C.sucT : C.text, fontWeight: checked ? 600 : 400 }}>
-                      {skill.label}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
           </div>
         )}
 
@@ -694,12 +639,18 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
         {POSITIONS_HM.map(pos => {
           const posCandidates = all.filter(c => c.positionId === pos.id)
           if (!posCandidates.length) return null
+          const posUnreviewed = posCandidates.filter(c => !decisions[c.id]).length
           return (
             <div key={pos.id}>
               {/* Position header */}
               <div style={{ padding: '8px 14px 6px', background: '#F9F7F5', borderBottom: `1px solid ${C.border}`, borderTop: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginTop: 1 }}>{pos.title}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
+                  {posUnreviewed > 0 && (
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.4)', flexShrink: 0 }} />
+                  )}
+                  <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{pos.title}</div>
+                </div>
                 <div style={{ fontSize: 9, color: C.muted, marginTop: 1 }}>
                   {T.assignedBy(pos.recruiter)} · {T.daysAgo(pos.assignedDaysAgo)}
                 </div>
@@ -730,17 +681,11 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
                       <div style={{ fontSize: 9, color: C.muted }}>{c.role}</div>
                     </div>
                     {/* Status indicator */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3, flexShrink: 0 }}>
+                    <div style={{ flexShrink: 0 }}>
                       <div style={{
                         width: 8, height: 8, borderRadius: '50%',
                         background: dec === 'accept' ? C.suc : dec === 'reject' ? C.red : C.grayB,
                       }} />
-                      {/* Recruiter score dots */}
-                      <div style={{ display: 'flex', gap: 1 }}>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: i < c.recruiterScore ? C.red : '#E8E4E0' }} />
-                        ))}
-                      </div>
                     </div>
                   </button>
                 )
@@ -754,47 +699,62 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Reducer — atomic state for CV review (decisions + selection in one update)
+// ─────────────────────────────────────────────────────────────────────────────
+const initialReviewState = {
+  decisions:        {},
+  selectedId:       ASSIGNED_CANDIDATES[0]?.id ?? null,
+  savedNotes:       {},
+  docTypeOverrides: {},
+}
+
+function reviewReducer(state, action) {
+  switch (action.type) {
+    case 'DECIDE': {
+      const { id, value } = action
+      if (value === null) {
+        const decisions = { ...state.decisions }
+        delete decisions[id]
+        return { ...state, decisions }
+      }
+      const decisions = { ...state.decisions, [id]: value }
+      // Find next unreviewed candidate in one atomic step
+      const next = ASSIGNED_CANDIDATES.find(c => !decisions[c.id])
+      return { ...state, decisions, selectedId: next ? next.id : state.selectedId }
+    }
+    case 'SELECT':
+      return { ...state, selectedId: action.id }
+    case 'SAVE_NOTE':
+      return { ...state, savedNotes: { ...state.savedNotes, [action.id]: action.text } }
+    case 'SET_DOC_TYPE':
+      return { ...state, docTypeOverrides: { ...state.docTypeOverrides, [action.id]: action.t } }
+    default:
+      return state
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
 
-  const [selectedId,       setSelectedId]       = useState(ASSIGNED_CANDIDATES[0]?.id ?? null)
-  const [decisions,        setDecisions]        = useState({})
-  // hardVerified: { [candidateId]: { [skillIndex]: boolean } }
-  const [hardVerified,     setHardVerified]     = useState({})
-  const [savedNotes,       setSavedNotes]       = useState({})
-  const [docTypeOverrides, setDocTypeOverrides] = useState({})
+  const [state, dispatch] = useReducer(reviewReducer, initialReviewState)
+  const { decisions, selectedId, savedNotes, docTypeOverrides } = state
+
+  const handleDecide    = (id, value) => dispatch({ type: 'DECIDE',    id, value })
+  const handleSaveNotes = (id, text)  => dispatch({ type: 'SAVE_NOTE', id, text  })
+  const setSelectedId   = (id)        => dispatch({ type: 'SELECT',    id        })
 
   const all          = ASSIGNED_CANDIDATES
   const selected     = all.find(c => c.id === selectedId) ?? null
+  const currentIdx   = all.findIndex(c => c.id === selectedId)
   const acceptedCount = all.filter(c => decisions[c.id] === 'accept').length
   const rejectedCount = all.filter(c => decisions[c.id] === 'reject').length
   const toReviewCount = all.length - acceptedCount - rejectedCount
   const allDone       = toReviewCount === 0 && all.length > 0
 
   const effectiveDocType = (c) => docTypeOverrides[c?.id] || c?.docType || 'unknown'
-
-  const handleDecide = (id, value) => {
-    setDecisions(d => {
-      if (value === null) { const n = { ...d }; delete n[id]; return n }
-      return { ...d, [id]: value }
-    })
-    // Auto-advance to the next unreviewed candidate
-    if (value !== null) {
-      const unreviewed = all.filter(c => c.id !== id && !decisions[c.id])
-      if (unreviewed.length > 0) setTimeout(() => setSelectedId(unreviewed[0].id), 280)
-    }
-  }
-
-  const handleVerifySkill = (candidateId, skillIdx, value) => {
-    setHardVerified(hv => ({
-      ...hv,
-      [candidateId]: { ...(hv[candidateId] || {}), [skillIdx]: value },
-    }))
-  }
-
-  const handleSaveNotes = (id, text) => setSavedNotes(n => ({ ...n, [id]: text }))
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -809,6 +769,15 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
           <div style={{ fontSize: 9, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>{T.badge}</div>
           <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 18, fontWeight: 400, color: C.text, margin: 0 }}>{T.title}</h1>
         </div>
+
+        {/* Progress counter */}
+        {all.length > 0 && (
+          <>
+            <div style={{ width: 1, height: 20, background: C.border }} />
+            <span style={{ fontSize: 12, color: C.muted }}>{currentIdx + 1} / {all.length}</span>
+          </>
+        )}
+
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
           {acceptedCount > 0 && (
             <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
@@ -825,16 +794,6 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
 
       {/* ── Body ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-
-        {/* Left: list */}
-        <CandidateListPanel
-          selectedId={selectedId}
-          decisions={decisions}
-          onSelect={setSelectedId}
-          T={T}
-        />
-
-        {/* Center + right */}
         {allDone ? (
           /* Completion screen */
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, background: C.white }}>
@@ -850,33 +809,35 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
               {T.goToDashboard}
             </button>
           </div>
-        ) : !selected ? (
-          /* No selection */
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.muted, fontSize: 13, background: C.gray, flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 32 }}>📋</div>
-            <span>{T.selectPrompt}</span>
-          </div>
         ) : (
           <>
-            <DocumentViewer
-              key={selected?.id}
-              cv={selected}
-              docType={effectiveDocType(selected)}
-              onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [selected.id]: t }))}
+            <CandidateListPanel
+              selectedId={selectedId}
+              decisions={decisions}
+              onSelect={setSelectedId}
               T={T}
             />
-            <HMCandidatePanel
-              key={selected.id}
-              candidate={selected}
-              decision={decisions[selected.id] ?? null}
-              hardVerified={hardVerified[selected.id] || {}}
-              notes={savedNotes[selected.id] || ''}
-              onDecide={handleDecide}
-              onVerifySkill={handleVerifySkill}
-              onSaveNotes={handleSaveNotes}
-              onClose={() => setSelectedId(null)}
-              T={T}
-            />
+            {selected && (
+              <>
+                <DocumentViewer
+                  key={selected.id}
+                  cv={selected}
+                  docType={effectiveDocType(selected)}
+                  onOverrideType={(t) => dispatch({ type: 'SET_DOC_TYPE', id: selected.id, t })}
+                  T={T}
+                />
+                <HMCandidatePanel
+                  key={selected.id}
+                  candidate={selected}
+                  decision={decisions[selected.id] ?? null}
+                  notes={savedNotes[selected.id] || ''}
+                  onDecide={handleDecide}
+                  onSaveNotes={handleSaveNotes}
+                  onClose={() => setSelectedId(null)}
+                  T={T}
+                />
+              </>
+            )}
           </>
         )}
       </div>

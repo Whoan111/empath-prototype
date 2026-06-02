@@ -37,16 +37,15 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
   const T = TRANSLATIONS[lang] || TRANSLATIONS.en
 
   const NAV_RECRUITER = [
-    { id: 'triage',              label: T.navTriage        },
-    { id: 'not-suitable',        label: T.navNotSuitable   },
     { id: 'dashboard',           label: T.navDashboard     },
-    null,
-    { id: 'insights',            label: T.navInsights      },
+    { id: 'not-suitable',        label: T.navNotSuitable   },
+    { id: 'triage',              label: T.navTriage        },
     { id: 'interview-summaries', label: T.navSummaries     },
+    { id: 'insights',            label: T.navInsights      },
   ]
   const NAV_HM = [
+    { id: 'hiring-manager',  label: T.navDashboard      },
     { id: 'hm-cv-review',    label: T.navHmCVReview     },
-    { id: 'hiring-manager',  label: T.navMyDashboard    },
     { id: 'decision-list',   label: T.navDecisionBriefs },
     { id: 'debrief-list',    label: T.navDebriefs       },
   ]
@@ -197,7 +196,7 @@ export default function App() {
 
   // Red dots: triage always has pending CVs, not-suitable always has pending messages,
   // hm-cv-review always has assigned CVs awaiting HM review
-  const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'interviewer-debrief': true }
+  const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'debrief-list': true, 'interviewer-debrief': true }
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg }}>
@@ -223,7 +222,7 @@ export default function App() {
         {screen === 'hiring-summary'      && <HiringManagerSummary          lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('decision-list')} onNavigate={nav} />}
         {screen === 'hm-cv-review'        && <HMCVReview                    lang={lang} theme={theme} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
         {screen === 'hiring-manager'      && <HiringManagerDashboard        lang={lang} onBack={goBack} onNavigate={nav} />}
-        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} onBack={() => nav('debrief-list')} onNavigate={nav} />}
+        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} summariesScreen={role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief'} homeScreen={role === 'hiring-manager' ? 'hiring-manager' : 'interviewer-dashboard'} onBack={() => nav(role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief')} onNavigate={nav} />}
         {screen === 'debrief-list'        && <DebriefList                   lang={lang} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
         {screen === 'insights'            && <AIInsights                    {...sp} onBack={goBack} />}
         {screen === 'interviewer-dashboard' && <InterviewerDashboard        lang={lang} theme={theme} section="home"   onBack={goBack} onNavigate={nav} />}

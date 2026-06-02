@@ -142,7 +142,7 @@ const MSG_TYPES = [
     emoji: '💌',
     desc: 'Warm, growth-oriented closure',
     color: C.red, bg: '#FEF2F2',
-    contextLabel: 'Specific feedback or encouragement to include',
+    contextLabel: 'Specific contextual information',
     contextPlaceholder: 'e.g. Showed real potential — encourage them to reapply in 6 months once they build more system design experience…',
     subject: (name) => `Your application to Publicis Sapient — ${name}`,
   },
@@ -195,6 +195,17 @@ const MSG_TYPES = [
     contextLabel: 'Offer details and next steps',
     contextPlaceholder: 'e.g. Start date 1 Sep, will send full written offer by Friday, next step is a call to walk through the package…',
     subject: (name) => `Offer — we would love you to join us`,
+  },
+  {
+    id: 'custom',
+    label: 'Other…',
+    emoji: '+',
+    desc: 'Define your own message type',
+    color: C.muted, bg: C.gray,
+    contextLabel: 'What this message is about',
+    contextPlaceholder: 'Describe the purpose of this message and any key points to include…',
+    subject: () => `Message from Publicis Sapient`,
+    isCustom: true,
   },
 ]
 
@@ -331,6 +342,47 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
+// ── Dictation button (prototype) ──────────────────────────────────────────────
+function DictateButton({ onDictate }) {
+  const [recording, setRecording] = useState(false)
+  const toggle = () => {
+    if (recording) {
+      setRecording(false)
+      // Prototype: insert simulated dictated text
+      onDictate(' [Dictated note — candidate showed strong potential in systems thinking and collaborative problem-solving]')
+    } else {
+      setRecording(true)
+    }
+  }
+  return (
+    <button
+      onClick={toggle}
+      title={recording ? 'Stop dictation' : 'Dictate context'}
+      style={{
+        width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+        background: recording ? '#FEE2E2' : C.gray,
+        border: `1.5px solid ${recording ? C.red : C.border}`,
+        color: recording ? C.red : C.muted,
+        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 0.15s',
+        animation: recording ? 'pulse 1.4s ease-in-out infinite' : 'none',
+      }}
+    >
+      {recording
+        ? <span style={{ width: 9, height: 9, borderRadius: 2, background: C.red, display: 'block' }} />
+        : (
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        )
+      }
+    </button>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Compose
 // ─────────────────────────────────────────────────────────────────────────────
@@ -338,7 +390,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
   const [candidate, setCandidate] = useState(initialCandidate || null)
   const [typeId,    setTypeId]    = useState('rejection')
   const [context,   setContext]   = useState('')
-  const [tone,      setTone]      = useState(72)
+  const tone = 72   // fixed warm tone — slider removed
 
   const msgType    = MSG_TYPES.find(t => t.id === typeId)
   const canGenerate = !!candidate
@@ -424,28 +476,46 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {MSG_TYPES.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => { setTypeId(t.id); setContext('') }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 11,
-                    padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                    border: `2px solid ${typeId === t.id ? t.color : C.border}`,
-                    background: typeId === t.id ? t.bg : C.white,
-                    textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
-                  }}
-                >
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{t.emoji}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: typeId === t.id ? 600 : 400, color: typeId === t.id ? t.color : C.text }}>
-                      {t.label}
+                t.isCustom ? (
+                  /* "+ Other" add button */
+                  <button
+                    key={t.id}
+                    onClick={() => { setTypeId(t.id); setContext('') }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 14px', borderRadius: 10, cursor: 'pointer',
+                      border: `2px dashed ${typeId === t.id ? C.muted : C.border}`,
+                      background: typeId === t.id ? C.gray : 'transparent',
+                      textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}
+                  >
+                    <span style={{ width: 24, height: 24, borderRadius: '50%', background: typeId === t.id ? C.muted : C.grayB, color: typeId === t.id ? 'white' : C.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 500, flexShrink: 0, lineHeight: 1 }}>+</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>{t.label}</span>
+                  </button>
+                ) : (
+                  <button
+                    key={t.id}
+                    onClick={() => { setTypeId(t.id); setContext('') }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 11,
+                      padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+                      border: `2px solid ${typeId === t.id ? t.color : C.border}`,
+                      background: typeId === t.id ? t.bg : C.white,
+                      textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}
+                  >
+                    <span style={{ fontSize: 18, flexShrink: 0 }}>{t.emoji}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: typeId === t.id ? 600 : 400, color: typeId === t.id ? t.color : C.text }}>
+                        {t.label}
+                      </div>
+                      <div style={{ fontSize: 11, color: C.muted }}>{t.desc}</div>
                     </div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{t.desc}</div>
-                  </div>
-                  {typeId === t.id && (
-                    <span style={{ fontSize: 14, color: t.color, flexShrink: 0 }}>✓</span>
-                  )}
-                </button>
+                    {typeId === t.id && (
+                      <span style={{ fontSize: 14, color: t.color, flexShrink: 0 }}>✓</span>
+                    )}
+                  </button>
+                )
               ))}
             </div>
           </div>
@@ -454,12 +524,15 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
         {/* ── Right column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
-          {/* Context input */}
+          {/* Context input with dictation */}
           <div>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>
-              {msgType?.contextLabel || 'Additional context'}
-              <span style={{ fontWeight: 400, color: C.muted, textTransform: 'none', letterSpacing: 0, fontSize: 11, marginLeft: 6 }}>{T.contextOptional}</span>
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                {msgType?.contextLabel || 'Additional context'}
+                <span style={{ fontWeight: 400, color: C.muted, textTransform: 'none', letterSpacing: 0, fontSize: 11, marginLeft: 6 }}>{T.contextOptional}</span>
+              </label>
+              <DictateButton onDictate={text => setContext(c => c + text)} />
+            </div>
             <p style={{ fontSize: 11, color: C.muted, margin: '0 0 9px', lineHeight: 1.6 }}>
               {T.contextHint}
             </p>
@@ -476,34 +549,12 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, T }) {
             />
           </div>
 
-          {/* Tone preview */}
-          <div style={{ background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, padding: '16px 18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                {T.toneLabel}
-              </label>
-              <span style={{ fontSize: 12, fontWeight: 600, color: C.red, background: C.redBg, padding: '3px 10px', borderRadius: 20 }}>
-                {toneWord(tone, T)}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginBottom: 6 }}>
-              <span>{T.professional}</span>
-              <span>{T.personalWarm}</span>
-            </div>
-            <input
-              type="range" min={0} max={100} value={tone} step={1}
-              onChange={e => setTone(Number(e.target.value))}
-              style={{ width: '100%', accentColor: C.red, cursor: 'pointer' }}
-            />
-          </div>
-
           {/* Empath will… */}
           <div style={{ background: C.redBg, borderRadius: 11, border: `1px solid ${C.border}`, padding: '14px 16px', flex: 1 }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 9 }}>{T.empathWill}</p>
             <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
               {candidate && <li>{T.empathAutoFill(candidate.name)}</li>}
               {!candidate && <li>{T.empathAutoFillGeneric}</li>}
-              <li>{T.empathGenerate(toneWord(tone, T).toLowerCase())}</li>
               <li>{T.empathContext}</li>
               <li>{T.empathControl}</li>
               <li>{T.empathPreview}</li>
@@ -674,6 +725,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <style>{`@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,57,74,0.4)}50%{box-shadow:0 0 0 5px rgba(201,57,74,0)}}`}</style>
 
       {/* ── Top bar ── */}
       <div style={{
@@ -786,31 +838,6 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
           overflow: 'hidden', flexShrink: 0,
         }}>
           <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px 12px' }}>
-
-            {/* Tone */}
-            <div style={{ marginBottom: 22 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 9 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>{T.toneLabel}</p>
-                <span style={{ fontSize: 11, fontWeight: 600, color: C.red, background: C.redBg, padding: '3px 10px', borderRadius: 20 }}>
-                  {toneWord(tone, T)}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginBottom: 6 }}>
-                <span>{T.professional}</span><span>{T.personal}</span>
-              </div>
-              <input
-                type="range" min={0} max={100} value={tone} step={1}
-                onChange={e => { setTone(Number(e.target.value)); setUserEdited(false) }}
-                style={{ width: '100%', accentColor: C.red, cursor: 'pointer' }}
-              />
-              {/* Tone descriptor line */}
-              <p style={{ fontSize: 11, color: C.muted, marginTop: 7, lineHeight: 1.5 }}>
-                {tone <= 25 && T.toneDesc0}
-                {tone > 25 && tone <= 55 && T.toneDesc1}
-                {tone > 55 && tone <= 80 && T.toneDesc2}
-                {tone > 80 && T.toneDesc3}
-              </p>
-            </div>
 
             {/* Quick fixes */}
             <div style={{ marginBottom: 22 }}>

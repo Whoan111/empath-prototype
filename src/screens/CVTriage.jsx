@@ -25,7 +25,7 @@ const SCREEN_T = {
     noCVs:          'NO CVS',
     pending:        'PENDING',
     startTriage:    'Start triage →',
-    close:          'Close',
+    close:          'Close position',
     reopen:         'Reopen',
     // Add position modal
     addNewPos:      'Add new position',
@@ -72,7 +72,7 @@ const SCREEN_T = {
     noCVs:          'NESSUN CV',
     pending:        'IN ATTESA',
     startTriage:    'Inizia selezione →',
-    close:          'Chiudi',
+    close:          'Chiudi posizione',
     reopen:         'Riapri',
     // Add position modal
     addNewPos:      'Aggiungi nuova posizione',
@@ -767,6 +767,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onClick={() => { if (!closed && !isEmpty) onOpen(pos.id) }}
       style={{
         background: hov ? th.cardBgHov : th.cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
@@ -777,6 +778,7 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
         display: 'flex', flexDirection: 'column', gap: 16,
         transition: 'all 0.18s ease',
         opacity: (isEmpty || closed) ? 0.5 : 1,
+        cursor: (!closed && !isEmpty) ? 'pointer' : 'default',
         boxShadow: hov && !closed && !isEmpty
           ? `0 0 0 1px ${th.redGlow}, 0 8px 28px rgba(0,0,0,0.18)`
           : `0 2px 10px rgba(0,0,0,0.08)`,
@@ -785,12 +787,14 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            {!isEmpty && !closed && (
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: th.red, boxShadow: `0 0 6px ${th.redGlow}`, flexShrink: 0 }} />
+            )}
             <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
             {closed && <span style={{ fontSize: 9, fontWeight: 700, color: th.textDim, background: th.surface, border: `1px solid ${th.border}`, padding: '1px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>CLOSED</span>}
           </div>
           <h2
-            onClick={() => !closed && !isEmpty && onOpen(pos.id)}
-            style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 21, fontWeight: 400, color: th.text, margin: 0, lineHeight: 1.2, cursor: (!closed && !isEmpty) ? 'pointer' : 'default' }}
+            style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 21, fontWeight: 400, color: th.text, margin: 0, lineHeight: 1.2 }}
           >{pos.title}</h2>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -805,17 +809,25 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onToggleClose, T
         <span style={{ fontSize: 11, color: th.textDim }}>📅 {pos.openDays}d open</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!closed && !isEmpty && (
-            <span
-              onClick={() => onOpen(pos.id)}
-              style={{ fontSize: 11, fontWeight: 600, color: hov ? th.red : th.textDim, transition: 'color 0.15s', letterSpacing: '0.02em', cursor: 'pointer' }}
-            >
+            <span style={{ fontSize: 11, fontWeight: 600, color: hov ? th.red : th.textDim, transition: 'color 0.15s', letterSpacing: '0.02em' }}>
               {T.startTriage}
             </span>
           )}
           <button
             onClick={e => { e.stopPropagation(); onToggleClose(pos.id) }}
             title={closed ? 'Reopen position' : 'Close position'}
-            style={{ fontSize: 10, color: th.textDim, background: 'transparent', border: `1px solid ${th.border}`, borderRadius: 6, padding: '2px 8px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+            style={{
+              fontSize: 10,
+              fontWeight: closed ? 400 : 600,
+              color: closed ? th.textDim : 'white',
+              background: closed ? 'transparent' : th.red,
+              border: closed ? `1px solid ${th.border}` : 'none',
+              borderRadius: 6,
+              padding: '4px 10px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'all 0.13s',
+            }}
           >
             {closed ? T.reopen : T.close}
           </button>
@@ -870,8 +882,12 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
       : { ...d, [cv.id]: choice }
     )
     if (choice !== null) {
-      const nextUndecided = cvList.findIndex((c, i) => i > idx && !decisions[c.id])
-      if (nextUndecided !== -1) setTimeout(() => goTo(nextUndecided), 300)
+      // Build updated snapshot (state hasn't re-rendered yet)
+      const updated = { ...decisions, [cv.id]: choice }
+      // Look forward first; if at the end, wrap around to first remaining undecided
+      let nextIdx = cvList.findIndex((c, i) => i > idx && !updated[c.id])
+      if (nextIdx === -1) nextIdx = cvList.findIndex(c => !updated[c.id])
+      if (nextIdx !== -1) setTimeout(() => goTo(nextIdx), 300)
     }
   }
 

@@ -144,9 +144,90 @@ function ConfirmMove({ move, candidates, th, stageT, T, onConfirm, onCancel }) {
   )
 }
 
+// ── Profile panel (right sidebar) ────────────────────────────────────────────
+function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact, onReject }) {
+  const st = stageT[stage]
+  return (
+    <aside style={{
+      width: 300, flexShrink: 0,
+      background: th.bgPanel,
+      backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
+      borderLeft: `1px solid ${th.border}`,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '14px 16px', borderBottom: `1px solid ${th.border}`, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <Av id={candidate.id} ini={candidate.ini} size={38} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: th.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{candidate.name}</div>
+          <div style={{ fontSize: 11, color: th.textDim }}>{candidate.role}</div>
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: th.textDim, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 12px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Stage */}
+        <div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Stage</div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: st.accent, background: st.bg, padding: '4px 12px', borderRadius: 20, border: `1px solid ${st.dot}30` }}>
+            {stageLabel(stage, T)}
+          </span>
+        </div>
+
+        {/* Info pills */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {candidate.loc && (
+            <span style={{ fontSize: 10, color: th.textMid, background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20, backdropFilter: 'blur(4px)' }}>📍 {candidate.loc}</span>
+          )}
+          {candidate.exp && (
+            <span style={{ fontSize: 10, color: th.textMid, background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20 }}>🕐 {candidate.exp}</span>
+          )}
+          <span style={{ fontSize: 10, fontWeight: 700, color: urgencyColor(stage, candidate.daysAgo, stageT), background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20 }}>
+            📅 {daysLabel(candidate.daysAgo, T)}
+          </span>
+        </div>
+
+        {/* Skills */}
+        {candidate.skills?.length > 0 && (
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Skills</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {candidate.skills.map(s => (
+                <span key={s} style={{ fontSize: 10, fontWeight: 600, color: st.accent, background: st.bg, padding: '3px 9px', borderRadius: 20, border: `1px solid ${st.dot}20` }}>{s}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer actions */}
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${th.border}`, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <button
+          onClick={onContact}
+          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.09)', color: '#1B2461', border: '1px solid rgba(27,36,97,0.2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.16)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.09)'}
+        >
+          ✉ Send message
+        </button>
+        <button
+          onClick={onReject}
+          style={{ padding: '10px', borderRadius: 9, background: 'rgba(233,1,48,0.07)', color: '#E90130', border: '1px solid rgba(233,1,48,0.22)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(233,1,48,0.14)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(233,1,48,0.07)'}
+        >
+          ✕ Not moving forward
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 // ── Candidate capsule ─────────────────────────────────────────────────────────
-function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject, isDragging, onDragStart, onDragEnd }) {
+function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject, onSelect, isSelected, isDragging, onDragStart, onDragEnd }) {
   const [hov, setHov] = useState(false)
+  const [didDrag, setDidDrag] = useState(false)
   const { opacity, sat, isStale } = staleness(stage, candidate.daysAgo)
   const st        = stageT[stage]
   const visStages = STAGES.filter(s => s !== 'Screening')
@@ -158,19 +239,20 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
   return (
     <div
       draggable
-      onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart() }}
-      onDragEnd={onDragEnd}
+      onDragStart={(e) => { setDidDrag(true); e.dataTransfer.effectAllowed = 'move'; onDragStart() }}
+      onDragEnd={() => { onDragEnd(); setTimeout(() => setDidDrag(false), 80) }}
+      onClick={() => { if (!didDrag) onSelect(candidate, stage) }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: hov ? th.cardBgHov : th.cardBg,
+        background: isSelected ? st.bg : (hov ? th.cardBgHov : th.cardBg),
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         borderRadius: '0.75rem',
-        border: `1px solid ${isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
-        borderLeft: `3px solid ${isStale ? '#E90130' : st.dot}`,
+        border: `1px solid ${isSelected ? st.dot + '80' : isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
+        borderLeft: `3px solid ${isSelected ? st.dot : isStale ? '#E90130' : st.dot}`,
         padding: '11px 12px',
         marginBottom: 8,
-        cursor: isDragging ? 'grabbing' : 'grab',
+        cursor: isDragging ? 'grabbing' : 'pointer',
         opacity,
         filter: sat < 100 ? `saturate(${sat}%)` : 'none',
         transition: 'opacity 0.3s, filter 0.3s, box-shadow 0.15s, border-color 0.2s',
@@ -256,7 +338,7 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
 }
 
 // ── Kanban column ─────────────────────────────────────────────────────────────
-function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
+function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, onSelect, selectedId, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
   const st           = stageT[stage]
   const isDropTarget = dragOver === stage
   const label        = stageLabel(stage, T)
@@ -288,7 +370,7 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
         <span style={{ fontSize:11, fontWeight:700, color:st.accent, letterSpacing:'0.06em', textTransform:'uppercase' }}>
           {label}
         </span>
-        <span style={{ background:st.dot, color:'rgba(0,0,0,0.7)', fontSize:10, fontWeight:800, width:20, height:20, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 0 8px ${st.dot}60` }}>
+        <span style={{ background:'white', color:st.accent, fontSize:10, fontWeight:800, width:20, height:20, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', border:`1px solid ${st.dot}30`, boxShadow:'0 1px 4px rgba(0,0,0,0.1)' }}>
           {candidates.length}
         </span>
       </div>
@@ -311,6 +393,8 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
             onMove={onMove}
             onContact={onContact}
             onReject={onReject}
+            onSelect={onSelect}
+            isSelected={selectedId === c.id}
             isDragging={draggingId === c.id}
             onDragStart={() => onCapsuleDragStart(c.id)}
             onDragEnd={onCapsuleDragEnd}
@@ -432,6 +516,11 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
   const [celebration,  setCelebration]  = useState(null)
   const [dragState,    setDragState]    = useState({ id:null, from:null })
   const [dragOverCol,  setDragOverCol]  = useState(null)
+  const [selectedInfo, setSelectedInfo] = useState(null)   // { candidate, stage }
+
+  const handleSelect = (candidate, stage) => {
+    setSelectedInfo(prev => prev?.candidate.id === candidate.id ? null : { candidate, stage })
+  }
 
   const total = VIS_STAGES.reduce((sum, s) => sum + (candidates[s]?.length || 0), 0)
 
@@ -497,49 +586,52 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
         <div style={{ display:'flex', gap:7, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }}>
           <button
             onClick={() => onNavigate?.('import', { position: pos })}
-            style={{ fontSize:10, fontWeight:700, color:'#1B2461', background:'rgba(27,36,97,0.07)', border:'1px solid rgba(27,36,97,0.18)', borderRadius:20, padding:'4px 13px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s' }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(27,36,97,0.13)' }}
-            onMouseLeave={e => { e.currentTarget.style.background='rgba(27,36,97,0.07)' }}
+            style={{ fontSize:10, fontWeight:700, color:'white', background:'#E90130', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s' }}
+            onMouseEnter={e => { e.currentTarget.style.background='#C8012A' }}
+            onMouseLeave={e => { e.currentTarget.style.background='#E90130' }}
           >
             + Add candidates
           </button>
-          <span style={{ fontSize:10, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'3px 10px', borderRadius:20 }}>
-            {T.totalLabel(total)}
-          </span>
-          {VIS_STAGES.map(s => {
-            const n = candidates[s]?.length ?? 0
-            if (!n) return null
-            const st = stageT[s]
-            return (
-              <span key={s} style={{ fontSize:10, fontWeight:700, color:st.accent, background:st.bg, padding:'3px 10px', borderRadius:20, border:`1px solid ${st.dot}30` }}>
-                {n} {stageLabel(s, T)}
-              </span>
-            )
-          })}
         </div>
       </div>
 
-      {/* Board */}
-      <div style={{ flex:1, overflowX:'auto', overflowY:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
-        {VIS_STAGES.map(stage => (
-          <Column
-            key={stage}
-            stage={stage}
-            candidates={candidates[stage] || []}
-            th={th}
-            stageT={stageT}
-            T={T}
-            onMove={requestMove}
-            onContact={c => onNavigate?.('craft', { candidate:c })}
-            onReject={c => onNavigate?.('craft', { candidate:c, template:'rejection' })}
-            dragOver={dragOverCol}
-            onDragOver={setDragOverCol}
-            onDrop={handleDrop}
-            draggingId={dragState.id}
-            onCapsuleDragStart={(id) => setDragState({ id, from: stage })}
-            onCapsuleDragEnd={() => setDragState({ id:null, from:null })}
+      {/* Board + profile panel */}
+      <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
+        <div style={{ flex:1, overflowX:'auto', overflowY:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
+          {VIS_STAGES.map(stage => (
+            <Column
+              key={stage}
+              stage={stage}
+              candidates={candidates[stage] || []}
+              th={th}
+              stageT={stageT}
+              T={T}
+              onMove={requestMove}
+              onContact={c => onNavigate?.('craft', { candidate:c })}
+              onReject={c => onNavigate?.('craft', { candidate:c, template:'rejection' })}
+              onSelect={handleSelect}
+              selectedId={selectedInfo?.candidate.id}
+              dragOver={dragOverCol}
+              onDragOver={setDragOverCol}
+              onDrop={handleDrop}
+              draggingId={dragState.id}
+              onCapsuleDragStart={(id) => setDragState({ id, from: stage })}
+              onCapsuleDragEnd={() => setDragState({ id:null, from:null })}
+            />
+          ))}
+        </div>
+
+        {selectedInfo && (
+          <KanbanProfilePanel
+            key={selectedInfo.candidate.id}
+            candidate={selectedInfo.candidate}
+            stage={selectedInfo.stage}
+            th={th} stageT={stageT} T={T}
+            onClose={() => setSelectedInfo(null)}
+            onContact={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate }) }}
+            onReject={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate, template: 'rejection' }) }}
           />
-        ))}
+        )}
       </div>
 
       {/* Confirmation */}

@@ -31,7 +31,7 @@ const TEXT = {
     recruiterBadge:   'Recruiter',
     hmBadge:          'Hiring Manager',
     preCallTitle:     'Interview Summaries',
-    decisionTitle:    'Decision Summaries',
+    decisionTitle:    'Decision Report',
     preCallDesc:      'Candidates who have completed all interviews and are ready for a decision. Use these summaries to get up to speed before making the final call.',
     decisionDesc:     'Your pre-selected candidates across all positions. Review consolidated feedback and make your decisions here or inside each summary.',
     overdue:          'OVERDUE',
@@ -40,6 +40,7 @@ const TEXT = {
     summaryPending:   'SUMMARY PENDING',
     noMatch:          'No candidates match this filter',
     openSummary:      'Open summary →',
+    openReport:       'Open report →',
     today:            'Today',
     daysAgo:          d => `${d}d ago`,
     all:              'All',
@@ -67,7 +68,7 @@ const TEXT = {
     recruiterBadge:   'Reclutatore',
     hmBadge:          'Responsabile Assunzioni',
     preCallTitle:     'Sommari Colloqui',
-    decisionTitle:    'Sommari Decisioni',
+    decisionTitle:    'Report Decisionale',
     preCallDesc:      'Candidati che hanno completato tutti i colloqui e sono pronti per una decisione. Usa questi sommari per informarti prima di prendere la decisione finale.',
     decisionDesc:     'I tuoi candidati pre-selezionati per tutte le posizioni. Leggi il feedback consolidato e prendi le tue decisioni qui o all\'interno di ogni sommario.',
     overdue:          'IN RITARDO',
@@ -76,6 +77,7 @@ const TEXT = {
     summaryPending:   'SOMMARIO PENDENTE',
     noMatch:          'Nessun candidato corrisponde al filtro',
     openSummary:      'Apri sommario →',
+    openReport:       'Apri report →',
     today:            'Oggi',
     daysAgo:          d => `${d}g fa`,
     all:              'Tutti',
@@ -170,7 +172,12 @@ function UrgencyPill({ days, T }) {
   const bg    = days >= 7 ? '#FEE2E2' : days >= 3 ? C.warBg : C.sucBg
   const color = days >= 7 ? C.red     : days >= 3 ? C.war   : C.suc
   const label = days === 0 ? T.today : T.daysAgo(days)
-  return <span style={{ background: bg, color, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>{label}</span>
+  return (
+    <span style={{ background: bg, color, fontSize: 11, fontWeight: 600, padding: '3px 9px 3px 7px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      {days >= 7 && <span style={{ fontSize: 10, lineHeight: 1 }}>⚠</span>}
+      {label}
+    </span>
+  )
 }
 
 function SummaryStatusPill({ status }) {
@@ -234,7 +241,7 @@ function PreCallRow({ c, onOpen, T }) {
       {/* Last contact */}
       <UrgencyPill days={c.lastContact} T={T} />
       {/* Interviews count */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.text, display: 'block', textAlign: 'center' }}>{c.interviewsDone}</span>
       {/* Candidate fit */}
       <FitPill rec={c.rec} T={T} />
       {/* Action */}
@@ -249,20 +256,14 @@ function PreCallRow({ c, onOpen, T }) {
 }
 
 // ── Decision row ──────────────────────────────────────────────────────────────
-function DecisionRow({ c, decision, onOpen, onDecide, T }) {
-  const [localDec, setLocalDec] = useState(decision)
-
-  const handleDecide = (d) => {
-    setLocalDec(d)
-    onDecide?.(c.id, d)
-  }
-
+function DecisionRow({ c, onOpen, T }) {
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '2fr 1fr 0.8fr 1.1fr 1.2fr 130px',
+      display: 'grid', gridTemplateColumns: '1fr 0.5fr 160px',
       alignItems: 'center', padding: '14px 22px',
-      background: c.summaryStatus === 'pending' ? C.warBg + '44' : C.white,
+      background: C.white,
       borderBottom: `1px solid ${C.border}`,
+      transition: 'background 0.1s',
     }}>
       {/* Candidate */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
@@ -272,36 +273,14 @@ function DecisionRow({ c, decision, onOpen, onDecide, T }) {
           <div style={{ fontSize: 10, color: C.muted }}>{c.role} · {c.pos}</div>
         </div>
       </div>
-      {/* Stage */}
-      <StagePill stage={c.stage} />
-      {/* Interviews count */}
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone || '—'}</span>
-      {/* Summary status */}
-      <SummaryStatusPill status={c.summaryStatus} />
-      {/* Decision */}
-      {localDec ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{
-            fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20,
-            background: localDec === 'advance' ? C.sucBg : '#FEE2E2',
-            color: localDec === 'advance' ? C.sucT : C.red,
-          }}>
-            {localDec === 'advance' ? T.advancing : T.notMoving}
-          </span>
-          <button onClick={() => handleDecide(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, color: C.muted, fontFamily: 'inherit' }}>{T.undo}</button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', gap: 5 }}>
-          <button onClick={() => handleDecide('advance')}     style={{ padding: '5px 9px', borderRadius: 7, border: 'none', background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Advance">✓</button>
-          <button onClick={() => handleDecide('not-moving')}  style={{ padding: '5px 9px', borderRadius: 7, border: 'none', background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Not moving forward">✕</button>
-        </div>
-      )}
-      {/* Action */}
+      {/* Interviews performed */}
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone}</span>
+      {/* Open report */}
       <button
         onClick={() => onOpen(c)}
         style={{ padding: '7px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
       >
-        {T.openSummary}
+        {T.openReport}
       </button>
     </div>
   )
@@ -311,10 +290,12 @@ function DecisionRow({ c, decision, onOpen, onDecide, T }) {
 export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, onNavigate }) {
   const T         = TEXT[lang] || TEXT.en
   const isPreCall = mode === 'pre-call'
-  const candidates = isPreCall ? PRE_CALL_CANDIDATES : DECISION_CANDIDATES
+  // Decision mode: only show candidates with a completed summary
+  const candidates = isPreCall
+    ? PRE_CALL_CANDIDATES
+    : DECISION_CANDIDATES.filter(c => c.summaryStatus === 'complete')
 
   const [posFilter, setPosFilter] = useState(T.all)
-  const [decisions, setDecisions] = useState({})
 
   const allPosLabel  = T.all
   const positions    = [allPosLabel, ...new Set(candidates.map(c => c.pos))]
@@ -326,23 +307,17 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
     ? candidates
     : candidates.filter(c => c.pos === effectiveFilter)
 
-  const urgentCount   = isPreCall ? candidates.filter(c => c.lastContact >= 7).length : 0
-  const pendingCount  = !isPreCall ? candidates.filter(c => c.summaryStatus === 'pending').length : 0
-  const decidedCount  = !isPreCall ? Object.keys(decisions).length : 0
+  const urgentCount = isPreCall ? candidates.filter(c => c.lastContact >= 7).length : 0
 
   const handleOpen = (c) => {
     const dest = isPreCall ? 'recruiter-summary' : 'hiring-summary'
     onNavigate?.(dest, { candidate: c })
   }
 
-  const handleDecide = (id, dec) => {
-    setDecisions(d => dec ? { ...d, [id]: dec } : (() => { const n = { ...d }; delete n[id]; return n })())
-  }
-
   const preCallHeaders = [T.colCandidate, T.colPosition, T.colLastContact, T.colInterviews, T.colFit, T.colAction]
-  const decHeaders     = [T.colCandidate, T.colStage, T.colInterviews, T.colSummary, T.colDecision, T.colAction]
+  const decHeaders     = [T.colCandidate, T.colInterviews, T.colAction]
   const headers        = isPreCall ? preCallHeaders : decHeaders
-  const cols           = isPreCall ? '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px' : '2fr 1fr 0.8fr 1.1fr 1.2fr 130px'
+  const cols           = isPreCall ? '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px' : '1fr 0.5fr 160px'
 
   return (
     <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
@@ -375,22 +350,10 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
                 <div style={{ fontSize: 10, color: C.red, fontWeight: 600 }}>{T.overdue}</div>
               </div>
             )}
-            {!isPreCall && pendingCount > 0 && (
-              <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: '1px solid #FDE68A' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: C.war, fontFamily: 'DM Serif Display, serif' }}>{pendingCount}</div>
-                <div style={{ fontSize: 10, color: C.war, fontWeight: 600 }}>{T.summaryPending}</div>
-              </div>
-            )}
             <div style={{ background: C.white, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidates.length}</div>
               <div style={{ fontSize: 10, color: C.muted, fontWeight: 600 }}>{T.total}</div>
             </div>
-            {!isPreCall && (
-              <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: '1px solid #BBF7D0' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif' }}>{decidedCount}</div>
-                <div style={{ fontSize: 10, color: C.sucT, fontWeight: 600 }}>{T.decided}</div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -411,8 +374,8 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
         <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 16px rgba(201,57,74,0.04)' }}>
           {/* Column headers */}
           <div style={{ display: 'grid', gridTemplateColumns: cols, padding: '10px 22px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-            {headers.map(h => (
-              <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{h}</span>
+            {headers.map((h, i) => (
+              <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: isPreCall && i === 3 ? 'center' : 'left' }}>{h}</span>
             ))}
           </div>
 
@@ -420,7 +383,7 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
           {filtered.map(c =>
             isPreCall
               ? <PreCallRow key={c.id} c={c} onOpen={handleOpen} T={T} />
-              : <DecisionRow key={c.id} c={c} decision={decisions[c.id]} onOpen={handleOpen} onDecide={handleDecide} T={T} />
+              : <DecisionRow key={c.id} c={c} onOpen={handleOpen} T={T} />
           )}
 
           {filtered.length === 0 && (
@@ -430,21 +393,6 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
           )}
         </div>
 
-        {/* Summary reminder (decision mode) */}
-        {!isPreCall && pendingCount > 0 && (
-          <div style={{ marginTop: 16, padding: '13px 18px', background: C.warBg, borderRadius: 11, border: '1px solid #FDE68A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.warT }}>{T.summaryPendingMsg(pendingCount)}</div>
-              <div style={{ fontSize: 11, color: C.war, marginTop: 2 }}>{T.summaryUnlock}</div>
-            </div>
-            <button
-              onClick={() => onNavigate?.('questionnaire')}
-              style={{ padding: '8px 16px', borderRadius: 9, background: C.war, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, marginLeft: 16 }}
-            >
-              {T.fillSummary}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )

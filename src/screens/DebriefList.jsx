@@ -251,8 +251,6 @@ function CompletedRow({ item, onView, T }) {
           <div style={{ fontSize: 9, color: C.muted }}>{item.submitterRole} · {item.completedDate}</div>
         </div>
 
-        <RecBadge rec={item.recommendation} T={T} />
-
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           <button
             onClick={() => setExpanded(e => !e)}
@@ -288,7 +286,8 @@ function CompletedRow({ item, onView, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
-  const [filter, setFilter] = useState('all') // 'all' | 'pending' | 'completed'
+  const [filter,        setFilter]        = useState('all') // 'all' | 'pending' | 'completed'
+  const [completedOpen, setCompletedOpen] = useState(false)
 
   const showPending   = filter !== 'completed'
   const showCompleted = filter !== 'pending'
@@ -355,6 +354,7 @@ export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
         {showPending && PENDING.length > 0 && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0 }} />
               <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.pendingTitle}</h2>
               <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
             </div>
@@ -380,19 +380,27 @@ export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
         {/* ── Completed section ── */}
         {showCompleted && COMPLETED.length > 0 && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.completedTitle}</h2>
+            {/* Collapsible header */}
+            <button
+              onClick={() => setCompletedOpen(o => !o)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: completedOpen ? 12 : 0, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0', width: '100%', textAlign: 'left' }}
+            >
+              <span style={{ fontSize: 12, color: C.muted, transition: 'transform 0.2s', display: 'inline-block', transform: completedOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.muted, margin: 0 }}>{T.completedTitle}</h2>
               <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{COMPLETED.length}</span>
-            </div>
-            <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-              {/* Table header */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 1fr 1fr 160px', padding: '9px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-                {[T.colCandidate, T.colSubmittedBy, T.colFit, T.colRecommend, T.colActions].map(h => (
-                  <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
-                ))}
+            </button>
+
+            {completedOpen && (
+              <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+                {/* Table header */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 160px', padding: '9px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+                  {[T.colCandidate, T.colSubmittedBy, T.colActions].map(h => (
+                    <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
+                  ))}
+                </div>
+                {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onView={handleView} T={T} />)}
               </div>
-              {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onView={handleView} T={T} />)}
-            </div>
+            )}
           </div>
         )}
 

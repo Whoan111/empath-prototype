@@ -23,7 +23,7 @@ const SCREEN_T = {
     badge:            'Interview Summary',
     stepOf:           (s, t) => `Step ${s} of ${t} · Fields marked`,
     required:         'are required',
-    steps:            ['Context', 'Ratings', 'Feedback', 'Recommendation'],
+    steps:            ['Context', 'Ratings', 'Feedback'],
     // Step 1
     step1Title:       'Before you begin',
     step1Sub:         'Just the date and you are good to go.',
@@ -73,8 +73,9 @@ const SCREEN_T = {
     hmMessage:        'As hiring manager, you can now view the consolidated decision summary across all interviewers and make your final call.',
     notifyTitle:      '🔔 You will be notified when a decision is made',
     notifyText:       'Thank you for taking the time — your input makes the decision better and the candidate update more meaningful.',
-    viewBrief:        '📊 View decision summary',
-    backDashboard:    '← Back to dashboard',
+    viewBrief:        '📊 View decision report',
+    backSummaries:    '← Interview summaries',
+    backDashboard:    '← My dashboard',
     // Misc
     skipped:          'Skipped',
     didNotEval:       'Did not evaluate',
@@ -95,7 +96,7 @@ const SCREEN_T = {
     badge:            'Sommario colloquio',
     stepOf:           (s, t) => `Passaggio ${s} di ${t} · I campi con`,
     required:         'sono obbligatori',
-    steps:            ['Contesto', 'Valutazioni', 'Feedback', 'Raccomandazione'],
+    steps:            ['Contesto', 'Valutazioni', 'Feedback'],
     // Step 1
     step1Title:       'Prima di iniziare',
     step1Sub:         'Solo la data e sei pronto.',
@@ -145,8 +146,9 @@ const SCREEN_T = {
     hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il sommario decisionale consolidato e prendere la decisione finale.',
     notifyTitle:      '🔔 Sarai notificato quando verrà presa una decisione',
     notifyText:       'Grazie per il tuo tempo — il tuo contributo rende la decisione migliore e l\'aggiornamento al candidato più significativo.',
-    viewBrief:        '📊 Visualizza sommario decisionale',
-    backDashboard:    '← Torna alla bacheca',
+    viewBrief:        '📊 Visualizza report decisionale',
+    backSummaries:    '← Sommari colloqui',
+    backDashboard:    '← La mia bacheca',
     // Misc
     skipped:          'Saltato',
     didNotEval:       'Non valutato',
@@ -692,12 +694,12 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STEP 3 — Qualitative feedback
+// STEP 3 — Qualitative feedback (final step — submit from here)
 // ─────────────────────────────────────────────────────────────────────────────
-function StepFeedback({ candidate, feedback, onChange, onNext, onBack, T }) {
+function StepFeedback({ candidate, feedback, onChange, onSubmit, onBack, isHM, T }) {
   const strengthsValid = feedback.strengths && feedback.strengths.trim().length >= 8
   const developValid   = feedback.development && feedback.development.trim().length >= 8
-  const canProceed     = strengthsValid && developValid
+  const canSubmit      = strengthsValid && developValid
 
   const makeHandler = (field) => (updater) =>
     onChange(field, typeof updater === 'function' ? updater(feedback[field] || '') : updater)
@@ -757,10 +759,25 @@ function StepFeedback({ candidate, feedback, onChange, onNext, onBack, T }) {
         />
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
+      {/* What happens next — shown once required fields are filled */}
+      {canSubmit && (
+        <div style={{ margin: '26px 0 0', padding: '14px 16px', background: C.redBg, borderRadius: 10, border: `1px solid ${C.border}` }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8, margin: '0 0 8px' }}>{T.whatNext}</p>
+          <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
+            <li>Your feedback is saved to {candidate.name.split(' ')[0]}'s profile</li>
+            {isHM
+              ? <li>As hiring manager, you can view the full decision report across all interviewers</li>
+              : <li>You will be notified when a decision for {candidate.name.split(' ')[0]} has been made</li>
+            }
+            <li>Your observations help shape a growth-oriented, honest update for the candidate</li>
+          </ul>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
         <button onClick={onBack} style={{ padding: '11px 18px', borderRadius: 10, background: 'transparent', color: C.muted, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{T.backBtn}</button>
-        <button onClick={onNext} disabled={!canProceed} style={{ padding: '11px 26px', borderRadius: 10, background: canProceed ? C.red : C.grayB, color: canProceed ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: canProceed ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}>
-          {T.continueBtn}
+        <button onClick={onSubmit} disabled={!canSubmit} style={{ padding: '11px 30px', borderRadius: 10, background: canSubmit ? C.red : C.grayB, color: canSubmit ? 'white' : C.muted, border: 'none', fontSize: 14, fontWeight: 600, cursor: canSubmit ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'background 0.15s' }}>
+          {T.submitBtn}
         </button>
       </div>
     </div>
@@ -848,9 +865,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 // ─────────────────────────────────────────────────────────────────────────────
 // Done state — differs for HM vs other interviewers
 // ─────────────────────────────────────────────────────────────────────────────
-function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) {
-  const rec = RECOMMENDATIONS.find(r => r.id === recommendation)
-
+function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T }) {
   return (
     <div style={{ textAlign: 'center', padding: '40px 32px', animation: 'stepIn 0.3s ease' }}>
       <div style={{ fontSize: 52, marginBottom: 14 }}>✅</div>
@@ -861,33 +876,24 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) 
         {T.doneSub(candidate.name)}
       </p>
 
-      {/* Recommendation card */}
-      <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '18px 22px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', textAlign: 'left' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 13 }}>
-          <Av id={candidate.id} ini={candidate.ini} size={38} />
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</div>
-            <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
-          </div>
-        </div>
-        <div style={{ background: rec?.bg, borderRadius: 10, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 10, border: `1px solid ${rec?.border}` }}>
-          <span style={{ fontSize: 22 }}>{rec?.emoji}</span>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: rec?.color }}>{rec?.label}</div>
-            <div style={{ fontSize: 10, color: C.muted }}>{T.yourRec}</div>
-          </div>
+      {/* Candidate card */}
+      <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '16px 20px', maxWidth: 400, margin: '0 auto 22px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Av id={candidate.id} ini={candidate.ini} size={42} />
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{candidate.name}</div>
+          <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
         </div>
       </div>
 
       {/* Role-specific message */}
       {isHM ? (
-        <div style={{ background: C.sucBg, borderRadius: 11, padding: '14px 18px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BBF7D0', textAlign: 'left' }}>
+        <div style={{ background: C.sucBg, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BBF7D0', textAlign: 'left' }}>
           <p style={{ fontSize: 12, color: C.sucT, margin: 0, lineHeight: 1.7 }}>
             {T.hmMessage}
           </p>
         </div>
       ) : (
-        <div style={{ background: C.infBg, borderRadius: 11, padding: '14px 18px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', border: `1px solid #BFDBFE`, textAlign: 'left' }}>
+        <div style={{ background: C.infBg, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: `1px solid #BFDBFE`, textAlign: 'left' }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.infT, marginBottom: 4 }}>
             {T.notifyTitle}
           </p>
@@ -897,13 +903,26 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) 
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 11, justifyContent: 'center', flexWrap: 'wrap' }}>
+      {/* Navigation — always offer both summaries + dashboard */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', marginTop: 8 }}>
         {isHM && (
-          <button onClick={() => onNavigate?.('hiring-summary')} style={{ padding: '10px 20px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button
+            onClick={() => onNavigate?.('hiring-summary')}
+            style={{ padding: '11px 28px', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
+          >
             {T.viewBrief}
           </button>
         )}
-        <button onClick={() => onNavigate?.('hiring-manager')} style={{ padding: '10px 20px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button
+          onClick={() => onNavigate?.(summariesScreen)}
+          style={{ padding: '10px 28px', borderRadius: 10, background: C.white, color: C.text, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
+        >
+          {T.backSummaries}
+        </button>
+        <button
+          onClick={() => onNavigate?.(homeScreen)}
+          style={{ padding: '10px 28px', borderRadius: 10, background: 'transparent', color: C.muted, border: 'none', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', width: 280 }}
+        >
           {T.backDashboard}
         </button>
       </div>
@@ -914,15 +933,13 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) 
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, onBack, onNavigate }) {
+export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, summariesScreen = 'debrief-list', homeScreen = 'hiring-manager', onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [step, setStep] = useState(0)
 
-  const [context,        setContext]        = useState({ interviewDate: '', interviewType: '' })
-  const [ratings,        setRatings]        = useState({})
-  const [feedback,       setFeedback]       = useState({ strengths: '', development: '', standout: '' })
-  const [recommendation, setRecommendation] = useState(null)
-  const [notes,          setNotes]          = useState('')
+  const [context,  setContext]  = useState({ interviewDate: '', interviewType: '' })
+  const [ratings,  setRatings]  = useState({})
+  const [feedback, setFeedback] = useState({ strengths: '', development: '', standout: '' })
 
   const updateContext  = (key, val) => setContext(c => ({ ...c, [key]: val }))
   const updateRating   = (key, val) => setRatings(r => ({ ...r, [key]: val }))
@@ -930,13 +947,14 @@ export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MO
 
   const STEPS = T.steps
 
-  if (step === 4) return (
+  // Done state
+  if (step === 3) return (
     <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
       <style>{`
         @keyframes stepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse  { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(1.15);} }
       `}</style>
-      <DoneState candidate={candidate} recommendation={recommendation} ratings={ratings} isHM={isHM} onNavigate={onNavigate} T={T} />
+      <DoneState candidate={candidate} isHM={isHM} summariesScreen={summariesScreen} homeScreen={homeScreen} onNavigate={onNavigate} T={T} />
     </div>
   )
 
@@ -975,18 +993,13 @@ export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MO
             <StepRatings candidate={candidate} ratings={ratings} onChange={updateRating} onNext={() => setStep(2)} onBack={() => setStep(0)} T={T} />
           )}
           {step === 2 && (
-            <StepFeedback candidate={candidate} feedback={feedback} onChange={updateFeedback} onNext={() => setStep(3)} onBack={() => setStep(1)} T={T} />
-          )}
-          {step === 3 && (
-            <StepRecommendation
+            <StepFeedback
               candidate={candidate}
-              recommendation={recommendation}
-              notes={notes}
+              feedback={feedback}
+              onChange={updateFeedback}
+              onSubmit={() => setStep(3)}
+              onBack={() => setStep(1)}
               isHM={isHM}
-              onChangeRec={setRecommendation}
-              onChangeNotes={setNotes}
-              onSubmit={() => setStep(4)}
-              onBack={() => setStep(2)}
               T={T}
             />
           )}

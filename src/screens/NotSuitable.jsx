@@ -8,11 +8,11 @@ const SCREEN_T = {
     messagesPending: (n) => `${n} message${n !== 1 ? 's' : ''} pending`,
     explanation:    'Candidates are listed oldest rejection first — those waiting longer have higher priority for a message.',
     pipelineNote:   'Use',
-    pipelineBtn:    '↩ Pipeline',
+    pipelineBtn:    'Bring back',
     pipelineNote2:  'to restore a candidate to the active pipeline.',
     writeMessage:   'Write message',
     resend:         'Resend',
-    pipeline:       '↩ Pipeline',
+    pipeline:       'Bring back',
     messageSent:    'Message sent',
     emptyAll:       'All candidates have been messaged or restored.',
   },
@@ -23,11 +23,11 @@ const SCREEN_T = {
     messagesPending: (n) => `${n} ${n !== 1 ? 'messaggi' : 'messaggio'} in attesa`,
     explanation:    'I candidati sono elencati per data di rifiuto più vecchia — chi aspetta da più tempo ha priorità più alta.',
     pipelineNote:   'Usa',
-    pipelineBtn:    '↩ Pipeline',
+    pipelineBtn:    'Riporta',
     pipelineNote2:  'per ripristinare un candidato nella pipeline attiva.',
     writeMessage:   'Scrivi messaggio',
     resend:         'Reinvia',
-    pipeline:       '↩ Pipeline',
+    pipeline:       'Riporta',
     messageSent:    'Messaggio inviato',
     emptyAll:       'Tutti i candidati sono stati contattati o ripristinati.',
   },
@@ -221,8 +221,13 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
           <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>
             {group.dept}
           </div>
-          <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text }}>
-            {group.positionTitle}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {pendingCount > 0 && (
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0 }} />
+            )}
+            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text }}>
+              {group.positionTitle}
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
