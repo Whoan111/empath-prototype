@@ -1143,6 +1143,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const [showImporter, setShowImporter] = useState(() =>
     initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0)
   )
+  const [leaving, setLeaving] = useState(false)   // true while card exit-animation is running
 
   const confirmClose = (reason) => {
     setClosedPositions(s => ({ ...s, [closePending]: { reason } }))
@@ -1165,19 +1166,28 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const goTo = (newIdx) => setIdx(Math.max(0, Math.min(total - 1, newIdx)))
 
   const handleDecide = (choice) => {
-    if (!cv) return
-    setDecisions(d => choice === null
-      ? (() => { const n = { ...d }; delete n[cv.id]; return n })()
-      : { ...d, [cv.id]: choice }
-    )
-    if (choice !== null) {
-      // Build updated snapshot (state hasn't re-rendered yet)
-      const updated = { ...decisions, [cv.id]: choice }
-      // Look forward first; if at the end, wrap around to first remaining undecided
-      let nextIdx = cvList.findIndex((c, i) => i > idx && !updated[c.id])
-      if (nextIdx === -1) nextIdx = cvList.findIndex(c => !updated[c.id])
-      if (nextIdx !== -1) setTimeout(() => goTo(nextIdx), 300)
+    if (!cv || leaving) return
+
+    if (choice === null) {
+      // Undo — no animation needed
+      setDecisions(d => { const n = { ...d }; delete n[cv.id]; return n })
+      return
     }
+
+    // Record decision immediately (footer confirms before the card slides away)
+    setDecisions(d => ({ ...d, [cv.id]: choice }))
+
+    // Compute next undecided index before state updates
+    const updated = { ...decisions, [cv.id]: choice }
+    let nextIdx = cvList.findIndex((c, i) => i > idx && !updated[c.id])
+    if (nextIdx === -1) nextIdx = cvList.findIndex(c => !updated[c.id])
+
+    // Kick off 250 ms slide-out, then advance to next card (or show completion)
+    setLeaving(true)
+    setTimeout(() => {
+      if (nextIdx !== -1) goTo(nextIdx)
+      setLeaving(false)
+    }, 250)
   }
 
   const handleAddPosition = (title, dept) => {
@@ -1348,8 +1358,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           />
         )}
 
-        {/* All decided → completion screen */}
-        {total > 0 && decided === total && (
+        {/* All decided → completion screen (held back until exit animation finishes) */}
+        {total > 0 && decided === total && !leaving && (
           <CompletionScreen
             advancing={advancing}
             passing={passing}
@@ -1358,9 +1368,16 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           />
         )}
 
-        {/* Still reviewing */}
-        {cv && decided < total && (
-          <>
+        {/* Still reviewing — slide-out wrapper */}
+        {cv && !(decided === total && !leaving) && (
+          <div style={{
+            flex: 1, display: 'flex', overflow: 'hidden',
+            transform: leaving ? 'translateX(100%)' : 'translateX(0)',
+            opacity:   leaving ? 0 : 1,
+            transition: leaving
+              ? 'transform 250ms ease-in, opacity 250ms ease-in'
+              : 'none',
+          }}>
             <DocumentViewer
               key={cv?.id}
               cv={cv}
@@ -1375,7 +1392,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
               onDecide={handleDecide}
               T={T}
             />
-          </>
+          </div>
         )}
 
         {/* Empty position — show inline importer or empty placeholder */}
