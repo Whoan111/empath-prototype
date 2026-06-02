@@ -11,7 +11,7 @@
 //   • Technical skill moved last and is fully optional
 //   • Shorter, friendlier qualitative prompts
 //   • "Busy place" mode hint in Step 3
-//   • Done state differs: non-HM gets a notification note; HM keeps decision brief
+//   • Done state differs: non-HM gets a notification note; HM keeps decision summary
 //   • Removed "scores feed into update message" from What happens next
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 const SCREEN_T = {
   en: {
     back:             '← Back',
-    badge:            'Post-interview debrief',
+    badge:            'Interview Summary',
     stepOf:           (s, t) => `Step ${s} of ${t} · Fields marked`,
     required:         'are required',
     steps:            ['Context', 'Ratings', 'Feedback', 'Recommendation'],
@@ -35,15 +35,19 @@ const SCREEN_T = {
     typeOptional:     '(optional)',
     continueBtn:      'Continue →',
     // Step 2
-    step2Title:       'How did they perform?',
-    step2Sub:         (bold) => `Rate what you covered. If you did not evaluate a criterion, tap ${bold} — that is a valid answer.`,
+    step2Title:       'How did they fit?',
+    step2Sub:         (bold) => `Assess what you covered. If you did not evaluate a criterion, tap ${bold} — that is a valid answer.`,
     step2Bold:        'Did not evaluate',
     step2Tech:        'Technical skills are',
     step2TechBold:    'optional',
     step2TechSub:     '— skip if there was no technical component to your interview.',
-    avgSoFar:         'Your average so far',
-    acrossCriteria:   (n) => `Across ${n} rated criterion`,
-    ratingRequired:   (labels) => `${labels} — rate or tap "Did not evaluate"`,
+    fitSoFar:         'Your assessment so far',
+    strongFitCount:   (n) => `${n} strong fit`,
+    fitCount:         (n) => `${n} fit`,
+    fitRequired:      (labels) => `${labels} — assess or tap "Did not evaluate"`,
+    strongFit:        'Strong fit',
+    fit:              'Fit',
+    notFit:           'Not fit',
     backBtn:          '← Back',
     // Step 3
     step3Title:       'Your observations',
@@ -63,14 +67,13 @@ const SCREEN_T = {
     whatNext:         '✦ What happens next',
     submitBtn:        'Submit feedback ✓',
     // Done
-    doneTitle:        'Feedback submitted',
-    doneSub:          (name) => `Your input for ${name} has been saved and will inform the decision brief and any candidate updates.`,
-    avgScore:         'AVG SCORE',
+    doneTitle:        'Summary submitted',
+    doneSub:          (name) => `Your input for ${name} has been saved and will inform the decision summary and any candidate updates.`,
     yourRec:          'Your recommendation',
-    hmMessage:        'As hiring manager, you can now view the consolidated decision brief across all interviewers and make your final call.',
+    hmMessage:        'As hiring manager, you can now view the consolidated decision summary across all interviewers and make your final call.',
     notifyTitle:      '🔔 You will be notified when a decision is made',
-    notifyText:       'Thank you for taking the time — your feedback makes the decision better and the candidate update more meaningful.',
-    viewBrief:        '📊 View decision brief',
+    notifyText:       'Thank you for taking the time — your input makes the decision better and the candidate update more meaningful.',
+    viewBrief:        '📊 View decision summary',
     backDashboard:    '← Back to dashboard',
     // Misc
     skipped:          'Skipped',
@@ -89,7 +92,7 @@ const SCREEN_T = {
   },
   it: {
     back:             '← Indietro',
-    badge:            'Debrief post-intervista',
+    badge:            'Sommario colloquio',
     stepOf:           (s, t) => `Passaggio ${s} di ${t} · I campi con`,
     required:         'sono obbligatori',
     steps:            ['Contesto', 'Valutazioni', 'Feedback', 'Raccomandazione'],
@@ -104,15 +107,19 @@ const SCREEN_T = {
     typeOptional:     '(opzionale)',
     continueBtn:      'Continua →',
     // Step 2
-    step2Title:       'Come si è comportato?',
+    step2Title:       'Come si è adattato?',
     step2Sub:         (bold) => `Valuta ciò che hai esaminato. Se non hai valutato un criterio, tocca ${bold} — è una risposta valida.`,
     step2Bold:        'Non valutato',
     step2Tech:        'Le competenze tecniche sono',
     step2TechBold:    'opzionali',
     step2TechSub:     '— salta se non c\'era una componente tecnica.',
-    avgSoFar:         'La tua media finora',
-    acrossCriteria:   (n) => `Su ${n} criteri valutati`,
-    ratingRequired:   (labels) => `${labels} — valuta o tocca "Non valutato"`,
+    fitSoFar:         'La tua valutazione finora',
+    strongFitCount:   (n) => `${n} fortemente idoneo`,
+    fitCount:         (n) => `${n} idoneo`,
+    fitRequired:      (labels) => `${labels} — valuta o tocca "Non valutato"`,
+    strongFit:        'Fortemente idoneo',
+    fit:              'Idoneo',
+    notFit:           'Non idoneo',
     backBtn:          '← Indietro',
     // Step 3
     step3Title:       'Le tue osservazioni',
@@ -132,14 +139,13 @@ const SCREEN_T = {
     whatNext:         '✦ Cosa succede dopo',
     submitBtn:        'Invia feedback ✓',
     // Done
-    doneTitle:        'Feedback inviato',
-    doneSub:          (name) => `Il tuo contributo per ${name} è stato salvato e informerà il brief decisionale.`,
-    avgScore:         'MEDIA',
+    doneTitle:        'Sommario inviato',
+    doneSub:          (name) => `Il tuo contributo per ${name} è stato salvato e informerà il sommario decisionale.`,
     yourRec:          'La tua raccomandazione',
-    hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il brief decisionale consolidato e prendere la decisione finale.',
+    hmMessage:        'Come responsabile assunzioni, puoi ora visualizzare il sommario decisionale consolidato e prendere la decisione finale.',
     notifyTitle:      '🔔 Sarai notificato quando verrà presa una decisione',
-    notifyText:       'Grazie per il tuo tempo — il tuo feedback rende la decisione migliore e l\'aggiornamento al candidato più significativo.',
-    viewBrief:        '📊 Visualizza brief decisionale',
+    notifyText:       'Grazie per il tuo tempo — il tuo contributo rende la decisione migliore e l\'aggiornamento al candidato più significativo.',
+    viewBrief:        '📊 Visualizza sommario decisionale',
     backDashboard:    '← Torna alla bacheca',
     // Misc
     skipped:          'Saltato',
@@ -218,20 +224,19 @@ const CRITERIA = [
   },
 ]
 
-const RATING_LABELS = {
-  1: 'Below expectations',
-  2: 'Developing',
-  3: 'Meets expectations',
-  4: 'Exceeds expectations',
-  5: 'Outstanding',
+// Fit levels: null = not yet answered, -1 = did not evaluate, 'strong' | 'fit' | 'not-fit'
+const FIT_CONFIG = {
+  strong:   { label: 'Strong fit',  color: C.suc, bg: C.sucBg,  border: '#BBF7D0' },
+  fit:      { label: 'Fit',         color: C.war, bg: C.warBg,  border: '#FDE68A' },
+  'not-fit':{ label: 'Not fit',     color: C.red, bg: '#FEF2F2',border: '#FECACA' },
 }
 
 // ── Recommendation options ────────────────────────────────────────────────────
 const RECOMMENDATIONS = [
-  { id: 'strongly-advance', label: 'Strongly advance',           emoji: '⭐', color: C.suc,  bg: C.sucBg,  border: '#BBF7D0' },
-  { id: 'advance',          label: 'Advance',                    emoji: '✓',  color: C.suc,  bg: '#F0FDF4', border: '#86EFAC' },
-  { id: 'reservations',     label: 'Advance with reservations',  emoji: '△',  color: C.war,  bg: C.warBg,  border: '#FDE68A' },
-  { id: 'not-moving',       label: 'Not moving forward',         emoji: '✕',  color: C.red,  bg: '#FEF2F2', border: '#FECACA' },
+  { id: 'strongly-advance', label: 'Strong advance',             emoji: '⭐', color: C.suc,  bg: C.sucBg,  border: '#BBF7D0' },
+  { id: 'advance',          label: 'Average fit',                emoji: '◎',  color: C.war,  bg: C.warBg,  border: '#FDE68A' },
+  { id: 'reservations',     label: 'Fit with reservations',      emoji: '△',  color: C.war,  bg: '#FFFBEB', border: '#FDE68A' },
+  { id: 'not-moving',       label: 'Not advancing',              emoji: '✕',  color: C.red,  bg: '#FEF2F2', border: '#FECACA' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -385,21 +390,18 @@ function DictationField({ label, value, onChange, placeholder, required, rows = 
   )
 }
 
-// ── Star rating with "Did not evaluate" ───────────────────────────────────────
-function StarRating({ value, onChange, criterion, T }) {
-  const [hover, setHover] = useState(0)
-
-  const isSkipped  = value === -1
-  const display    = isSkipped ? 0 : (hover || value)
-  const hasAnswer  = value > 0 || value === -1
-
-  const starColor = display >= 4 ? C.suc : display >= 3 ? C.war : C.red
+// ── Fit rating — Strong fit / Fit / Not fit / Did not evaluate ────────────────
+function FitRating({ value, onChange, criterion, T }) {
+  // value: null = unanswered, -1 = did not evaluate, 'strong' | 'fit' | 'not-fit'
+  const isSkipped = value === -1
+  const hasAnswer = value !== null && value !== undefined && value !== 0
+  const cfg       = value && value !== -1 ? FIT_CONFIG[value] : null
 
   const borderColor = !hasAnswer && !criterion.optional
     ? '#FECACA'
-    : hasAnswer
-      ? (isSkipped ? C.grayB : (value >= 4 ? '#BBF7D0' : value >= 3 ? '#FDE68A' : C.redL))
-      : C.border
+    : cfg ? cfg.border
+    : isSkipped ? C.grayB
+    : C.border
 
   return (
     <div style={{
@@ -422,19 +424,14 @@ function StarRating({ value, onChange, criterion, T }) {
             <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{criterion.desc}</div>
           )}
         </div>
-
         {/* Status badge */}
         {isSkipped ? (
           <span style={{ fontSize: 10, fontWeight: 600, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, flexShrink: 0, marginLeft: 10 }}>
             {T ? T.skipped : 'Skipped'}
           </span>
-        ) : value > 0 ? (
-          <span style={{
-            fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, flexShrink: 0, marginLeft: 10,
-            background: value >= 4 ? C.sucBg : value >= 3 ? C.warBg : '#FEE2E2',
-            color: value >= 4 ? C.sucT : value >= 3 ? C.warT : C.red,
-          }}>
-            {RATING_LABELS[value]}
+        ) : cfg ? (
+          <span style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20, flexShrink: 0, marginLeft: 10, background: cfg.bg, color: cfg.color }}>
+            {cfg.label}
           </span>
         ) : !criterion.optional ? (
           <span style={{ fontSize: 10, color: '#EF4444', flexShrink: 0, marginLeft: 10, fontWeight: 500 }}>{T ? T.requiredText : 'Required'}</span>
@@ -444,38 +441,40 @@ function StarRating({ value, onChange, criterion, T }) {
       {isSkipped ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 12, color: C.muted }}>{T ? T.didNotEvalDesc : 'Did not evaluate this characteristic'}</span>
-          <button onClick={() => onChange(0)} style={{ fontSize: 11, color: C.inf, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
+          <button onClick={() => onChange(null)} style={{ fontSize: 11, color: C.inf, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
             {T ? T.undoBtn : 'Undo'}
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexWrap: 'wrap' }}>
-          {/* Stars */}
-          <div style={{ display: 'flex', gap: 4, marginRight: 16 }}>
-            {[1, 2, 3, 4, 5].map(n => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {/* Fit level buttons */}
+          {['strong', 'fit', 'not-fit'].map(level => {
+            const lcfg = FIT_CONFIG[level]
+            const isSelected = value === level
+            return (
               <button
-                key={n}
-                onClick={() => onChange(n === value ? 0 : n)}
-                onMouseEnter={() => setHover(n)}
-                onMouseLeave={() => setHover(0)}
+                key={level}
+                onClick={() => onChange(isSelected ? null : level)}
                 style={{
-                  fontSize: 28, background: 'none', border: 'none', cursor: 'pointer',
-                  color: n <= display ? starColor : C.border,
-                  lineHeight: 1, padding: '2px 3px',
-                  transform: n <= display ? 'scale(1.08)' : 'scale(1)',
-                  transition: 'all 0.1s',
+                  padding: '7px 16px', borderRadius: 22, cursor: 'pointer',
+                  border: `2px solid ${isSelected ? lcfg.color : C.border}`,
+                  background: isSelected ? lcfg.bg : C.white,
+                  color: isSelected ? lcfg.color : C.muted,
+                  fontSize: 12, fontWeight: isSelected ? 700 : 400,
+                  fontFamily: 'inherit', transition: 'all 0.13s',
                 }}
-              >★</button>
-            ))}
-          </div>
-
-          {/* Did not evaluate link */}
+              >
+                {level === 'strong' ? (T?.strongFit || 'Strong fit') : level === 'fit' ? (T?.fit || 'Fit') : (T?.notFit || 'Not fit')}
+              </button>
+            )
+          })}
+          {/* Did not evaluate */}
           <button
-            onClick={() => { onChange(-1); setHover(0) }}
+            onClick={() => onChange(-1)}
             style={{
               fontSize: 11, color: C.muted, background: 'none', border: `1px solid ${C.border}`,
               borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
-              padding: '4px 11px', whiteSpace: 'nowrap', marginTop: 2,
+              padding: '4px 11px', whiteSpace: 'nowrap',
               transition: 'all 0.15s',
             }}
           >
@@ -623,18 +622,17 @@ function StepContext({ candidate, context, onChange, onNext, currentUser, T }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STEP 2 — Ratings
+// STEP 2 — Fit Assessment
 // ─────────────────────────────────────────────────────────────────────────────
 function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
-  // Required criteria need a score (1-5) OR explicit skip (-1). 0 = not yet answered.
+  // Required criteria need a fit level OR explicit skip (-1). null = not yet answered.
   const requiredAnswered = CRITERIA
     .filter(c => !c.optional)
-    .every(c => ratings[c.id] !== 0 && ratings[c.id] !== undefined)
+    .every(c => ratings[c.id] !== null && ratings[c.id] !== undefined)
 
-  const ratedCount = CRITERIA.filter(c => ratings[c.id] > 0).length
-  const avgScore = ratedCount > 0
-    ? (CRITERIA.filter(c => ratings[c.id] > 0).reduce((s, c) => s + ratings[c.id], 0) / ratedCount).toFixed(1)
-    : null
+  const assessedCount  = CRITERIA.filter(c => ratings[c.id] && ratings[c.id] !== -1).length
+  const strongCount    = CRITERIA.filter(c => ratings[c.id] === 'strong').length
+  const fitCount       = CRITERIA.filter(c => ratings[c.id] === 'fit').length
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
@@ -648,23 +646,26 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
         {T.step2Tech} <strong style={{ color: C.text }}>{T.step2TechBold}</strong>{T.step2TechSub}
       </p>
 
-      {/* Live average */}
-      {avgScore && (
+      {/* Live assessment summary */}
+      {assessedCount > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.redBg, borderRadius: 10, padding: '11px 16px', marginBottom: 20, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{avgScore}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{assessedCount}</div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.avgSoFar}</div>
-            <div style={{ fontSize: 10, color: C.muted }}>{T.acrossCriteria(ratedCount)}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.fitSoFar}</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
+              {strongCount > 0 && <span style={{ color: C.sucT, fontWeight: 600, marginRight: 8 }}>★ {T.strongFitCount(strongCount)}</span>}
+              {fitCount > 0 && <span style={{ color: C.warT, fontWeight: 600 }}>◎ {T.fitCount(fitCount)}</span>}
+            </div>
           </div>
         </div>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 26 }}>
         {CRITERIA.map(c => (
-          <StarRating
+          <FitRating
             key={c.id}
             criterion={c}
-            value={ratings[c.id] !== undefined ? ratings[c.id] : 0}
+            value={ratings[c.id] !== undefined ? ratings[c.id] : null}
             onChange={(val) => onChange(c.id, val)}
             T={T}
           />
@@ -675,7 +676,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, padding: '9px 13px', background: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA' }}>
           <span style={{ fontSize: 13 }}>⚠</span>
           <span style={{ fontSize: 12, color: C.red }}>
-            {T.ratingRequired(CRITERIA.filter(c => !c.optional && (!ratings[c.id] || ratings[c.id] === 0)).map(c => c.label).join(' · '))}
+            {T.fitRequired(CRITERIA.filter(c => !c.optional && (!ratings[c.id])).map(c => c.label).join(' · '))}
           </span>
         </div>
       )}
@@ -826,7 +827,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
           <ul style={{ margin: 0, paddingLeft: 15, fontSize: 12, color: C.muted, lineHeight: 2.1 }}>
             <li>Your feedback is saved to {candidate.name.split(' ')[0]}'s profile</li>
             {isHM
-              ? <li>As hiring manager, you can view the full decision brief across all interviewers</li>
+              ? <li>As hiring manager, you can view the full decision summary across all interviewers</li>
               : <li>You will be notified when a decision for {candidate.name.split(' ')[0]} has been made</li>
             }
             <li>Your observations help shape a growth-oriented, honest update for the candidate</li>
@@ -848,11 +849,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 // Done state — differs for HM vs other interviewers
 // ─────────────────────────────────────────────────────────────────────────────
 function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) {
-  const rec      = RECOMMENDATIONS.find(r => r.id === recommendation)
-  const ratedCriteria = CRITERIA.filter(c => ratings[c.id] > 0)
-  const avg      = ratedCriteria.length > 0
-    ? (ratedCriteria.reduce((s, c) => s + ratings[c.id], 0) / ratedCriteria.length).toFixed(1)
-    : null
+  const rec = RECOMMENDATIONS.find(r => r.id === recommendation)
 
   return (
     <div style={{ textAlign: 'center', padding: '40px 32px', animation: 'stepIn 0.3s ease' }}>
@@ -864,7 +861,7 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) 
         {T.doneSub(candidate.name)}
       </p>
 
-      {/* Score + recommendation card */}
+      {/* Recommendation card */}
       <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '18px 22px', marginBottom: 22, maxWidth: 400, margin: '0 auto 22px', textAlign: 'left' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 13 }}>
           <Av id={candidate.id} ini={candidate.ini} size={38} />
@@ -873,19 +870,11 @@ function DoneState({ candidate, recommendation, ratings, isHM, onNavigate, T }) 
             <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          {avg && (
-            <div style={{ flex: 1, textAlign: 'center', background: C.redBg, borderRadius: 8, padding: '9px' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>{avg}</div>
-              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.avgScore}</div>
-            </div>
-          )}
-          <div style={{ flex: 2, background: rec?.bg, borderRadius: 8, padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
-            <span style={{ fontSize: 18 }}>{rec?.emoji}</span>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: rec?.color }}>{rec?.label}</div>
-              <div style={{ fontSize: 9, color: C.muted }}>{T.yourRec}</div>
-            </div>
+        <div style={{ background: rec?.bg, borderRadius: 10, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 10, border: `1px solid ${rec?.border}` }}>
+          <span style={{ fontSize: 22 }}>{rec?.emoji}</span>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: rec?.color }}>{rec?.label}</div>
+            <div style={{ fontSize: 10, color: C.muted }}>{T.yourRec}</div>
           </div>
         </div>
       </div>

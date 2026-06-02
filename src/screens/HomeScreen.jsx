@@ -9,7 +9,7 @@ const SCREEN_T = {
       { id: 'not-suitable', label: 'Not Suitable', sub: 'Rejected candidates'  },
       { id: 'dashboard',    label: 'Dashboard',    sub: 'Active positions'     },
     ],
-    summary:    'Summary',
+    summary:    'Interview Summaries',
     aiInsights: 'AI Insights',
   },
   it: {
@@ -20,7 +20,7 @@ const SCREEN_T = {
       { id: 'not-suitable', label: 'Non Idoneo',   sub: 'Candidati rifiutati'    },
       { id: 'dashboard',    label: 'Bacheca',       sub: 'Posizioni attive'       },
     ],
-    summary:    'Riepilogo',
+    summary:    'Sommari Colloqui',
     aiInsights: 'Analisi AI',
   },
 }

@@ -24,9 +24,9 @@ const SCREEN_T = {
     pendingReview:     (n) => `${n} pending review`,
     advancing:         (n) => `✓ ${n} advancing`,
     archived:          (n) => `✕ ${n} archived`,
-    debrief:           '📝 Post-interview debrief',
-    pendingDebriefs:   (n) => `${n} post-interview debrief${n > 1 ? 's' : ''} pending — `,
-    viewDebriefs:      'View debriefs →',
+    debrief:           '📝 Interview Summaries',
+    pendingDebriefs:   (n) => `${n} interview summar${n > 1 ? 'ies' : 'y'} pending — `,
+    viewDebriefs:      'View summaries →',
     preSelectedTitle:  'Pre-selected candidates',
     preSelectedSub:    (since) => `You are seeing only candidates that passed the recruiter's screening · Open since ${since}`,
     sortScore:         '↓ Highest score first',
@@ -34,9 +34,9 @@ const SCREEN_T = {
     sortName:          'A–Z Name',
     colCandidate:      'Candidate',
     colStage:          'Stage',
-    colInterviews:     'Interviews',
-    colAvgScore:       'Avg score',
-    colDebrief:        'Debrief',
+    colInterviews:     'Interviews performed',
+    colFit:            'Candidate fit',
+    colSummary:        'Summary',
     colDecision:       'Decision',
     colActions:        'Actions',
     allReviewed:       'All candidates have been reviewed',
@@ -44,9 +44,9 @@ const SCREEN_T = {
     noPreSelectedSub:  "The recruiter will add candidates here after screening.",
     recruiterContact:  'Recruiter:',
     recruiterNote:     'Reach out to the recruiter for any logistics, scheduling, or messaging updates.',
-    debriefBtn:        'Debrief',
-    briefBtn:          'Brief',
-    postDebrief:       '📝 Post-interview debriefs',
+    debriefBtn:        'Summary',
+    briefBtn:          'Summary',
+    postDebrief:       '📝 Interview Summaries',
     yourDecision:      'Your decision',
     advancingPill:     '✓ Advancing',
     notMovingPill:     '✕ Not moving forward',
@@ -57,7 +57,7 @@ const SCREEN_T = {
     noFeedback:        'No feedback yet',
     noFeedbackSub:     'Feedbacks appear after interviews are completed and the post-interview questionnaire is filled in.',
     fillForm:          'Fill post-interview form',
-    openBrief:         '📊 Open full decision brief →',
+    openBrief:         '📊 Open full decision summary →',
     notesPrivate:      'Your notes are private and visible only to you. They help inform your decision and can feed into the recruiter\'s summary.',
     savedNote:         'Saved note',
     saveNote:          'Save note',
@@ -67,11 +67,13 @@ const SCREEN_T = {
     restore:           'Restore',
     preCall:           'Pre-Call',
     interviews:        'INTERVIEWS',
-    avgScore:          'AVG SCORE',
     lastActivity:      'LAST ACTIVITY',
     pendingDecision:   'Pending review',
     interviewsOf:      (d, t) => `${d} of ${t}`,
     noScoreYet:        'No score yet',
+    strongAdvance:     'Strong advance',
+    averageFit:        'Average fit',
+    notAdvancing:      'Not advancing',
   },
   it: {
     hiringManager:     'Responsabile Assunzioni',
@@ -79,9 +81,9 @@ const SCREEN_T = {
     pendingReview:     (n) => `${n} in attesa di revisione`,
     advancing:         (n) => `✓ ${n} avanzano`,
     archived:          (n) => `✕ ${n} archiviati`,
-    debrief:           '📝 Debrief post-intervista',
-    pendingDebriefs:   (n) => `${n} debrief post-intervista${n > 1 ? '' : ''} in attesa — `,
-    viewDebriefs:      'Vedi debrief →',
+    debrief:           '📝 Sommari Colloqui',
+    pendingDebriefs:   (n) => `${n} sommario${n > 1 ? 'i' : ''} colloquio in attesa — `,
+    viewDebriefs:      'Vedi sommari →',
     preSelectedTitle:  'Candidati pre-selezionati',
     preSelectedSub:    (since) => `Vedi solo i candidati che hanno superato lo screening del recruiter · Aperto da ${since}`,
     sortScore:         '↓ Punteggio più alto',
@@ -89,9 +91,9 @@ const SCREEN_T = {
     sortName:          'A–Z Nome',
     colCandidate:      'Candidato',
     colStage:          'Fase',
-    colInterviews:     'Interviste',
-    colAvgScore:       'Media',
-    colDebrief:        'Debrief',
+    colInterviews:     'Colloqui effettuati',
+    colFit:            'Idoneità candidato',
+    colSummary:        'Sommario',
     colDecision:       'Decisione',
     colActions:        'Azioni',
     allReviewed:       'Tutti i candidati sono stati esaminati',
@@ -99,9 +101,9 @@ const SCREEN_T = {
     noPreSelectedSub:  'Il recruiter aggiungerà candidati qui dopo lo screening.',
     recruiterContact:  'Recruiter:',
     recruiterNote:     'Contatta il recruiter per logistica, pianificazione o aggiornamenti messaggi.',
-    debriefBtn:        'Debrief',
-    briefBtn:          'Brief',
-    postDebrief:       '📝 Debrief post-intervista',
+    debriefBtn:        'Sommario',
+    briefBtn:          'Sommario',
+    postDebrief:       '📝 Sommari Colloqui',
     yourDecision:      'La tua decisione',
     advancingPill:     '✓ Avanza',
     notMovingPill:     '✕ Non avanza',
@@ -112,7 +114,7 @@ const SCREEN_T = {
     noFeedback:        'Nessun feedback ancora',
     noFeedbackSub:     'I feedback appaiono dopo le interviste e la compilazione del questionario post-intervista.',
     fillForm:          'Compila il modulo post-intervista',
-    openBrief:         '📊 Apri brief decisionale completo →',
+    openBrief:         '📊 Apri sommario decisionale completo →',
     notesPrivate:      'Le tue note sono private e visibili solo a te. Aiutano a informare la tua decisione.',
     savedNote:         'Nota salvata',
     saveNote:          'Salva nota',
@@ -122,11 +124,13 @@ const SCREEN_T = {
     restore:           'Ripristina',
     preCall:           'Pre-Colloquio',
     interviews:        'INTERVISTE',
-    avgScore:          'MEDIA',
     lastActivity:      'ULTIMA ATTIVITÀ',
     pendingDecision:   'In attesa',
     interviewsOf:      (d, t) => `${d} di ${t}`,
     noScoreYet:        'Nessun punteggio',
+    strongAdvance:     'Forte avanzamento',
+    averageFit:        'Idoneità media',
+    notAdvancing:      'Non avanza',
   },
 }
 
@@ -236,20 +240,49 @@ const PRE_SELECTED = {
   ],
 }
 
-// ── Debrief completion status (per candidate) ─────────────────────────────────
+// ── Summary completion status (per candidate) ─────────────────────────────────
 // In production this comes from the submitted questionnaire records.
-const DEBRIEF_STATUS = {
+const SUMMARY_STATUS = {
   1:  'complete',    // Giulia — 2 rounds, both filled
   2:  'complete',    // Marco B. — round 1 filled
   4:  'pending',     // Luca F. — round 1 done but questionnaire not submitted
   7:  'complete',    // Chiara — 2 rounds, both filled
   11: 'not-started', // Sofia — no interviews yet
 }
-// ── Debrief badge atom ────────────────────────────────────────────────────────
-function DebriefBadge({ status }) {
+
+// ── Candidate fit assessment (per candidate, from completed summaries) ────────
+const CANDIDATE_FIT = {
+  1:  'advance',         // Giulia
+  2:  'strongly-advance',// Marco B.
+  4:  null,              // Luca F. — pending
+  7:  'strongly-advance',// Chiara
+  11: null,              // Sofia — no interviews yet
+}
+// ── Summary badge atom ────────────────────────────────────────────────────────
+function SummaryBadge({ status }) {
   if (status === 'complete')    return <span style={{ background: C.sucBg, color: C.sucT, fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20 }}>✓ Done</span>
   if (status === 'pending')     return <span style={{ background: C.warBg, color: C.warT, fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20 }}>⏳ Pending</span>
   return                               <span style={{ background: C.gray,  color: C.muted, fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 20 }}>— N/A</span>
+}
+
+// ── Candidate fit pill ────────────────────────────────────────────────────────
+function FitPill({ rec, T }) {
+  if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
+  if (rec === 'strongly-advance') return (
+    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+      ★ {T.strongAdvance}
+    </span>
+  )
+  if (rec === 'advance') return (
+    <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+      ◎ {T.averageFit}
+    </span>
+  )
+  return (
+    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
+      ✕ {T.notAdvancing}
+    </span>
+  )
 }
 
 const AV_PALETTE = [
@@ -259,11 +292,6 @@ const AV_PALETTE = [
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 
-function avgScore(fb) {
-  if (!fb.length) return null
-  return (fb.reduce((s, f) => s + f.score, 0) / fb.length).toFixed(1)
-}
-
 // ── Atoms ─────────────────────────────────────────────────────────────────────
 function Av({ id, ini, size = 36 }) {
   const [bg, color] = avColor(id)
@@ -271,19 +299,6 @@ function Av({ id, ini, size = 36 }) {
     <div style={{ width: size, height: size, borderRadius: '50%', background: bg, color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.31, fontWeight: 600 }}>
       {ini}
     </div>
-  )
-}
-
-function Stars({ score, max = 5, size = 12, noScoreLabel = 'No score yet' }) {
-  if (score === null) return <span style={{ fontSize: 11, color: C.muted }}>{noScoreLabel}</span>
-  const filled = Math.round(parseFloat(score))
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} style={{ fontSize: size, color: i < filled ? C.red : C.border, lineHeight: 1 }}>★</span>
-      ))}
-      <span style={{ fontSize: 10, color: C.muted, marginLeft: 4 }}>{score}</span>
-    </span>
   )
 }
 
@@ -320,7 +335,6 @@ function StagePipeline({ stage }) {
 function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onClose, onNavigate, T }) {
   const [tab, setTab] = useState(T.tabs.feedback)
   const [draft, setDraft] = useState(comment || '')
-  const score = avgScore(candidate.fb)
 
   return (
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
@@ -345,12 +359,12 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
         {/* Quick stats */}
         <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
           <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.interviewsDone}/{candidate.interviewsTotal}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.interviewsDone}</div>
             <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.interviews}</div>
           </div>
-          <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: score ? C.red : C.muted, fontFamily: 'DM Serif Display, serif' }}>{score ?? '—'}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.avgScore}</div>
+          <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 2, textAlign: 'center', border: `1px solid ${C.border}` }}>
+            <div style={{ marginTop: 2 }}><FitPill rec={CANDIDATE_FIT[candidate.id]} T={T} /></div>
+            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 3 }}>{T.colFit}</div>
           </div>
           <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.lastActivity}</div>
@@ -401,7 +415,7 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
                             <div style={{ fontSize: 9, color: C.muted }}>{f.byRole} · Round {f.round} · {f.date}</div>
                           </div>
                         </div>
-                        <Stars score={f.score} size={11} />
+                        <FitPill rec={f.score >= 4 ? 'strongly-advance' : f.score >= 3 ? 'advance' : null} T={T} />
                       </div>
                       <p style={{ fontSize: 11, color: C.text, lineHeight: 1.7, margin: '0 0 10px' }}>{f.txt}</p>
                       {f.strengths.length > 0 && (
@@ -414,7 +428,7 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
                   )
                 })}
 
-                {/* Link to full decision brief */}
+                {/* Link to full decision summary */}
                 <button
                   onClick={() => onNavigate?.('hiring-summary', { candidate })}
                   style={{ padding: '9px 0', borderRadius: 9, background: C.white, color: C.inf, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
@@ -541,12 +555,14 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
   const active   = allCands.filter(c => decisions[c.id] !== 'not-moving-forward')
   const archived = allCands.filter(c => decisions[c.id] === 'not-moving-forward')
 
+  // Fit order for sorting: strongly-advance > advance > null
+  const fitRank = (id) => {
+    const fit = CANDIDATE_FIT[id]
+    return fit === 'strongly-advance' ? 2 : fit === 'advance' ? 1 : 0
+  }
+
   const sortedActive = [...active].sort((a, b) => {
-    if (sortBy === 'score') {
-      const sa = parseFloat(avgScore(a.fb) ?? 0)
-      const sb = parseFloat(avgScore(b.fb) ?? 0)
-      return sb - sa
-    }
+    if (sortBy === 'score') return fitRank(b.id) - fitRank(a.id)
     if (sortBy === 'activity') return a.lastActivity.localeCompare(b.lastActivity)
     return a.name.localeCompare(b.name)
   })
@@ -617,7 +633,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
       {/* ── Pending debrief banner ── */}
       {(() => {
         const allCandsPending = Object.values(PRE_SELECTED).flat()
-        const pendingDebriefs = allCandsPending.filter(c => DEBRIEF_STATUS[c.id] === 'pending')
+        const pendingDebriefs = allCandsPending.filter(c => SUMMARY_STATUS[c.id] === 'pending')
         if (!pendingDebriefs.length) return null
         return (
           <div style={{ padding: '10px 28px', background: '#FFFBEB', borderBottom: `1px solid #FDE68A`, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -692,8 +708,8 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
           {/* Candidate table */}
           <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1fr 1fr 1.1fr 130px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-              {[T.colCandidate, T.colStage, T.colInterviews, T.colAvgScore, T.colDebrief, T.colDecision, T.colActions].map(h => (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1.2fr 1fr 1.1fr 130px', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
+              {[T.colCandidate, T.colStage, T.colInterviews, T.colFit, T.colSummary, T.colDecision, T.colActions].map(h => (
                 <span key={h} style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
               ))}
             </div>
@@ -706,18 +722,18 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
 
             {sortedActive.map((c, i) => {
               const dec    = decisions[c.id]
-              const score  = avgScore(c.fb)
               const isSel  = selectedCandidate?.id === c.id
+              const sumStatus = SUMMARY_STATUS[c.id] || 'not-started'
 
               return (
                 <div
                   key={c.id}
                   onClick={() => setSelectedCandidate(isSel ? null : c)}
                   style={{
-                    display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1fr 1fr 1.1fr 130px',
+                    display: 'grid', gridTemplateColumns: '2fr 1fr 0.9fr 1.2fr 1fr 1.1fr 130px',
                     alignItems: 'center', padding: '13px 20px',
                     borderBottom: i < sortedActive.length - 1 ? `1px solid ${C.border}` : 'none',
-                    background: isSel ? C.redBg : DEBRIEF_STATUS[c.id] === 'pending' ? '#FFFCF0' : 'white',
+                    background: isSel ? C.redBg : sumStatus === 'pending' ? '#FFFCF0' : 'white',
                     cursor: 'pointer', transition: 'background 0.1s',
                   }}
                 >
@@ -733,21 +749,21 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                   {/* Stage */}
                   <span style={{ fontSize: 11, color: C.text }}>{c.stage === 'Preliminary Call' ? T.preCall : c.stage}</span>
 
-                  {/* Interviews */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: c.interviewsDone >= c.interviewsTotal ? C.suc : C.text }}>
-                      {c.interviewsDone} of {c.interviewsTotal}
+                  {/* Interviews done */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                    <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, color: c.interviewsDone > 0 ? C.text : C.muted, lineHeight: 1 }}>
+                      {c.interviewsDone}
                     </span>
-                    <div style={{ height: 3, background: C.gray, borderRadius: 2, width: 40 }}>
-                      <div style={{ height: '100%', width: `${(c.interviewsDone / c.interviewsTotal) * 100}%`, background: c.interviewsDone >= c.interviewsTotal ? C.suc : C.red, borderRadius: 2 }} />
-                    </div>
+                    <span style={{ fontSize: 10, color: C.muted }}>
+                      {c.interviewsDone === 1 ? 'round' : 'rounds'}
+                    </span>
                   </div>
 
-                  {/* Score */}
-                  <Stars score={score} size={11} noScoreLabel={T.noScoreYet} />
+                  {/* Candidate fit */}
+                  <FitPill rec={CANDIDATE_FIT[c.id]} T={T} />
 
-                  {/* Debrief status */}
-                  <DebriefBadge status={DEBRIEF_STATUS[c.id] || 'not-started'} />
+                  {/* Summary status */}
+                  <SummaryBadge status={sumStatus} />
 
                   {/* Decision */}
                   <DecisionPill dec={dec} T={T} />
@@ -760,7 +776,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                     >
                       {T.briefBtn}
                     </button>
-                    {DEBRIEF_STATUS[c.id] === 'pending' && (
+                    {sumStatus === 'pending' && (
                       <button
                         onClick={() => onNavigate?.('questionnaire', { candidate: c })}
                         style={{ padding: '5px 9px', borderRadius: 7, border: 'none', background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
@@ -768,7 +784,7 @@ export default function HiringManagerDashboard({ lang = 'en', onBack, onNavigate
                         {T.debriefBtn}
                       </button>
                     )}
-                    {!dec && DEBRIEF_STATUS[c.id] !== 'pending' && (
+                    {!dec && sumStatus !== 'pending' && (
                       <>
                         <button onClick={() => decide(c.id, 'advancing')} style={{ padding: '5px 7px', borderRadius: 7, border: 'none', background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Advance">✓</button>
                         <button onClick={() => decide(c.id, 'not-moving-forward')} style={{ padding: '5px 7px', borderRadius: 7, border: 'none', background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 700, cursor: 'pointer' }} title="Not moving forward">✕</button>

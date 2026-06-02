@@ -30,113 +30,121 @@ const TEXT = {
     back:             '← Back',
     recruiterBadge:   'Recruiter',
     hmBadge:          'Hiring Manager',
-    preCallTitle:     'Interview Briefings',
-    decisionTitle:    'Decision Briefs',
-    preCallDesc:      'Candidates who have completed all interviews and are ready for a decision. Use these summaries to get briefed on what happened before making the final call.',
-    decisionDesc:     'Your pre-selected candidates across all positions. Review consolidated feedback and make your decisions here or inside each brief.',
+    preCallTitle:     'Interview Summaries',
+    decisionTitle:    'Decision Summaries',
+    preCallDesc:      'Candidates who have completed all interviews and are ready for a decision. Use these summaries to get up to speed before making the final call.',
+    decisionDesc:     'Your pre-selected candidates across all positions. Review consolidated feedback and make your decisions here or inside each summary.',
     overdue:          'OVERDUE',
     total:            'TOTAL',
     decided:          'DECIDED',
-    debriefPending:   'DEBRIEF PENDING',
+    summaryPending:   'SUMMARY PENDING',
     noMatch:          'No candidates match this filter',
-    openBriefing:     'Open briefing →',
-    openBrief:        'Open brief →',
+    openSummary:      'Open summary →',
     today:            'Today',
     daysAgo:          d => `${d}d ago`,
     all:              'All',
     colCandidate:     'Candidate',
     colPosition:      'Position',
     colLastContact:   'Last contact',
-    colInterviews:    'Interviews',
-    colScore:         'Avg score',
+    colInterviews:    'Interviews performed',
+    colFit:           'Candidate fit',
     colAction:        'Action',
     colStage:         'Stage',
-    colDebrief:       'Debrief',
+    colSummary:       'Summary',
     colDecision:      'Decision',
     advancing:        '✓ Advancing',
     notMoving:        '✕ Not moving fwd',
     undo:             'undo',
-    fillDebrief:      'Fill debrief →',
-    debriefPendingMsg: n => `⏳ ${n} post-interview debrief${n > 1 ? 's' : ''} pending`,
-    debriefUnlock:    'Complete the debrief questionnaire to unlock the full decision brief for these candidates.',
+    fillSummary:      'Fill summary →',
+    summaryPendingMsg: n => `⏳ ${n} interview summar${n > 1 ? 'ies' : 'y'} pending`,
+    summaryUnlock:    'Complete the interview summary to unlock the full decision summary for these candidates.',
+    strongAdvance:    'Strong advance',
+    averageFit:       'Average fit',
+    notAdvancing:     'Not advancing',
   },
   it: {
     back:             '← Indietro',
     recruiterBadge:   'Reclutatore',
     hmBadge:          'Responsabile Assunzioni',
-    preCallTitle:     'Briefing Colloqui',
-    decisionTitle:    'Decisioni',
-    preCallDesc:      'Candidati che hanno completato tutti i colloqui e sono pronti per una decisione. Usa questi riepiloghi per informarti su quanto accaduto prima di prendere la decisione finale.',
-    decisionDesc:     'I tuoi candidati pre-selezionati per tutte le posizioni. Leggi il feedback consolidato e prendi le tue decisioni qui o all\'interno di ogni brief.',
+    preCallTitle:     'Sommari Colloqui',
+    decisionTitle:    'Sommari Decisioni',
+    preCallDesc:      'Candidati che hanno completato tutti i colloqui e sono pronti per una decisione. Usa questi sommari per informarti prima di prendere la decisione finale.',
+    decisionDesc:     'I tuoi candidati pre-selezionati per tutte le posizioni. Leggi il feedback consolidato e prendi le tue decisioni qui o all\'interno di ogni sommario.',
     overdue:          'IN RITARDO',
     total:            'TOTALE',
     decided:          'DECISI',
-    debriefPending:   'DEBRIEF PENDENTE',
+    summaryPending:   'SOMMARIO PENDENTE',
     noMatch:          'Nessun candidato corrisponde al filtro',
-    openBriefing:     'Apri briefing →',
-    openBrief:        'Apri brief →',
+    openSummary:      'Apri sommario →',
     today:            'Oggi',
     daysAgo:          d => `${d}g fa`,
     all:              'Tutti',
     colCandidate:     'Candidato',
     colPosition:      'Posizione',
     colLastContact:   'Ultimo contatto',
-    colInterviews:    'Colloqui',
-    colScore:         'Punteggio medio',
+    colInterviews:    'Colloqui effettuati',
+    colFit:           'Idoneità candidato',
     colAction:        'Azione',
     colStage:         'Fase',
-    colDebrief:       'Debrief',
+    colSummary:       'Sommario',
     colDecision:      'Decisione',
     advancing:        '✓ Avanza',
     notMoving:        '✕ Non prosegue',
     undo:             'annulla',
-    fillDebrief:      'Compila debrief →',
-    debriefPendingMsg: n => `⏳ ${n} debrief post-colloquio${n > 1 ? ' in attesa' : ' in attesa'}`,
-    debriefUnlock:    'Completa il questionario di debrief per sbloccare il brief completo per questi candidati.',
+    fillSummary:      'Compila sommario →',
+    summaryPendingMsg: n => `⏳ ${n} sommario${n > 1 ? 'i' : ''} colloquio in attesa`,
+    summaryUnlock:    'Completa il sommario del colloquio per sbloccare il sommario completo per questi candidati.',
+    strongAdvance:    'Forte avanzamento',
+    averageFit:       'Idoneità media',
+    notAdvancing:     'Non avanza',
   },
 }
 
-// ── Decision Briefings data (recruiter)
+// ── Interview Summaries data (recruiter)
 // Only candidates with ALL interviews complete — Decision or Offer stage
 const PRE_CALL_CANDIDATES = [
   {
-    id: 7,   name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',          pos: 'UX Designer',      stage: 'Decision', lastContact: 14, interviewsDone: 2, interviewsTotal: 2, avgScore: 5.0,
+    id: 7,   name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',          pos: 'UX Designer',      stage: 'Decision', lastContact: 14, interviewsDone: 2,
     note: 'All interviews complete — strong consensus from all interviewers.',
-  },
-  {
-    id: 110, name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',         pos: 'UX Designer',      stage: 'Decision', lastContact: 3,  interviewsDone: 3, interviewsTotal: 3, avgScore: 3.5,
-    note: 'All rounds complete. Design systems gap noted but overall strong.',
-  },
-  {
-    id: 20,  name: 'Sofia Esposito',  ini: 'SE', role: 'Senior PM',               pos: 'Product Manager',  stage: 'Decision', lastContact: 5,  interviewsDone: 2, interviewsTotal: 2, avgScore: 4.0,
-    note: 'All interviews complete. Team consensus was very positive.',
-  },
-  {
-    id: 13,  name: 'Valentina Greco', ini: 'VG', role: 'Senior Brand Strategist', pos: 'Brand Strategist', stage: 'Offer',    lastContact: 1,  interviewsDone: 3, interviewsTotal: 3, avgScore: 5.0,
-    note: 'All done — offer extended. Decision expected this week.',
-  },
-]
-
-// ── Decision briefs data (hiring manager) ─────────────────────────────────────
-const DECISION_CANDIDATES = [
-  {
-    id: 7,  name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',      pos: 'UX Designer',    stage: 'Interviews',       avgScore: 5.0, interviewsDone: 2, interviewsTotal: 2, debriefStatus: 'complete', decision: null,
     rec: 'strongly-advance',
   },
   {
-    id: 2,  name: 'Marco Bianchi',   ini: 'MB', role: 'Senior UX Designer', pos: 'UX Designer',    stage: 'Preliminary Call', avgScore: 5.0, interviewsDone: 1, interviewsTotal: 2, debriefStatus: 'complete', decision: null,
+    id: 110, name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',         pos: 'UX Designer',      stage: 'Decision', lastContact: 3,  interviewsDone: 3,
+    note: 'All rounds complete. Design systems gap noted but overall strong.',
     rec: 'advance',
   },
   {
-    id: 1,  name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',    pos: 'UX Designer',    stage: 'Interviews',       avgScore: 3.5, interviewsDone: 2, interviewsTotal: 3, debriefStatus: 'complete', decision: null,
+    id: 20,  name: 'Sofia Esposito',  ini: 'SE', role: 'Senior PM',               pos: 'Product Manager',  stage: 'Decision', lastContact: 5,  interviewsDone: 2,
+    note: 'All interviews complete. Team consensus was very positive.',
     rec: 'advance',
   },
   {
-    id: 4,  name: 'Luca Ferrari',    ini: 'LF', role: 'Mid UX Designer',    pos: 'UX Designer',    stage: 'Interviews',       avgScore: 3.0, interviewsDone: 1, interviewsTotal: 3, debriefStatus: 'pending',  decision: null,
+    id: 13,  name: 'Valentina Greco', ini: 'VG', role: 'Senior Brand Strategist', pos: 'Brand Strategist', stage: 'Offer',    lastContact: 1,  interviewsDone: 3,
+    note: 'All done — offer extended. Decision expected this week.',
+    rec: 'strongly-advance',
+  },
+]
+
+// ── Decision summaries data (hiring manager) ─────────────────────────────────
+const DECISION_CANDIDATES = [
+  {
+    id: 7,  name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',      pos: 'UX Designer',    stage: 'Interviews',       interviewsDone: 2, summaryStatus: 'complete', decision: null,
+    rec: 'strongly-advance',
+  },
+  {
+    id: 2,  name: 'Marco Bianchi',   ini: 'MB', role: 'Senior UX Designer', pos: 'UX Designer',    stage: 'Preliminary Call', interviewsDone: 1, summaryStatus: 'complete', decision: null,
+    rec: 'advance',
+  },
+  {
+    id: 1,  name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',    pos: 'UX Designer',    stage: 'Interviews',       interviewsDone: 2, summaryStatus: 'complete', decision: null,
+    rec: 'advance',
+  },
+  {
+    id: 4,  name: 'Luca Ferrari',    ini: 'LF', role: 'Mid UX Designer',    pos: 'UX Designer',    stage: 'Interviews',       interviewsDone: 1, summaryStatus: 'pending',  decision: null,
     rec: null,
   },
   {
-    id: 11, name: 'Sofia Esposito',  ini: 'SE', role: 'Senior PM',          pos: 'Product Manager',stage: 'Preliminary Call', avgScore: null,interviewsDone: 0, interviewsTotal: 2, debriefStatus: 'not-started', decision: null,
+    id: 11, name: 'Sofia Esposito',  ini: 'SE', role: 'Senior PM',          pos: 'Product Manager',stage: 'Preliminary Call', interviewsDone: 0, summaryStatus: 'not-started', decision: null,
     rec: null,
   },
 ]
@@ -165,19 +173,28 @@ function UrgencyPill({ days, T }) {
   return <span style={{ background: bg, color, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>{label}</span>
 }
 
-function DebriefPill({ status }) {
-  if (status === 'complete')    return <span style={{ background: C.sucBg,  color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ Debrief done</span>
-  if (status === 'pending')     return <span style={{ background: C.warBg,  color: C.warT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>⏳ Debrief pending</span>
+function SummaryStatusPill({ status }) {
+  if (status === 'complete')    return <span style={{ background: C.sucBg,  color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ Summary done</span>
+  if (status === 'pending')     return <span style={{ background: C.warBg,  color: C.warT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>⏳ Summary pending</span>
   return                               <span style={{ background: C.gray,   color: C.muted,fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>— No interviews yet</span>
 }
 
-function ScorePill({ score }) {
-  if (score === null) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
-  const color = score >= 4 ? C.suc : score >= 3 ? C.war : C.red
-  const bg    = score >= 4 ? C.sucBg : score >= 3 ? C.warBg : '#FEE2E2'
+// Candidate fit pill derived from rec field
+function FitPill({ rec, T }) {
+  if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
+  if (rec === 'strongly-advance') return (
+    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+      ★ {T.strongAdvance}
+    </span>
+  )
+  if (rec === 'advance') return (
+    <span style={{ background: C.warBg, color: C.warT, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+      ◎ {T.averageFit}
+    </span>
+  )
   return (
-    <span style={{ background: bg, color, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20 }}>
-      {'★'.repeat(Math.round(score))} {score}
+    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+      ✕ {T.notAdvancing}
     </span>
   )
 }
@@ -193,12 +210,12 @@ function StagePill({ stage }) {
   return <span style={{ background: s.bg, color: s.color, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>{stage === 'Preliminary Call' ? 'Pre-Call' : stage}</span>
 }
 
-// ── Pre-call row (Decision Briefings — post-interview only) ───────────────────
+// ── Pre-call row (Interview Summaries — post-interview only) ──────────────────
 function PreCallRow({ c, onOpen, T }) {
   const isUrgent = c.lastContact >= 7
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '2.2fr 1.2fr 1.2fr 1fr 1fr 130px',
+      display: 'grid', gridTemplateColumns: '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px',
       alignItems: 'center', padding: '14px 22px',
       background: isUrgent ? '#FFF8F8' : C.white,
       borderBottom: `1px solid ${C.border}`,
@@ -216,23 +233,16 @@ function PreCallRow({ c, onOpen, T }) {
       <span style={{ fontSize: 11, color: C.muted }}>{c.pos}</span>
       {/* Last contact */}
       <UrgencyPill days={c.lastContact} T={T} />
-      {/* Interviews progress */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: C.suc }}>
-          {c.interviewsDone}/{c.interviewsTotal}
-        </span>
-        <div style={{ height: 4, width: 36, background: C.gray, borderRadius: 2 }}>
-          <div style={{ height: '100%', width: '100%', background: C.suc, borderRadius: 2 }} />
-        </div>
-      </div>
-      {/* Avg score */}
-      <ScorePill score={c.avgScore} />
+      {/* Interviews count */}
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone}</span>
+      {/* Candidate fit */}
+      <FitPill rec={c.rec} T={T} />
       {/* Action */}
       <button
         onClick={() => onOpen(c)}
         style={{ padding: '7px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
       >
-        {T.openBriefing}
+        {T.openSummary}
       </button>
     </div>
   )
@@ -249,9 +259,9 @@ function DecisionRow({ c, decision, onOpen, onDecide, T }) {
 
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.1fr 1.2fr 130px',
+      display: 'grid', gridTemplateColumns: '2fr 1fr 0.8fr 1.1fr 1.2fr 130px',
       alignItems: 'center', padding: '14px 22px',
-      background: c.debriefStatus === 'pending' ? C.warBg + '44' : C.white,
+      background: c.summaryStatus === 'pending' ? C.warBg + '44' : C.white,
       borderBottom: `1px solid ${C.border}`,
     }}>
       {/* Candidate */}
@@ -264,10 +274,10 @@ function DecisionRow({ c, decision, onOpen, onDecide, T }) {
       </div>
       {/* Stage */}
       <StagePill stage={c.stage} />
-      {/* Score */}
-      <ScorePill score={c.avgScore} />
-      {/* Debrief status */}
-      <DebriefPill status={c.debriefStatus} />
+      {/* Interviews count */}
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.interviewsDone || '—'}</span>
+      {/* Summary status */}
+      <SummaryStatusPill status={c.summaryStatus} />
       {/* Decision */}
       {localDec ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -291,7 +301,7 @@ function DecisionRow({ c, decision, onOpen, onDecide, T }) {
         onClick={() => onOpen(c)}
         style={{ padding: '7px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
       >
-        {T.openBrief}
+        {T.openSummary}
       </button>
     </div>
   )
@@ -316,9 +326,9 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
     ? candidates
     : candidates.filter(c => c.pos === effectiveFilter)
 
-  const urgentCount  = isPreCall ? candidates.filter(c => c.lastContact >= 7).length : 0
-  const pendingCount = !isPreCall ? candidates.filter(c => c.debriefStatus === 'pending').length : 0
-  const decidedCount = !isPreCall ? Object.keys(decisions).length : 0
+  const urgentCount   = isPreCall ? candidates.filter(c => c.lastContact >= 7).length : 0
+  const pendingCount  = !isPreCall ? candidates.filter(c => c.summaryStatus === 'pending').length : 0
+  const decidedCount  = !isPreCall ? Object.keys(decisions).length : 0
 
   const handleOpen = (c) => {
     const dest = isPreCall ? 'recruiter-summary' : 'hiring-summary'
@@ -329,10 +339,10 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
     setDecisions(d => dec ? { ...d, [id]: dec } : (() => { const n = { ...d }; delete n[id]; return n })())
   }
 
-  const preCallHeaders = [T.colCandidate, T.colPosition, T.colLastContact, T.colInterviews, T.colScore, T.colAction]
-  const decHeaders     = [T.colCandidate, T.colStage, T.colScore, T.colDebrief, T.colDecision, T.colAction]
+  const preCallHeaders = [T.colCandidate, T.colPosition, T.colLastContact, T.colInterviews, T.colFit, T.colAction]
+  const decHeaders     = [T.colCandidate, T.colStage, T.colInterviews, T.colSummary, T.colDecision, T.colAction]
   const headers        = isPreCall ? preCallHeaders : decHeaders
-  const cols           = isPreCall ? '2.2fr 1.2fr 1.2fr 1fr 1fr 130px' : '2fr 1fr 1fr 1.1fr 1.2fr 130px'
+  const cols           = isPreCall ? '2.2fr 1.2fr 1.2fr 0.8fr 1.2fr 130px' : '2fr 1fr 0.8fr 1.1fr 1.2fr 130px'
 
   return (
     <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
@@ -368,7 +378,7 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
             {!isPreCall && pendingCount > 0 && (
               <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: '1px solid #FDE68A' }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: C.war, fontFamily: 'DM Serif Display, serif' }}>{pendingCount}</div>
-                <div style={{ fontSize: 10, color: C.war, fontWeight: 600 }}>{T.debriefPending}</div>
+                <div style={{ fontSize: 10, color: C.war, fontWeight: 600 }}>{T.summaryPending}</div>
               </div>
             )}
             <div style={{ background: C.white, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: `1px solid ${C.border}` }}>
@@ -420,18 +430,18 @@ export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, on
           )}
         </div>
 
-        {/* Debrief reminder (decision mode) */}
+        {/* Summary reminder (decision mode) */}
         {!isPreCall && pendingCount > 0 && (
           <div style={{ marginTop: 16, padding: '13px 18px', background: C.warBg, borderRadius: 11, border: '1px solid #FDE68A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.warT }}>{T.debriefPendingMsg(pendingCount)}</div>
-              <div style={{ fontSize: 11, color: C.war, marginTop: 2 }}>{T.debriefUnlock}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.warT }}>{T.summaryPendingMsg(pendingCount)}</div>
+              <div style={{ fontSize: 11, color: C.war, marginTop: 2 }}>{T.summaryUnlock}</div>
             </div>
             <button
               onClick={() => onNavigate?.('questionnaire')}
               style={{ padding: '8px 16px', borderRadius: 9, background: C.war, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, marginLeft: 16 }}
             >
-              {T.fillDebrief}
+              {T.fillSummary}
             </button>
           </div>
         )}

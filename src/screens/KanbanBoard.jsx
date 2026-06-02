@@ -145,7 +145,7 @@ function ConfirmMove({ move, candidates, th, stageT, T, onConfirm, onCancel }) {
 }
 
 // ── Candidate capsule ─────────────────────────────────────────────────────────
-function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, isDragging, onDragStart, onDragEnd }) {
+function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject, isDragging, onDragStart, onDragEnd }) {
   const [hov, setHov] = useState(false)
   const { opacity, sat, isStale } = staleness(stage, candidate.daysAgo)
   const st        = stageT[stage]
@@ -230,6 +230,16 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, isDraggin
             </svg>
           </button>
 
+          <button
+            onClick={e => { e.stopPropagation(); onReject(candidate) }}
+            title="Reject candidate"
+            style={{ height:24, padding:'0 8px', borderRadius:20, border:'1px solid rgba(233,1,48,0.25)', background:'rgba(233,1,48,0.07)', cursor:'pointer', color:'#E90130', fontSize:9, fontWeight:700, fontFamily:'inherit', transition:'all 0.15s', letterSpacing:'0.02em' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(233,1,48,0.14)'; e.currentTarget.style.borderColor='#E90130' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(233,1,48,0.07)'; e.currentTarget.style.borderColor='rgba(233,1,48,0.25)' }}
+          >
+            ✕ Reject
+          </button>
+
           {nextStage && nextSt && (
             <button
               onClick={e => { e.stopPropagation(); onMove(candidate.id, stage, nextStage) }}
@@ -246,7 +256,7 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, isDraggin
 }
 
 // ── Kanban column ─────────────────────────────────────────────────────────────
-function Column({ stage, candidates, th, stageT, T, onMove, onContact, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
+function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
   const st           = stageT[stage]
   const isDropTarget = dragOver === stage
   const label        = stageLabel(stage, T)
@@ -300,6 +310,7 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, dragOver,
             T={T}
             onMove={onMove}
             onContact={onContact}
+            onReject={onReject}
             isDragging={draggingId === c.id}
             onDragStart={() => onCapsuleDragStart(c.id)}
             onDragEnd={onCapsuleDragEnd}
@@ -483,7 +494,15 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
           </div>
         </div>
 
-        <div style={{ display:'flex', gap:7, flexWrap:'wrap', justifyContent:'flex-end' }}>
+        <div style={{ display:'flex', gap:7, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }}>
+          <button
+            onClick={() => onNavigate?.('import', { position: pos })}
+            style={{ fontSize:10, fontWeight:700, color:'#1B2461', background:'rgba(27,36,97,0.07)', border:'1px solid rgba(27,36,97,0.18)', borderRadius:20, padding:'4px 13px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(27,36,97,0.13)' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(27,36,97,0.07)' }}
+          >
+            + Add candidates
+          </button>
           <span style={{ fontSize:10, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, padding:'3px 10px', borderRadius:20 }}>
             {T.totalLabel(total)}
           </span>
@@ -512,6 +531,7 @@ export default function KanbanBoard({ position, theme, themeMode, lang, onBack, 
             T={T}
             onMove={requestMove}
             onContact={c => onNavigate?.('craft', { candidate:c })}
+            onReject={c => onNavigate?.('craft', { candidate:c, template:'rejection' })}
             dragOver={dragOverCol}
             onDragOver={setDragOverCol}
             onDrop={handleDrop}

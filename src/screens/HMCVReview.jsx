@@ -33,7 +33,8 @@ const SCREEN_T = {
     hardSkillsNote:   'Tick each skill as you confirm it from the document.',
     allVerified:      'All verified ✓',
     portfolio:        'Portfolio',
-    viewPortfolio:    'Open portfolio →',
+    viewPortfolio:    'View portfolio',
+    backToCV:         '← CV',
     noPortfolio:      'No portfolio submitted',
     yourNotes:        'Your notes',
     notesPrivate:     'Private — visible only to you.',
@@ -56,8 +57,6 @@ const SCREEN_T = {
     daysAgo:          (n) => n === 0 ? 'today' : n === 1 ? '1d ago' : `${n}d ago`,
     identifyAs:       'Identify as:',
     reset:            'Reset',
-    markPortfolio:    'Mark as Portfolio',
-    markCV:           'Mark as CV',
   },
   it: {
     badge:            'Revisione CV',
@@ -73,7 +72,8 @@ const SCREEN_T = {
     hardSkillsNote:   'Seleziona ogni competenza mentre la confermi dal documento.',
     allVerified:      'Tutte verificate ✓',
     portfolio:        'Portfolio',
-    viewPortfolio:    'Apri portfolio →',
+    viewPortfolio:    'Vedi portfolio',
+    backToCV:         '← CV',
     noPortfolio:      'Nessun portfolio allegato',
     yourNotes:        'Le tue note',
     notesPrivate:     'Privato — visibile solo a te.',
@@ -96,8 +96,6 @@ const SCREEN_T = {
     daysAgo:          (n) => n === 0 ? 'oggi' : n === 1 ? '1g fa' : `${n}g fa`,
     identifyAs:       'Identifica come:',
     reset:            'Ripristina',
-    markPortfolio:    'Segna come Portfolio',
-    markCV:           'Segna come CV',
   },
 }
 
@@ -304,8 +302,7 @@ function CVDocumentMockup({ cv }) {
           <span style={{ fontSize: 9, color: '#888' }}>2022 – Present</span>
         </div>
         <div style={{ fontSize: 9, color: '#888', marginBottom: 7 }}>TechCorp · {cv.loc}</div>
-        {cv.snippet && <div style={{ fontSize: 10, color: '#444', lineHeight: 1.7, marginBottom: 8 }}>{cv.snippet}</div>}
-        <Line w="91%" /><Line w="84%" /><Line w="78%" />
+        <Line w="91%" /><Line w="84%" /><Line w="78%" /><Line w="88%" />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
@@ -375,35 +372,59 @@ function PortfolioMockup({ cv }) {
 // ── Center: Document viewer ───────────────────────────────────────────────────
 function DocumentViewer({ cv, docType, onOverrideType, T }) {
   const [zoom, setZoom] = useState(1)
+  // Default to portfolio view only if the uploaded file IS a portfolio PDF
+  const [viewMode, setViewMode] = useState(docType === 'portfolio' ? 'portfolio' : 'cv')
+
+  const hasPDFPortfolio = docType === 'portfolio'
+  const hasURLPortfolio = !hasPDFPortfolio && !!cv.portfolio
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F0EDE9' }}>
       {/* Toolbar */}
       <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <DocTypeBadge type={docType} />
+          <DocTypeBadge type={viewMode === 'portfolio' ? 'portfolio' : docType === 'unknown' ? 'unknown' : 'cv'} />
           <span style={{ fontSize: 11, color: C.muted }}>{cv.file}</span>
           <span style={{ fontSize: 10, color: C.muted }}>· {cv.pages} page{cv.pages !== 1 ? 's' : ''}</span>
         </div>
-        {docType === 'unknown' ? (
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: C.muted }}>{T.identifyAs}</span>
-            <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
-            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
-          </div>
-        ) : (
-          <button onClick={() => onOverrideType(docType === 'cv' ? 'portfolio' : 'cv')}
-            style={{ fontSize: 10, color: C.muted, background: 'none', border: `1px solid ${C.border}`, borderRadius: 7, padding: '3px 9px', cursor: 'pointer', fontFamily: 'inherit' }}>
-            {docType === 'cv' ? T.markPortfolio : T.markCV}
-          </button>
-        )}
+
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {/* Unknown type: identify buttons */}
+          {docType === 'unknown' && (
+            <>
+              <span style={{ fontSize: 11, color: C.muted }}>{T.identifyAs}</span>
+              <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
+              <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
+            </>
+          )}
+          {/* Portfolio PDF: toggle between CV view and portfolio view */}
+          {hasPDFPortfolio && viewMode === 'portfolio' && (
+            <button onClick={() => setViewMode('cv')} style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              📄 {T.backToCV}
+            </button>
+          )}
+          {hasPDFPortfolio && viewMode === 'cv' && (
+            <button onClick={() => setViewMode('portfolio')} style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              🎨 {T.viewPortfolio}
+            </button>
+          )}
+          {/* Portfolio URL: open as link */}
+          {hasURLPortfolio && (
+            <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer"
+              style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
+            >
+              🎨 {cv.portfolio} ↗
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Document scroll area */}
       <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
         <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-          {docType === 'cv'        && <CVDocumentMockup cv={cv} />}
-          {docType === 'portfolio' && <PortfolioMockup  cv={cv} />}
-          {docType === 'unknown'   && (
+          {docType !== 'unknown' && viewMode === 'cv'        && <CVDocumentMockup cv={cv} />}
+          {docType !== 'unknown' && viewMode === 'portfolio' && <PortfolioMockup  cv={cv} />}
+          {docType === 'unknown' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 16, textAlign: 'center' }}>
               <div style={{ fontSize: 48 }}>📎</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{cv.file}</div>
@@ -838,6 +859,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
         ) : (
           <>
             <DocumentViewer
+              key={selected?.id}
               cv={selected}
               docType={effectiveDocType(selected)}
               onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [selected.id]: t }))}

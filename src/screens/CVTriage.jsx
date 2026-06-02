@@ -51,10 +51,10 @@ const SCREEN_T = {
     movingToScreen: '✓ Moving to screening',
     notMovingDec:   '✕ Not moving forward',
     // Doc viewer
-    markPortfolio:  'Mark as Portfolio',
-    markCV:         'Mark as CV',
     identifyAs:     'Identify as:',
     reset:          'Reset',
+    viewPortfolio:  'View portfolio',
+    backToCV:       '← CV',
     // Completion
     allReviewed:    'All CVs reviewed',
     backToPositions:'← Back to positions',
@@ -98,10 +98,10 @@ const SCREEN_T = {
     movingToScreen: '✓ Passa alla selezione',
     notMovingDec:   '✕ Non avanza',
     // Doc viewer
-    markPortfolio:  'Segna come Portfolio',
-    markCV:         'Segna come CV',
     identifyAs:     'Identifica come:',
     reset:          'Ripristina',
+    viewPortfolio:  'Vedi portfolio',
+    backToCV:       '← CV',
     // Completion
     allReviewed:    'Tutti i CV rivisti',
     backToPositions:'← Torna alle posizioni',
@@ -429,32 +429,51 @@ function UnknownDocMockup({ cv }) {
 // ── Left panel: document viewer ───────────────────────────────────────────────
 function DocumentViewer({ cv, docType, onOverrideType, T }) {
   const [zoom, setZoom] = useState(1)
+  // Default to portfolio view if the uploaded file IS a portfolio PDF
+  const [viewMode, setViewMode] = useState(docType === 'portfolio' ? 'portfolio' : 'cv')
+
+  const hasPDFPortfolio = docType === 'portfolio'
+  const hasURLPortfolio = !hasPDFPortfolio && !!cv.portfolio
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F0EDE9' }}>
       {/* Toolbar */}
       <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <DocTypeBadge type={docType} />
+          <DocTypeBadge type={viewMode === 'portfolio' ? 'portfolio' : docType === 'unknown' ? 'unknown' : 'cv'} />
           <span style={{ fontSize: 11, color: C.muted }}>{cv.file}</span>
           <span style={{ fontSize: 10, color: C.muted }}>· {cv.pages} page{cv.pages !== 1 ? 's' : ''}</span>
         </div>
 
-        {/* Manual type override */}
-        {docType === 'unknown' && (
-          <div style={{ display: 'flex', gap: 6 }}>
-            <span style={{ fontSize: 11, color: C.muted, marginRight: 4 }}>{T.identifyAs}</span>
-            <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,    background: C.infBg,    color: C.infT,    fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
-            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: '1px solid #DDD8F9',        background: '#EDE7F6', color: '#6D28D9', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
-          </div>
-        )}
-        {docType !== 'unknown' && (
-          <button onClick={() => onOverrideType(docType === 'cv' ? 'portfolio' : 'cv')}
-            style={{ fontSize: 10, color: C.muted, background: 'none', border: `1px solid ${C.border}`, borderRadius: 7, padding: '3px 9px', cursor: 'pointer', fontFamily: 'inherit' }}
-          >
-            {docType === 'cv' ? T.markPortfolio : T.markCV}
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {/* Unknown type: identify buttons */}
+          {docType === 'unknown' && (
+            <>
+              <span style={{ fontSize: 11, color: C.muted, marginRight: 4 }}>{T.identifyAs}</span>
+              <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,  background: C.infBg,  color: C.infT,    fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
+              <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: '1px solid #DDD8F9',      background: '#EDE7F6', color: '#6D28D9', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
+            </>
+          )}
+          {/* Portfolio PDF: toggle between CV view and portfolio view */}
+          {hasPDFPortfolio && viewMode === 'portfolio' && (
+            <button onClick={() => setViewMode('cv')} style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              📄 {T.backToCV}
+            </button>
+          )}
+          {hasPDFPortfolio && viewMode === 'cv' && (
+            <button onClick={() => setViewMode('portfolio')} style={{ padding: '4px 12px', borderRadius: 7, border: '1px solid #DDD8F9', background: '#EDE7F6', color: '#6D28D9', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              🎨 {T.viewPortfolio}
+            </button>
+          )}
+          {/* Portfolio URL: open as link */}
+          {hasURLPortfolio && (
+            <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer"
+              style={{ padding: '4px 12px', borderRadius: 7, border: '1px solid #DDD8F9', background: '#EDE7F6', color: '#6D28D9', fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
+            >
+              🎨 {cv.portfolio} ↗
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Document scroll area */}
@@ -468,9 +487,9 @@ function DocumentViewer({ cv, docType, onOverrideType, T }) {
           borderRadius: 2,
           boxSizing: 'border-box',
         }}>
-          {docType === 'cv'        && <CVDocumentMockup cv={cv} />}
-          {docType === 'portfolio' && <PortfolioMockup  cv={cv} />}
-          {docType === 'unknown'   && <UnknownDocMockup cv={cv} />}
+          {docType !== 'unknown' && viewMode === 'cv'        && <CVDocumentMockup cv={cv} />}
+          {docType !== 'unknown' && viewMode === 'portfolio' && <PortfolioMockup  cv={cv} />}
+          {docType === 'unknown'                             && <UnknownDocMockup cv={cv} />}
         </div>
       </div>
 
@@ -531,16 +550,6 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
                   {s}
                 </span>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Experience snippet */}
-        {cv.snippet && (
-          <div style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 9 }}>{T.experience}</p>
-            <div style={{ padding: '11px 13px', background: C.gray, borderRadius: 9, borderLeft: `3px solid ${C.redL}` }}>
-              <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: 0 }}>{cv.snippet}</p>
             </div>
           </div>
         )}
@@ -1029,6 +1038,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
         {cv && decided < total && (
           <>
             <DocumentViewer
+              key={cv?.id}
               cv={cv}
               docType={effectiveDocType(cv)}
               onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}

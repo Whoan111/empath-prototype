@@ -23,14 +23,16 @@ const SCREEN_T = {
     openProfile:     'Open profile',
     copied:          'Copied!',
     empath:          '✦ Empath summary',
-    avgScore:        'AVG SCORE',
     recommend:       'RECOMMEND',
     feedback:        'Interview feedback',
     rounds:          (n) => `${n} round${n !== 1 ? 's' : ''}`,
     advance:         '✓ Advance',
     pass:            '✕ Pass',
     craftMessage:    (name) => `✉ Craft message for ${name}`,
-    fullBrief:       '📊 Full decision brief →',
+    fullBrief:       '📊 Full decision summary →',
+    strongAdvance:   'Strong advance',
+    averageFit:      'Average fit',
+    notAdvancing:    'Not advancing',
   },
   it: {
     back:            '← Riepilogo interviste',
@@ -42,14 +44,16 @@ const SCREEN_T = {
     openProfile:     'Apri profilo',
     copied:          'Copiato!',
     empath:          '✦ Riepilogo Empath',
-    avgScore:        'MEDIA',
     recommend:       'RACCOMANDA',
     feedback:        'Feedback interviste',
     rounds:          (n) => `${n} round${n !== 1 ? 's' : ''}`,
     advance:         '✓ Avanza',
     pass:            '✕ Non avanza',
     craftMessage:    (name) => `✉ Scrivi messaggio per ${name}`,
-    fullBrief:       '📊 Brief decisionale →',
+    fullBrief:       '📊 Sommario decisionale →',
+    strongAdvance:   'Forte avanzamento',
+    averageFit:      'Idoneità media',
+    notAdvancing:    'Non avanza',
   },
 }
 
@@ -78,14 +82,14 @@ const MOCK_INTERVIEWS = [
   {
     id: 1, round: 1, type: 'Portfolio Review',
     interviewer: 'Marco T.', interviewerRole: 'Hiring Manager',
-    date: '14 May 2026', score: 4,
+    date: '14 May 2026', fit: 'strongly-advance',
     summary: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps. Would be comfortable having her on the team.',
     recommendation: 'advance',
   },
   {
     id: 2, round: 2, type: 'Technical Deep-Dive',
     interviewer: 'Elena C.', interviewerRole: 'Tech Lead',
-    date: '17 May 2026', score: 3,
+    date: '17 May 2026', fit: 'advance',
     summary: 'Enthusiastic and highly collaborative. Cultural fit is strong. Complex problem-solving under pressure could be sharpened — but the growth mindset is clearly there.',
     recommendation: 'advance',
   },
@@ -107,14 +111,10 @@ function Av({ id, ini, size = 40 }) {
   )
 }
 
-function Stars({ score, max = 5, size = 13 }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 2 }}>
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} style={{ fontSize: size, color: i < score ? C.red : C.border, lineHeight: 1 }}>★</span>
-      ))}
-    </span>
-  )
+function FitPill({ fit, T }) {
+  if (fit === 'strongly-advance') return <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ {T.strongAdvance}</span>
+  if (fit === 'advance') return <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ {T.averageFit}</span>
+  return <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ {T.notAdvancing}</span>
 }
 
 // ── Condensed interview card ───────────────────────────────────────────────────
@@ -139,10 +139,7 @@ function InterviewCard({ interview, expanded, onToggle, T }) {
           <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{interview.type} · {interview.date}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <Stars score={interview.score} size={12} />
-          <span style={{ background: interview.recommendation === 'advance' ? C.sucBg : '#FEE2E2', color: interview.recommendation === 'advance' ? C.sucT : C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>
-            {interview.recommendation === 'advance' ? T.advance : T.pass}
-          </span>
+          <FitPill fit={interview.fit} T={T} />
           <span style={{ color: C.muted, fontSize: 12, transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▾</span>
         </div>
       </button>
@@ -166,7 +163,7 @@ export default function RecruiterSummary({ lang = 'en', candidate = MOCK_CANDIDA
 
   const interviews = MOCK_INTERVIEWS
   const advCount   = interviews.filter(i => i.recommendation === 'advance').length
-  const avgScore   = (interviews.reduce((s, i) => s + i.score, 0) / interviews.length).toFixed(1)
+  const strongCount = interviews.filter(i => i.fit === 'strongly-advance').length
 
   const copyEmail = () => {
     navigator.clipboard?.writeText(candidate.email).catch(() => {})
@@ -254,10 +251,6 @@ export default function RecruiterSummary({ lang = 'en', candidate = MOCK_CANDIDA
             </p>
           </div>
           <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
-            <div style={{ textAlign: 'center', background: C.redBg, borderRadius: 9, padding: '10px 14px', border: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{avgScore}</div>
-              <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 3 }}>{T.avgScore}</div>
-            </div>
             <div style={{ textAlign: 'center', background: C.sucBg, borderRadius: 9, padding: '10px 14px', border: '1px solid #BBF7D0' }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
               <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>{T.recommend}</div>

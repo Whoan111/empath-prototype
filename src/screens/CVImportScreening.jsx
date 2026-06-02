@@ -206,9 +206,9 @@ function ManagerChip({ mgr, selected, onClick }) {
 }
 
 // ── STEP 1 — Import ───────────────────────────────────────────────────────────
-function ImportStep({ onNavigate, onBack, T }) {
-  const [posId,    setPosId]    = useState(null)
-  const [mgrId,    setMgrId]    = useState(null)
+function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId = null }) {
+  const [posId,    setPosId]    = useState(initialPosId)
+  const [mgrId,    setMgrId]    = useState(initialMgrId)
   const [dragging, setDragging] = useState(false)
   const [files,    setFiles]    = useState([])
 
@@ -883,11 +883,21 @@ function DoneStep({ decisions, config, onGoToDashboard }) {
 // Props:
 //   onBack()            — navigate back to the recruiter dashboard
 //   onNavigate(screen, data?) — navigate to another screen
-export default function CVImportScreening({ lang = 'en', onBack, onNavigate }) {
+export default function CVImportScreening({ lang = 'en', initialPosition = null, onBack, onNavigate }) {
   const T = SCREEN_T[lang] || SCREEN_T.en
+  // Pre-derive manager id that matches the incoming position's dept (if any)
+  const initialMgrId = initialPosition
+    ? (MANAGERS.find(m => m.dept === initialPosition.dept)?.id ?? null)
+    : null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <ImportStep onBack={onBack} onNavigate={onNavigate} T={T} />
+      <ImportStep
+        onBack={onBack}
+        onNavigate={onNavigate}
+        T={T}
+        initialPosId={initialPosition?.id ?? null}
+        initialMgrId={initialMgrId}
+      />
     </div>
   )
 }

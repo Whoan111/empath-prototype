@@ -22,86 +22,84 @@ const SCREEN_T = {
   en: {
     back:             '← Back to dashboard',
     badge:            'Hiring Manager',
-    title:            'Post-interview debriefs',
-    subtitle:         "Fill a debrief right after each interview while the conversation is fresh. Completed debriefs feed into the decision brief and the candidate update.",
+    title:            'Interview Summaries',
+    subtitle:         "Fill a summary right after each interview while the conversation is fresh. Completed summaries feed into the decision summary and the candidate update.",
     pendingLabel:     'PENDING',
     completedLabel:   'COMPLETED',
     filterAll:        'All',
     filterPending:    '⏳ Pending',
     filterCompleted:  '✓ Completed',
-    pendingTitle:     'Pending debriefs',
-    completedTitle:   'Completed debriefs',
+    pendingTitle:     'Pending summaries',
+    completedTitle:   'Completed summaries',
     colCandidate:     'Candidate',
     colInterview:     'Interview',
     colRound:         'Round',
     colStatus:        'Status',
     colAction:        'Action',
     colSubmittedBy:   'Submitted by',
-    colScore:         'Score',
+    colFit:           'Candidate fit',
     colRecommend:     'Recommendation',
     colActions:       'Actions',
     pendingPill:      '⏳ Pending',
-    fillDebrief:      'Fill debrief →',
+    fillDebrief:      'Fill summary →',
     hide:             'Hide',
     preview:          'Preview',
-    fullBrief:        'Full brief →',
-    allUpToDate:      'All debriefs are up to date — nothing pending.',
-    noCompleted:      'No completed debriefs yet.',
+    fullBrief:        'Full summary →',
+    allUpToDate:      'All summaries are up to date — nothing pending.',
+    noCompleted:      'No completed summaries yet.',
     submittedBy:      'Submitted by',
     tip:              'Best practice:',
-    tipText:          "fill the debrief within a few hours of the interview — observations are sharpest right after the conversation. Completed debriefs appear in the consolidated decision brief for all interviewers.",
+    tipText:          "fill the summary within a few hours of the interview — observations are sharpest right after the conversation. Completed summaries appear in the consolidated decision summary for all interviewers.",
     roundLabel:       (n) => `Round ${n} summary`,
     submittedOn:      'Submitted',
-    scoreOf:          '/5',
-    recommendation:   'Recommendation:',
+    recommendation:   'Fit:',
     roundOf:          (n) => `Round ${n}`,
     recLabels: {
-      'strongly-advance': 'Strongly advance',
-      'advance': 'Advance',
-      'reservations': 'With reservations',
-      'not-moving': 'Not moving forward',
+      'strongly-advance': 'Strong advance',
+      'advance': 'Average fit',
+      'reservations': 'Fit with reservations',
+      'not-moving': 'Not advancing',
     },
   },
   it: {
     back:             '← Torna alla bacheca',
     badge:            'Responsabile Assunzioni',
-    title:            'Debrief post-intervista',
-    subtitle:         "Compila il debrief subito dopo ogni intervista, mentre la conversazione è fresca. I debrief completati confluiscono nel brief decisionale.",
+    title:            'Sommari Colloqui',
+    subtitle:         "Compila il sommario subito dopo ogni colloquio, mentre la conversazione è fresca. I sommari completati confluiscono nel sommario decisionale.",
     pendingLabel:     'IN ATTESA',
     completedLabel:   'COMPLETATI',
     filterAll:        'Tutti',
     filterPending:    '⏳ In attesa',
     filterCompleted:  '✓ Completati',
-    pendingTitle:     'Debrief in attesa',
-    completedTitle:   'Debrief completati',
+    pendingTitle:     'Sommari in attesa',
+    completedTitle:   'Sommari completati',
     colCandidate:     'Candidato',
     colInterview:     'Intervista',
     colRound:         'Round',
     colStatus:        'Stato',
     colAction:        'Azione',
     colSubmittedBy:   'Inviato da',
-    colScore:         'Punteggio',
+    colFit:           'Idoneità candidato',
     colRecommend:     'Raccomandazione',
     colActions:       'Azioni',
     pendingPill:      '⏳ In attesa',
-    fillDebrief:      'Compila debrief →',
+    fillDebrief:      'Compila sommario →',
     hide:             'Nascondi',
     preview:          'Anteprima',
-    fullBrief:        'Brief completo →',
-    allUpToDate:      'Tutti i debrief sono aggiornati — nessuno in attesa.',
-    noCompleted:      'Nessun debrief completato ancora.',
+    fullBrief:        'Sommario completo →',
+    allUpToDate:      'Tutti i sommari sono aggiornati — nessuno in attesa.',
+    noCompleted:      'Nessun sommario completato ancora.',
     submittedBy:      'Inviato da',
     tip:              'Best practice:',
-    tipText:          "compila il debrief entro poche ore dall'intervista — le osservazioni sono più nitide subito dopo. I debrief completati appaiono nel brief decisionale consolidato.",
-    roundLabel:       (n) => `Riepilogo round ${n}`,
+    tipText:          "compila il sommario entro poche ore dal colloquio — le osservazioni sono più nitide subito dopo. I sommari completati appaiono nel sommario decisionale consolidato.",
+    roundLabel:       (n) => `Sommario round ${n}`,
     submittedOn:      'Inviato il',
-    scoreOf:          '/5',
-    recommendation:   'Raccomandazione:',
+    recommendation:   'Idoneità:',
     roundOf:          (n) => `Round ${n}`,
     recLabels: {
-      'strongly-advance': 'Fortemente raccomandato',
-      'advance': 'Raccomandato',
-      'reservations': 'Con riserve',
+      'strongly-advance': 'Forte avanzamento',
+      'advance': 'Idoneità media',
+      'reservations': 'Idoneo con riserve',
       'not-moving': 'Non avanza',
     },
   },
@@ -137,31 +135,31 @@ const COMPLETED = [
     id: 1,  name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',     pos: 'UX Designer',
     completedDate: '14 May 2026', round: 1, interviewType: 'Portfolio Review',
     submittedBy: 'Marco T.', submitterRole: 'Hiring Manager',
-    recommendation: 'advance', avgScore: 4.0,
+    recommendation: 'advance',
   },
   {
     id: 1,  name: 'Giulia Rossi',    ini: 'GR', role: 'Mid UX Designer',     pos: 'UX Designer',
     completedDate: '17 May 2026', round: 2, interviewType: 'Technical Deep-Dive',
     submittedBy: 'Elena C.', submitterRole: 'Tech Lead',
-    recommendation: 'advance', avgScore: 3.5,
+    recommendation: 'advance',
   },
   {
     id: 2,  name: 'Marco Bianchi',   ini: 'MB', role: 'Senior UX Designer',  pos: 'UX Designer',
     completedDate: '14 May 2026', round: 1, interviewType: 'Portfolio Review',
     submittedBy: 'Marco T.', submitterRole: 'Hiring Manager',
-    recommendation: 'strongly-advance', avgScore: 5.0,
+    recommendation: 'strongly-advance',
   },
   {
     id: 7,  name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',       pos: 'UX Designer',
     completedDate: '6 May 2026',  round: 1, interviewType: 'Research Deep-Dive',
     submittedBy: 'Marco T.', submitterRole: 'Hiring Manager',
-    recommendation: 'strongly-advance', avgScore: 5.0,
+    recommendation: 'strongly-advance',
   },
   {
     id: 7,  name: 'Chiara Lombardi', ini: 'CL', role: 'UX Researcher',       pos: 'UX Designer',
     completedDate: '10 May 2026', round: 2, interviewType: 'Values & Team Fit',
     submittedBy: 'Andrea P.', submitterRole: 'Design Director',
-    recommendation: 'strongly-advance', avgScore: 5.0,
+    recommendation: 'strongly-advance',
   },
 ]
 
@@ -253,12 +251,6 @@ function CompletedRow({ item, onView, T }) {
           <div style={{ fontSize: 9, color: C.muted }}>{item.submitterRole} · {item.completedDate}</div>
         </div>
 
-        {/* Score */}
-        <div style={{ textAlign: 'center', background: C.redBg, borderRadius: 8, padding: '6px 10px', flexShrink: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{item.avgScore.toFixed(1)}</div>
-          <div style={{ fontSize: 8, color: C.muted, fontWeight: 600 }}>SCORE</div>
-        </div>
-
         <RecBadge rec={item.recommendation} T={T} />
 
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -283,7 +275,7 @@ function CompletedRow({ item, onView, T }) {
           <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.7 }}>
             <strong style={{ color: C.text }}>{T.roundLabel(item.round)}</strong> · {T.submittedOn} {item.completedDate} · {item.submittedBy} ({item.submitterRole})
             <br />
-            Avg score <strong style={{ color: C.red }}>{item.avgScore.toFixed(1)}{T.scoreOf}</strong> · {T.recommendation} <strong style={{ color: C.text }}>{T.recLabels[item.recommendation] || item.recommendation}</strong>
+            {T.recommendation} <strong style={{ color: C.text }}>{T.recLabels[item.recommendation] || item.recommendation}</strong>
           </div>
         </div>
       )}
@@ -395,7 +387,7 @@ export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
             <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Table header */}
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 1fr 1fr 160px', padding: '9px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-                {[T.colCandidate, T.colSubmittedBy, T.colScore, T.colRecommend, T.colActions].map(h => (
+                {[T.colCandidate, T.colSubmittedBy, T.colFit, T.colRecommend, T.colActions].map(h => (
                   <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                 ))}
               </div>

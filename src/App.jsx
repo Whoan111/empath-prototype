@@ -212,11 +212,11 @@ export default function App() {
         {screen === 'home'                && <HomeScreen                    {...sp} />}
         {screen === 'dashboard'           && <RecruiterDashboard            {...sp} />}
         {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} onBack={() => nav('dashboard')} />}
-        {screen === 'import'              && <CVImportScreening             lang={lang} onBack={goBack} onNavigate={nav} />}
+        {screen === 'import'              && <CVImportScreening             lang={lang} initialPosition={screenData?.position} onBack={goBack} onNavigate={nav} />}
         {screen === 'screening'           && <CVScreening                   lang={lang} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
         {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} />}
         {screen === 'not-suitable'        && <NotSuitable                   lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
-        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} onBack={goBack} onNavigate={nav} />}
+        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} template={screenData?.template || null} onBack={goBack} onNavigate={nav} />}
         {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} />}
         {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} lang={lang} />}
         {screen === 'recruiter-summary'   && <RecruiterSummary              lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}

@@ -22,14 +22,17 @@ const SCREEN_T = {
     feedbackTitle:     'Interview feedback',
     clickCollapse:     'Click any card to collapse',
     empath:            '✦ Empath synthesis',
-    overallScore:      'Overall score / 5.0',
-    scoreBreakdown:    'Score breakdown',
+    overallFit:        'Overall candidate fit',
+    fitBreakdown:      'Fit breakdown',
     strengths:         'Consistent strengths',
     developAreas:      'Development areas',
     consensus:         'Interviewer consensus',
     recommendation:    '✦ Recommendation',
     advanceRec:        '✓ Advance recommended',
     lowRisk:           'Low risk',
+    strongAdvance:     'Strong advance',
+    averageFit:        'Average fit',
+    notAdvancing:      'Not advancing',
     yourDecision:      'Your decision',
     changeDecision:    'Change decision',
     movingFwd:         '✓ Moving forward — recruiter will be notified',
@@ -53,14 +56,17 @@ const SCREEN_T = {
     feedbackTitle:     'Feedback interviste',
     clickCollapse:     'Clicca su una scheda per ridurla',
     empath:            '✦ Sintesi Empath',
-    overallScore:      'Punteggio totale / 5.0',
-    scoreBreakdown:    'Dettaglio punteggi',
+    overallFit:        'Idoneità complessiva',
+    fitBreakdown:      'Dettaglio idoneità',
     strengths:         'Punti di forza costanti',
     developAreas:      'Aree di sviluppo',
     consensus:         'Consenso intervistatori',
     recommendation:    '✦ Raccomandazione',
     advanceRec:        '✓ Avanzamento raccomandato',
     lowRisk:           'Rischio basso',
+    strongAdvance:     'Forte avanzamento',
+    averageFit:        'Idoneità media',
+    notAdvancing:      'Non avanza',
     yourDecision:      'La tua decisione',
     changeDecision:    'Cambia decisione',
     movingFwd:         '✓ Avanza — il recruiter verrà notificato',
@@ -102,8 +108,8 @@ const MOCK_INTERVIEWS = [
     id: 1, round: 1, type: 'Portfolio & Experience Review',
     interviewer: 'Marco T.', interviewerRole: 'Hiring Manager', avatarIni: 'MT',
     date: '14 May 2026', duration: '60 min',
-    overallRating: 4,
-    scores: { communication: 5, technicalSkill: 3, culturalFit: 4, growthPotential: 5 },
+    overallFit: 'strongly-advance',
+    fitCriteria: { communication: 'strong', technicalSkill: 'fit', culturalFit: 'strong', growthPotential: 'strong' },
     summary: 'Strong portfolio and excellent communication skills. Giulia clearly understands user-centred design and can articulate her decisions well. Some gaps in design systems knowledge, but she demonstrates strong motivation to grow.',
     highlights: [
       'Led end-to-end redesign that increased task completion by 34%',
@@ -118,8 +124,8 @@ const MOCK_INTERVIEWS = [
     id: 2, round: 2, type: 'Technical Deep-Dive',
     interviewer: 'Elena C.', interviewerRole: 'Tech Lead', avatarIni: 'EC',
     date: '17 May 2026', duration: '45 min',
-    overallRating: 3,
-    scores: { communication: 4, technicalSkill: 3, culturalFit: 5, growthPotential: 4 },
+    overallFit: 'advance',
+    fitCriteria: { communication: 'fit', technicalSkill: 'fit', culturalFit: 'strong', growthPotential: 'fit' },
     summary: 'Enthusiastic and highly collaborative. Cultural alignment is strong — she would fit in well. Complex problem-solving under pressure could be developed further, but her growth mindset is evident.',
     highlights: [
       'Demonstrated strong empathy for end-users throughout',
@@ -134,8 +140,8 @@ const MOCK_INTERVIEWS = [
     id: 3, round: 3, type: 'Values & Leadership Potential',
     interviewer: 'Andrea P.', interviewerRole: 'Design Director', avatarIni: 'AP',
     date: '20 May 2026', duration: '30 min',
-    overallRating: 5,
-    scores: { communication: 5, technicalSkill: 4, culturalFit: 5, growthPotential: 5 },
+    overallFit: 'strongly-advance',
+    fitCriteria: { communication: 'strong', technicalSkill: 'strong', culturalFit: 'strong', growthPotential: 'strong' },
     summary: 'Outstanding. Giulia brings a rare combination of strategic thinking and genuine empathy. She speaks about design in terms of people, not just pixels. The team would grow with her.',
     highlights: [
       'Articulated a clear point of view on inclusive design without prompting',
@@ -150,17 +156,17 @@ const MOCK_INTERVIEWS = [
 
 // AI synthesis data
 const SYNTHESIS = {
-  overallScore: 4.0,
-  scoredCriteria: [
-    { label: 'Communication',    score: 4.7, color: C.suc  },
-    { label: 'Technical skill',  score: 3.3, color: C.war  },
-    { label: 'Cultural fit',     score: 4.7, color: C.suc  },
-    { label: 'Growth potential', score: 4.7, color: C.suc  },
+  overallFit: 'strongly-advance',
+  fitCriteria: [
+    { label: 'Communication',    fit: 'strong' },
+    { label: 'Technical skill',  fit: 'fit'    },
+    { label: 'Cultural fit',     fit: 'strong' },
+    { label: 'Growth potential', fit: 'strong' },
   ],
   strengths: ['User empathy', 'Communication', 'Research depth', 'Cultural alignment', 'Growth mindset'],
   concerns: ['Design systems experience', 'Problem-solving under pressure'],
   recommendation: 'advance',
-  rationale: "All three interviewers recommend advancing Giulia. Her communication skills, cultural alignment, and growth mindset are consistently rated as strong. The one area of development — design systems — is framed as coachable by all reviewers, not as a blocker. The Design Director's assessment is particularly encouraging: she brings strategic thinking that elevates the people around her.",
+  rationale: "All three interviewers recommend advancing Giulia. Her communication skills, cultural alignment, and growth mindset are consistently assessed as strong fits. The one area of development — design systems — is framed as coachable by all reviewers, not as a blocker. The Design Director's assessment is particularly encouraging: she brings strategic thinking that elevates the people around her.",
   riskLevel: 'low',
 }
 
@@ -180,28 +186,26 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-function Stars({ rating, max = 5, size = 14 }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 2 }}>
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} style={{ fontSize: size, color: i < rating ? C.red : C.border, lineHeight: 1 }}>★</span>
-      ))}
-    </span>
-  )
+// ── Fit pill ──────────────────────────────────────────────────────────────────
+function FitPill({ fit, size = 'normal', T }) {
+  const fontSize = size === 'small' ? 9 : 11
+  const pad = size === 'small' ? '2px 7px' : '3px 9px'
+  if (fit === 'strongly-advance') return <span style={{ background: C.sucBg, color: C.sucT, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>★ {T?.strongAdvance || 'Strong advance'}</span>
+  if (fit === 'advance') return <span style={{ background: C.warBg, color: C.warT, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>◎ {T?.averageFit || 'Average fit'}</span>
+  return <span style={{ background: '#FEE2E2', color: C.red, fontSize, fontWeight: 600, padding: pad, borderRadius: 20 }}>✕ {T?.notAdvancing || 'Not advancing'}</span>
 }
 
-// ── Score bar ─────────────────────────────────────────────────────────────────
-function ScoreBar({ label, score, color }) {
-  const pct = (score / 5) * 100
+// ── Fit row (replaces ScoreBar) ───────────────────────────────────────────────
+function FitRow({ label, fit }) {
+  const cfg = fit === 'strong'
+    ? { label: 'Strong fit', color: C.suc, bg: C.sucBg }
+    : fit === 'fit'
+    ? { label: 'Fit',        color: C.war, bg: C.warBg }
+    : { label: 'Not fit',    color: C.red, bg: '#FEE2E2' }
   return (
-    <div style={{ marginBottom: 11 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 5 }}>
-        <span style={{ color: C.text }}>{label}</span>
-        <span style={{ fontWeight: 600, color }}>{score.toFixed(1)}</span>
-      </div>
-      <div style={{ height: 7, background: C.gray, borderRadius: 4, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.6s ease' }} />
-      </div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 9, padding: '6px 10px', background: C.gray, borderRadius: 8 }}>
+      <span style={{ fontSize: 12, color: C.text }}>{label}</span>
+      <span style={{ background: cfg.bg, color: cfg.color, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{cfg.label}</span>
     </div>
   )
 }
@@ -252,14 +256,7 @@ function FeedbackCard({ interview, T }) {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <Stars rating={interview.overallRating} size={13} />
-          <span style={{
-            background: interview.recommendation === 'advance' ? C.sucBg : '#FEE2E2',
-            color: interview.recommendation === 'advance' ? C.sucT : C.red,
-            fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20,
-          }}>
-            {interview.recommendation === 'advance' ? T.advancePill : T.passPill}
-          </span>
+          <FitPill fit={interview.overallFit} size="normal" T={T} />
           <span style={{ color: C.muted, fontSize: 13, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▾</span>
         </div>
       </button>
@@ -272,14 +269,15 @@ function FeedbackCard({ interview, T }) {
             {interview.summary}
           </p>
 
-          {/* Per-criteria scores */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 20px', marginBottom: 14 }}>
-            {Object.entries(interview.scores).map(([key, val]) => {
+          {/* Per-criteria fit */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px', marginBottom: 14 }}>
+            {Object.entries(interview.fitCriteria).map(([key, fit]) => {
               const label = key.replace(/([A-Z])/g, ' $1').trim()
+              const fitCfg = fit === 'strong' ? { label:'Strong', color:C.suc, bg:C.sucBg } : fit === 'fit' ? { label:'Fit', color:C.war, bg:C.warBg } : { label:'Not fit', color:C.red, bg:'#FEE2E2' }
               return (
-                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '4px 8px', background: C.gray, borderRadius: 6 }}>
                   <span style={{ color: C.muted, textTransform: 'capitalize' }}>{label}</span>
-                  <Stars rating={val} max={5} size={11} />
+                  <span style={{ background: fitCfg.bg, color: fitCfg.color, fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 20 }}>{fitCfg.label}</span>
                 </div>
               )
             })}
@@ -382,21 +380,20 @@ export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CAN
       <aside style={{ width: 320, borderLeft: `1px solid ${C.border}`, background: C.white, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px 22px' }}>
 
-          {/* Overall score */}
+          {/* Overall fit */}
           <div style={{ textAlign: 'center', marginBottom: 24, padding: '20px 16px', background: C.redBg, borderRadius: 13, border: `1px solid ${C.border}` }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>{T.empath}</p>
-            <div style={{ fontSize: 48, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>
-              {SYNTHESIS.overallScore}
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>{T.empath}</p>
+            <div style={{ marginBottom: 8 }}>
+              <FitPill fit={SYNTHESIS.overallFit} size="normal" T={T} />
             </div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 4, marginBottom: 10 }}>{T.overallScore}</div>
-            <Stars rating={Math.round(SYNTHESIS.overallScore)} size={18} />
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 6 }}>{T.overallFit}</div>
           </div>
 
-          {/* Criteria breakdown */}
+          {/* Fit breakdown */}
           <div style={{ marginBottom: 22 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>{T.scoreBreakdown}</p>
-            {SYNTHESIS.scoredCriteria.map(c => (
-              <ScoreBar key={c.label} label={c.label} score={c.score} color={c.color} />
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>{T.fitBreakdown}</p>
+            {SYNTHESIS.fitCriteria.map(c => (
+              <FitRow key={c.label} label={c.label} fit={c.fit} />
             ))}
           </div>
 
@@ -436,10 +433,7 @@ export default function HiringManagerSummary({ lang = 'en', candidate = MOCK_CAN
                       <div style={{ fontSize: 11, fontWeight: 500, color: C.text }}>{iv.interviewer}</div>
                       <div style={{ fontSize: 9, color: C.muted }}>{iv.interviewerRole}</div>
                     </div>
-                    <Stars rating={iv.overallRating} max={5} size={10} />
-                    <span style={{ background: iv.recommendation === 'advance' ? C.sucBg : '#FEE2E2', color: iv.recommendation === 'advance' ? C.sucT : C.red, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20 }}>
-                      {iv.recommendation === 'advance' ? '✓' : '✕'}
-                    </span>
+                    <FitPill fit={iv.overallFit} size="small" T={T} />
                   </div>
                 )
               })}

@@ -49,7 +49,7 @@ const SCREEN_T = {
     advancingCount:     (n) => `${n} advancing`,
     rejectedOn:         (d) => `Closed · ${d}`,
     yourRoundLabel:     (type, date) => `${type} · ${date}`,
-    scoreLabel:         'Your score',
+    fitLabel:           'Your fit assessment',
     closedBanner:       (d) => `This candidate was not selected · Process closed ${d}`,
   },
   it: {
@@ -92,7 +92,7 @@ const SCREEN_T = {
     advancingCount:     (n) => `${n} avanzano`,
     rejectedOn:         (d) => `Chiuso · ${d}`,
     yourRoundLabel:     (type, date) => `${type} · ${date}`,
-    scoreLabel:         'Il tuo punteggio',
+    fitLabel:           'La tua valutazione',
     closedBanner:       (d) => `Candidato non selezionato · Processo chiuso ${d}`,
   },
 }
@@ -124,7 +124,7 @@ const MY_CANDIDATES = [
     portfolio: 'giuliarossi.com', linkedin: 'linkedin.com/in/giuliarossi',
     file: 'GiuliaRossi_CV.pdf', pages: 2,
     position: 'UX Designer', dept: 'Product Design',
-    myRound: 2, myType: 'Technical Deep-Dive', myDate: 'May 17', myScore: 3,
+    myRound: 2, myType: 'Technical Deep-Dive', myDate: 'May 17', myFit: 'advance',
     debriefDone: true,
     outcome: 'notAdvancing',
     currentStage: 'Closed',
@@ -132,14 +132,14 @@ const MY_CANDIDATES = [
     allFeedback: [
       {
         round: 1, type: 'Portfolio Review',
-        by: 'Marco T.', byRole: 'Hiring Manager', date: 'May 14', score: 4, isMine: false,
+        by: 'Marco T.', byRole: 'Hiring Manager', date: 'May 14', fit: 'strongly-advance', isMine: false,
         txt: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps. I would be comfortable having her on the team.',
         strengths: ['Portfolio depth', 'Communication', 'Growth mindset'],
         concerns: ['Design systems experience'],
       },
       {
         round: 2, type: 'Technical Deep-Dive',
-        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 17', score: 3, isMine: true,
+        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: true,
         txt: 'Enthusiastic and highly collaborative. Cultural fit is strong. Could sharpen complex problem-solving under pressure — gave surface-level answers on two edge cases.',
         strengths: ['Cultural fit', 'Collaboration'],
         concerns: ['Problem-solving under pressure'],
@@ -156,21 +156,21 @@ const MY_CANDIDATES = [
     portfolio: null, linkedin: 'linkedin.com/in/chiaralombardi',
     file: 'ChiaraLombardi_CV.pdf', pages: 2,
     position: 'UX Designer', dept: 'Product Design',
-    myRound: 1, myType: 'Research Deep-Dive', myDate: 'May 6', myScore: 5,
+    myRound: 1, myType: 'Research Deep-Dive', myDate: 'May 6', myFit: 'strongly-advance',
     debriefDone: true,
     outcome: 'advancing',
     currentStage: 'Decision',
     allFeedback: [
       {
         round: 1, type: 'Research Deep-Dive',
-        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 6', score: 5, isMine: true,
+        by: 'Alessandro M.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: true,
         txt: 'Outstanding. Research depth is rare at this level. She thinks in systems and articulates complexity with genuine clarity. Strong recommend.',
         strengths: ['Research depth', 'Systems thinking', 'Communication'],
         concerns: [],
       },
       {
         round: 2, type: 'Values & Team Fit',
-        by: 'Andrea P.', byRole: 'Design Director', date: 'May 10', score: 5, isMine: false,
+        by: 'Andrea P.', byRole: 'Design Director', date: 'May 10', fit: 'strongly-advance', isMine: false,
         txt: 'Strong recommend. She asks exactly the right questions. The team would grow with her around.',
         strengths: ['Values alignment', 'Intellectual curiosity'],
         concerns: [],
@@ -187,7 +187,7 @@ const MY_CANDIDATES = [
     portfolio: 'ninapatel.dev', linkedin: 'linkedin.com/in/ninapatel',
     file: 'NinaPatel_CV.pdf', pages: 1,
     position: 'Frontend Engineer', dept: 'Engineering',
-    myRound: 1, myType: 'Technical Assessment', myDate: 'May 22', myScore: null,
+    myRound: 1, myType: 'Technical Assessment', myDate: 'May 22', myFit: null,
     debriefDone: false,
     outcome: 'debrief',
     currentStage: 'Interviews',
@@ -209,16 +209,13 @@ function Av({ id, ini, size = 36, muted = false }) {
   )
 }
 
-function Stars({ score, max = 5, size = 12 }) {
-  if (score === null || score === undefined) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
-  return (
-    <span style={{ display: 'inline-flex', gap: 1 }}>
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} style={{ fontSize: size, color: i < score ? C.red : '#E0DCD8', lineHeight: 1 }}>★</span>
-      ))}
-    </span>
-  )
+function FitPill({ fit }) {
+  if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
+  if (fit === 'strongly-advance') return <span style={{ background: '#D1FAE5', color: '#065F46', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
+  if (fit === 'advance') return <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
+  return <span style={{ background: '#FEE2E2', color: '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
+
 
 function OutcomePill({ outcome, T }) {
   const map = {
@@ -427,7 +424,7 @@ function InterviewTimeline({ candidate, onFillDebrief, T }) {
                       <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by}</div>
                       <div style={{ fontSize: 9, color: C.muted }}>{f.byRole}</div>
                     </div>
-                    <Stars score={f.score} size={11} />
+                    <FitPill fit={f.fit} />
                   </div>
 
                   {/* Feedback text */}
@@ -458,10 +455,6 @@ function InterviewTimeline({ candidate, onFillDebrief, T }) {
 function CandidateProfilePanel({ candidate, onNavigate, T }) {
   const isRejected = candidate.outcome === 'notAdvancing'
   const myFeedback = candidate.allFeedback.find(f => f.isMine)
-  const feedbackWithScore = candidate.allFeedback.filter(f => f.score !== null)
-  const avgScore = feedbackWithScore.length > 0
-    ? (feedbackWithScore.reduce((s, f) => s + f.score, 0) / feedbackWithScore.length).toFixed(1)
-    : null
 
   return (
     <aside style={{ width: 360, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
@@ -478,15 +471,11 @@ function CandidateProfilePanel({ candidate, onNavigate, T }) {
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           <OutcomePill outcome={candidate.outcome} T={T} />
-          {isRejected ? (
+          {isRejected && (
             <span style={{ fontSize: 10, color: '#9CA3AF', background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '3px 9px', borderRadius: 20 }}>
               {T.rejectedOn(candidate.rejectedDate)}
             </span>
-          ) : avgScore ? (
-            <span style={{ fontSize: 10, color: C.red, background: C.redBg, border: `1px solid ${C.redL}`, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>
-              ★ {avgScore} avg
-            </span>
-          ) : null}
+          )}
         </div>
       </div>
 
@@ -532,11 +521,11 @@ function CandidateProfilePanel({ candidate, onNavigate, T }) {
             <div style={{ fontSize: 9, fontWeight: 700, color: C.navy, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
               {T.yourContribution}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 11, color: C.text, fontWeight: 500 }}>
                 {T.yourRoundLabel(candidate.myType, candidate.myDate)}
               </span>
-              <Stars score={candidate.myScore} size={13} />
+              {candidate.myFit && <FitPill fit={candidate.myFit} />}
             </div>
           </div>
         )}
@@ -622,7 +611,7 @@ function CandidateCard({ candidate, onViewProfile, onFillDebrief, T }) {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 11, color: C.muted }}>{candidate.myDate}</span>
-          <Stars score={candidate.myScore} size={12} />
+          <FitPill fit={candidate.myFit} />
         </div>
       </div>
 
@@ -761,7 +750,7 @@ function DebriefView({ onViewProfile, onNavigate, T }) {
                     </div>
                     {myF && (
                       <>
-                        <Stars score={myF.score} size={12} />
+                        <FitPill fit={myF.fit} />
                         <p style={{ fontSize: 11, color: C.text, lineHeight: 1.6, margin: '5px 0 0', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                           {myF.txt}
                         </p>

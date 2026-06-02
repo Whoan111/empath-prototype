@@ -427,21 +427,6 @@ function CVCard({ cv, decision, animKey, T }) {
           </div>
         </div>
 
-        {/* Experience */}
-        <div style={{ marginBottom: 22 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-            {T.experience}
-          </p>
-          <div style={{
-            padding: '15px 18px', background: C.gray,
-            borderRadius: 10, borderLeft: `3px solid ${C.redL}`,
-          }}>
-            <p style={{ fontSize: 13, color: C.text, lineHeight: 1.8, margin: 0 }}>
-              {cv.snippet}
-            </p>
-          </div>
-        </div>
-
         {/* Links */}
         <div style={{ display: 'flex', gap: 9 }}>
           {cv.portfolio && (
