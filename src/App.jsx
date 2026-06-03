@@ -389,11 +389,11 @@ export default function App() {
   const spotlightRef = useRef(null)
   const handleMouseMove = (e) => {
     if (!spotlightRef.current) return
-    const c = themeMode === 'dark'
-      ? 'rgba(255,255,255,0.038)'
-      : 'rgba(27,36,97,0.05)'
+    const dark = themeMode === 'dark'
+    const c = dark ? 'rgba(100,160,255,0.06)' : 'rgba(233,1,48,0.07)'
+    const r = dark ? 360 : 340
     spotlightRef.current.style.background =
-      `radial-gradient(circle 360px at ${e.clientX}px ${e.clientY}px, ${c} 0%, transparent 70%)`
+      `radial-gradient(circle ${r}px at ${e.clientX}px ${e.clientY}px, ${c} 0%, transparent 70%)`
   }
 
   // Red dots: triage always has pending CVs, not-suitable always has pending messages,

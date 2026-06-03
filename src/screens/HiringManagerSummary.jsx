@@ -126,8 +126,9 @@ const SYNTHESIS_RATIONALE = "All three interviewers recommend advancing Giulia. 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
-  ['#FEF3C7','#D97706'],['#EDE9FE','#6D28D9'],['#FCE7F3','#BE185D'],
+  ['#FECDD3','#C9394A'],
+  ['#FEF3C7','#D97706'],
+  ['#EDE9FE','#6D28D9'],
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 
@@ -142,10 +143,10 @@ function Av({ id, ini, size = 40 }) {
 
 function FitPill({ fit, T }) {
   if (fit === 'strongly-advance') return (
-    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+    <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
   )
   if (fit === 'advance') return (
-    <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
   )
   return (
     <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
@@ -166,8 +167,8 @@ function DimBar({ label, value, color }) {
 
 // ── Interview report card ─────────────────────────────────────────────────────
 function InterviewCard({ interview, T }) {
-  const borderColor = interview.fit === 'strongly-advance' ? C.suc
-                    : interview.fit === 'advance'          ? C.war
+  const borderColor = interview.fit === 'strongly-advance' ? '#1B2461'
+                    : interview.fit === 'advance'          ? '#1E40AF'
                     : C.red
   const dimColor    = borderColor
   const avColors = [['#FECDD3', C.red], ['#DBEAFE', C.inf], ['#D1FAE5', C.suc]]

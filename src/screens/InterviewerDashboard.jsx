@@ -202,8 +202,9 @@ const MY_CANDIDATES = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
-  ['#FEF3C7','#D97706'],['#EDE9FE','#6D28D9'],['#FCE7F3','#BE185D'],
+  ['#FECDD3','#C9394A'],
+  ['#FEF3C7','#D97706'],
+  ['#EDE9FE','#6D28D9'],
 ]
 function Av({ id, ini, size = 36, muted = false }) {
   const [bg, color] = AV_PALETTE[(id - 1) % AV_PALETTE.length]
@@ -216,8 +217,8 @@ function Av({ id, ini, size = 36, muted = false }) {
 
 function FitPill({ fit }) {
   if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
-  if (fit === 'strongly-advance') return <span style={{ background: '#D1FAE5', color: '#065F46', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
-  if (fit === 'advance') return <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
+  if (fit === 'strongly-advance') return <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
+  if (fit === 'advance') return <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
   return <span style={{ background: '#FEE2E2', color: '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
 

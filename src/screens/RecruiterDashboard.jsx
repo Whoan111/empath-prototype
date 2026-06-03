@@ -445,7 +445,7 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
         background: hov ? th.cardBgHov : th.cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         border: `1px solid ${hov ? th.borderBrt : th.border}`,
-        borderTop: `2.5px solid ${hov ? th.red : (hasOffer ? stageT.Offer.dot + '99' : th.border)}`,
+        borderTop: `2.5px solid ${th.red}`,
         borderRadius: '0.75rem',
         padding: '20px 22px 18px',
         display: 'flex', flexDirection: 'column', gap: 14,

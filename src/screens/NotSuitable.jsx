@@ -110,9 +110,9 @@ const REJECTED_BY_POSITION = [
 const RESTORE_STAGES = ['Pre-Call', 'Interviews', 'Decision']
 
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
-  ['#FEF3C7','#D97706'],['#EDE9FE','#6D28D9'],['#FCE7F3','#BE185D'],
-  ['#FEF9C3','#CA8A04'],['#DCFCE7','#16A34A'],
+  ['#FECDD3','#C9394A'],
+  ['#FEF3C7','#D97706'],
+  ['#EDE9FE','#6D28D9'],
 ]
 
 function Av({ id, ini, size = 36 }) {

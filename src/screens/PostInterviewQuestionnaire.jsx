@@ -235,8 +235,9 @@ const RECOMMENDATIONS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
-  ['#FEF3C7','#D97706'],['#EDE9FE','#6D28D9'],['#FCE7F3','#BE185D'],
+  ['#FECDD3','#C9394A'],
+  ['#FEF3C7','#D97706'],
+  ['#EDE9FE','#6D28D9'],
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 

@@ -88,7 +88,7 @@ const CARDS = [
     title: 'Candidate NPS',
     sub: 'Satisfaction',
     value: '72', unit: '', label: 'Excellent',
-    bg: '#ECFDF5', accent: '#059669', border: '#A7F3D0',
+    bg: '#EEF2FF', accent: '#1B2461', border: '#C7D2FE',
     visual: 'hbar', barPct: 0.72,
     detail: {
       trend: [55,58,62,65,68,70,72,72],
@@ -107,7 +107,7 @@ const CARDS = [
     title: 'Gender Balance',
     sub: 'All Positions',
     value: '54', unit: '%', label: 'Women · Leading',
-    bg: '#FAF5FF', accent: '#7C3AED', border: '#DDD6FE',
+    bg: '#F0F9FF', accent: '#0369A1', border: '#BAE6FD',
     visual: 'split',
     detail: {
       trend: [44,46,48,50,51,52,53,54],
@@ -126,7 +126,7 @@ const CARDS = [
     title: 'Active Roles',
     sub: 'Open Positions',
     value: '+5', unit: '', label: 'This Quarter',
-    bg: '#FFF7ED', accent: '#EA580C', border: '#FED7AA',
+    bg: '#FFF1F2', accent: '#9F1239', border: '#FECDD3',
     visual: 'bars',
     detail: {
       trend: [3,4,4,6,5,7,6,8],
@@ -146,7 +146,7 @@ const CARDS = [
     title: 'Top Source',
     sub: 'By Volume',
     value: '38', unit: '%', label: 'LinkedIn',
-    bg: '#FFFBEB', accent: '#D97706', border: '#FDE68A',
+    bg: '#EFF6FF', accent: '#3B82F6', border: '#BFDBFE',
     visual: 'scatter',
     detail: {
       trend: [26,28,30,32,35,36,37,38],
@@ -187,7 +187,7 @@ const CARDS = [
     title: 'Avg Response',
     sub: 'Recruiter Updates',
     value: '1.4', unit: 'd', label: 'Excellent',
-    bg: '#F0FDF4', accent: '#16A34A', border: '#BBF7D0',
+    bg: '#EEF2FF', accent: '#374DB0', border: '#C7D2FE',
     visual: 'dots',
     detail: {
       trend: [3.5,3.0,2.6,2.2,1.9,1.7,1.5,1.4],
@@ -227,7 +227,7 @@ const CARDS = [
     title: 'Drop-off Risk',
     sub: 'Candidate Attrition',
     value: 'Low', unit: '', label: '3 at risk',
-    bg: '#FFFBEB', accent: '#D97706', border: '#FDE68A',
+    bg: '#EFF6FF', accent: '#1E40AF', border: '#BFDBFE',
     visual: 'hbar', barPct: 0.15,
     detail: {
       trend: [14,12,10,9,7,6,5,3],

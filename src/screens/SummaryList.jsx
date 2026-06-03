@@ -149,9 +149,9 @@ const DECISION_CANDIDATES = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],['#DBEAFE','#2563EB'],['#D1FAE5','#059669'],
-  ['#FEF3C7','#D97706'],['#EDE9FE','#6D28D9'],['#FCE7F3','#BE185D'],
-  ['#FEF9C3','#CA8A04'],['#DCFCE7','#16A34A'],
+  ['#FECDD3','#C9394A'],
+  ['#FEF3C7','#D97706'],
+  ['#EDE9FE','#6D28D9'],
 ]
 const avColor = (id) => AV_PALETTE[(id - 1) % AV_PALETTE.length]
 
@@ -186,12 +186,12 @@ function SummaryStatusPill({ status }) {
 function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
-    <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+    <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
       ★ {T.strongAdvance}
     </span>
   )
   if (rec === 'advance') return (
-    <span style={{ background: C.warBg, color: C.warT, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
       ◎ {T.averageFit}
     </span>
   )
