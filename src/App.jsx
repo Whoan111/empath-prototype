@@ -409,18 +409,18 @@ export default function App() {
           {/* Primary orb — navy-purple centre */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
-            top: '42%', left: '56%', width: 860, height: 860,
-            borderRadius: '50%', filter: 'blur(72px)',
-            background: 'radial-gradient(circle at center, rgba(60,30,160,0.42) 0%, rgba(27,36,97,0.28) 38%, rgba(233,1,48,0.07) 60%, transparent 72%)',
+            top: '42%', left: '56%', width: 900, height: 900,
+            borderRadius: '50%', filter: 'blur(68px)',
+            background: 'radial-gradient(circle at center, rgba(80,40,200,0.58) 0%, rgba(27,36,97,0.40) 36%, rgba(233,1,48,0.12) 58%, transparent 72%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrb 14s ease-in-out infinite',
           }} />
           {/* Secondary orb — red-pink accent */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
-            top: '62%', left: '38%', width: 560, height: 560,
-            borderRadius: '50%', filter: 'blur(90px)',
-            background: 'radial-gradient(circle at center, rgba(233,1,48,0.14) 0%, rgba(100,20,80,0.1) 45%, transparent 68%)',
+            top: '62%', left: '38%', width: 600, height: 600,
+            borderRadius: '50%', filter: 'blur(80px)',
+            background: 'radial-gradient(circle at center, rgba(233,1,48,0.24) 0%, rgba(140,20,100,0.18) 42%, transparent 68%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrb2 18s ease-in-out infinite',
           }} />

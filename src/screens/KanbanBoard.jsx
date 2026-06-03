@@ -578,7 +578,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
 
     // Celebrate ANY forward move
     if (isForward && movedCandidate) {
-      setCelebration(T.celebrationMsg(movedCandidate.name))
+      setCelebration(T.celebrationMsg(movedCandidate.name, stageLabel(to, T)))
     }
     setPendingMove(null)
   }, [pendingMove, candidates, T])

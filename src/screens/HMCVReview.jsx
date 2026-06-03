@@ -481,7 +481,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Recruiter's assessment */}
-        <div style={{ background: '#FFFCF0', borderRadius: 10, padding: '13px 14px', border: `1px solid #FDE68A` }}>
+        <div style={{ background: C.warBg, borderRadius: 10, padding: '13px 14px', border: `1px solid ${C.warBorder}` }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
             {T.recruiterAssessment}
           </div>
@@ -530,7 +530,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
             value={draftNotes}
             onChange={e => setDraftNotes(e.target.value)}
             placeholder={`Your thoughts on ${candidate.name.split(' ')[0]}…`}
-            style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 11, resize: 'none', height: 76, color: C.text, lineHeight: 1.6, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' }}
+            style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1.5px solid ${C.border}`, fontSize: 11, resize: 'none', height: 76, color: C.text, background: C.white, lineHeight: 1.6, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' }}
           />
           <button
             onClick={handleSave}
@@ -555,8 +555,8 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
         {decision ? (
           <div style={{
             padding: '12px 14px', borderRadius: 9,
-            background: decision === 'accept' ? C.sucBg : '#FEF2F2',
-            border: `1px solid ${decision === 'accept' ? '#BBF7D0' : '#FECACA'}`,
+            background: decision === 'accept' ? C.sucBg : C.redBg,
+            border: `1px solid ${decision === 'accept' ? C.sucBorder : C.redL}`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -579,7 +579,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => onDecide(candidate.id, 'reject')}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: C.redBg, color: C.red, border: `2px solid ${C.redL}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {T.reject}
             </button>
@@ -636,7 +636,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
           return (
             <div key={pos.id}>
               {/* Position header */}
-              <div style={{ padding: '8px 14px 6px', background: '#F9F7F5', borderBottom: `1px solid ${C.border}`, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ padding: '8px 14px 6px', background: C.gray, borderBottom: `1px solid ${C.border}`, borderTop: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
                   {posUnreviewed > 0 && (

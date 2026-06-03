@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 // ── Per-role notification content (all share the same navy palette) ───────────
 const NAVY = '#1B2461'
-const NAVY_BG     = 'rgba(27,36,97,0.05)'
-const NAVY_BORDER = 'rgba(27,36,97,0.15)'
+const NAVY_BG     = 'rgba(27,36,97,0.10)'
+const NAVY_BORDER = 'rgba(27,36,97,0.26)'
 
 const ROLE_NOTIFICATIONS = {
   recruiter: {
@@ -51,12 +51,12 @@ function NotificationBubble({ role, th, onNavigate }) {
           WebkitBackdropFilter: 'blur(14px)',
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 14px rgba(27,36,97,0.12)',
+          boxShadow: '0 2px 14px rgba(27,36,97,0.14)',
           transition: 'background 0.18s, box-shadow 0.18s',
           position: 'relative', fontFamily: 'inherit',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.11)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(27,36,97,0.18)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = NAVY_BG; e.currentTarget.style.boxShadow = '0 2px 14px rgba(27,36,97,0.12)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.17)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(27,36,97,0.22)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = NAVY_BG; e.currentTarget.style.boxShadow = '0 2px 14px rgba(27,36,97,0.14)' }}
       >
         {/* Bell SVG */}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -84,7 +84,7 @@ function NotificationBubble({ role, th, onNavigate }) {
         padding: '15px 17px 14px',
         backdropFilter: 'blur(18px)',
         WebkitBackdropFilter: 'blur(18px)',
-        boxShadow: '0 8px 32px rgba(27,36,97,0.11), 0 1px 4px rgba(0,0,0,0.04)',
+        boxShadow: '0 8px 32px rgba(27,36,97,0.18), 0 2px 8px rgba(0,0,0,0.07)',
         // Collapse animation
         opacity:       collapsed ? 0 : 1,
         transform:     collapsed ? 'translateY(-6px) scale(0.96)' : 'translateY(0) scale(1)',

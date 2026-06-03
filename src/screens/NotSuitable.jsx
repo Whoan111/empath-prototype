@@ -265,10 +265,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
 
   const waitColor = isVeryLong ? C.red : isLong ? '#D97706' : C.muted
 
-  // Subtle row tint: very light amber/red wash for waiting candidates
-  const rowBg = hov
-    ? (isVeryLong ? C.redBg : isLong ? C.warBg : C.surfaceHov)
-    : (isVeryLong ? C.redBg : isLong ? C.warBg : C.white)
+  const rowBg = hov ? C.surfaceHov : C.white
 
   return (
     <div
@@ -543,7 +540,7 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
           <span style={{
             marginLeft: 'auto',
             fontSize: 11, fontWeight: 600, color: C.red,
-            background: '#FEE2E2', padding: '4px 12px', borderRadius: 20,
+            background: C.redBg, padding: '4px 12px', borderRadius: 20,
           }}>
             {T.messagesPending(totalPending)}
           </span>

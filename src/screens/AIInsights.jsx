@@ -12,6 +12,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -418,10 +419,10 @@ function DetailPanel({ card, onClose, T }) {
         <style>{`@keyframes panelIn { from { transform: translateX(40px); opacity:0; } to { transform: translateX(0); opacity:1; } }`}</style>
 
         {/* Panel header */}
-        <div style={{ padding: '20px 22px 16px', background: card.bg, borderBottom: `1px solid ${card.border}` }}>
+        <div style={{ padding: '20px 22px 16px', background: isDark ? C.white : card.bg, borderBottom: `1px solid ${isDark ? C.border : card.border}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
             <div>
-              <span style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.08em', background: card.border + '60', padding: '2px 8px', borderRadius: 20 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.08em', background: isDark ? card.accent + '22' : card.border + '60', padding: '2px 8px', borderRadius: 20 }}>
                 {card.category}
               </span>
               <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '6px 0 2px' }}>{card.title}</h2>
@@ -456,7 +457,7 @@ function DetailPanel({ card, onClose, T }) {
                   <span style={{ fontSize: 12, color: C.text }}>{b.label}</span>
                   <span style={{ fontSize: 12, fontWeight: 600, color: card.accent }}>{b.v}%</span>
                 </div>
-                <div style={{ height: 5, background: card.bg, borderRadius: 3, border: `1px solid ${card.border}` }}>
+                <div style={{ height: 5, background: isDark ? C.gray : card.bg, borderRadius: 3, border: `1px solid ${isDark ? C.border : card.border}` }}>
                   <div style={{ height: '100%', width: `${b.v}%`, background: card.accent, borderRadius: 3, opacity: 0.8 }} />
                 </div>
               </div>
@@ -464,7 +465,7 @@ function DetailPanel({ card, onClose, T }) {
           </div>
 
           {/* Insight */}
-          <div style={{ padding: '13px 15px', background: card.bg, borderRadius: 11, border: `1px solid ${card.border}`, borderLeft: `3px solid ${card.accent}` }}>
+          <div style={{ padding: '13px 15px', background: isDark ? C.white : card.bg, borderRadius: 11, border: `1px solid ${isDark ? C.border : card.border}`, borderLeft: `3px solid ${card.accent}` }}>
             <p style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>{T.empathLabel}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.8, margin: 0 }}>{card.detail.insight}</p>
           </div>
@@ -483,9 +484,9 @@ function MetricCard({ card, onClick, delay }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: card.bg,
+        background: isDark ? C.white : card.bg,
         borderRadius: 14,
-        border: `1.5px solid ${hovered ? card.accent + '60' : card.border}`,
+        border: `1.5px solid ${hovered ? card.accent + '60' : (isDark ? C.border : card.border)}`,
         padding: '16px 16px 12px',
         cursor: 'pointer',
         display: 'flex', flexDirection: 'column',
@@ -503,7 +504,7 @@ function MetricCard({ card, onClick, delay }) {
           <div style={{ fontSize: 11, fontWeight: 600, color: C.text, lineHeight: 1.2 }}>{card.title}</div>
           <div style={{ fontSize: 10, color: card.accent, fontWeight: 500, opacity: 0.8 }}>{card.sub}</div>
         </div>
-        <span style={{ fontSize: 9, fontWeight: 600, color: card.accent, background: card.border + '80', padding: '2px 7px', borderRadius: 20, flexShrink: 0, marginLeft: 6, letterSpacing: '0.04em' }}>
+        <span style={{ fontSize: 9, fontWeight: 600, color: card.accent, background: isDark ? card.accent + '22' : card.border + '80', padding: '2px 7px', borderRadius: 20, flexShrink: 0, marginLeft: 6, letterSpacing: '0.04em' }}>
           {card.category}
         </span>
       </div>
@@ -534,6 +535,7 @@ function MetricCard({ card, onClick, delay }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AIInsights({ theme, lang = 'en', onBack }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [selected, setSelected] = useState(null)
