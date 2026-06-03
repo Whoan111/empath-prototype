@@ -554,21 +554,10 @@ function CandidateCard({ candidate, onViewProfile, isSelected, T }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: isRejected ? C.muted : C.text }}>{candidate.name}</span>
-            {candidate.newOutcome && (
-              <span style={{ fontSize: 9, fontWeight: 700, color: C.white, background: C.red, padding: '2px 7px', borderRadius: 20, flexShrink: 0 }}>
-                {T.newTag}
-              </span>
-            )}
           </div>
           <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
           <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{candidate.position} · {candidate.dept}</div>
         </div>
-        {/* Selected indicator */}
-        {isSelected && (
-          <div style={{ width: 20, height: 20, borderRadius: '50%', background: C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontSize: 10, color: 'white', fontWeight: 700 }}>✓</span>
-          </div>
-        )}
       </div>
 
       {/* Interview info */}

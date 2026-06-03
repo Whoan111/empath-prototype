@@ -16,6 +16,7 @@
 import { useState, useMemo, useRef } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -519,21 +520,18 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 11,
                       padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                      border: `2px solid ${typeId === t.id ? t.color : C.border}`,
-                      background: typeId === t.id ? t.bg : C.white,
+                      border: `2px solid ${typeId === t.id ? C.red : C.border}`,
+                      background: typeId === t.id ? C.redBg : C.white,
                       textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
                     }}
                   >
                     <span style={{ fontSize: 18, flexShrink: 0 }}>{t.emoji}</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: typeId === t.id ? 600 : 400, color: typeId === t.id ? t.color : C.text }}>
+                      <div style={{ fontSize: 13, fontWeight: typeId === t.id ? 600 : 400, color: typeId === t.id ? C.red : C.text }}>
                         {t.label}
                       </div>
                       <div style={{ fontSize: 11, color: C.muted }}>{t.desc}</div>
                     </div>
-                    {typeId === t.id && (
-                      <span style={{ fontSize: 14, color: t.color, flexShrink: 0 }}>✓</span>
-                    )}
                   </button>
                 )
               ))}
@@ -563,7 +561,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
               style={{
                 width: '100%', padding: '11px 13px', borderRadius: 10,
                 border: `1.5px solid ${C.border}`, fontSize: 12, resize: 'none',
-                height: 120, color: C.text, lineHeight: 1.7,
+                height: 120, color: C.text, background: C.white, lineHeight: 1.7,
                 boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none',
               }}
             />
@@ -648,7 +646,7 @@ function CandidateInboxView({ candidate, subject, message }) {
       </div>
 
       {/* Email open view */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '22px 26px', background: C.white }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '22px 26px', background: '#FFFFFF' }}>
         {/* Email header */}
         <h3 style={{ fontSize: 17, fontWeight: 600, color: '#1C1917', margin: '0 0 16px', lineHeight: 1.4 }}>{subject}</h3>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 11, marginBottom: 20 }}>
@@ -807,7 +805,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             />
           ) : (
             /* Compose / edit view */
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF', borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Email meta header */}
               <div style={{ padding: '12px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -831,7 +829,8 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                 style={{
                   flex: 1, padding: '20px', border: 'none', outline: 'none',
                   fontSize: 13, fontFamily: 'inherit', color: C.text,
-                  lineHeight: 1.85, resize: 'none', background: C.white,
+                  lineHeight: 1.85, resize: 'none',
+                  background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF',
                 }}
               />
 
@@ -896,7 +895,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                 style={{
                   width: '100%', padding: '9px 11px', borderRadius: 8,
                   border: `1.5px solid ${C.border}`, fontSize: 11, resize: 'none',
-                  height: 68, color: C.text, lineHeight: 1.6,
+                  height: 68, color: C.text, background: C.white, lineHeight: 1.6,
                   boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none',
                 }}
               />
@@ -974,6 +973,7 @@ const BACK_LABELS = {
 
 export default function CraftMessage({ theme, lang = 'en', candidate = null, from = 'dashboard', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const backLabel = BACK_LABELS[from] || '← Back'
