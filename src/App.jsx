@@ -392,20 +392,30 @@ export default function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg, position: 'relative' }}>
 
-      {/* ── Dark mode: animated orb + dot grid ── */}
-      {themeMode === 'dark' && (
+      {/* ── Animated orb background (dark + light) ── */}
+      <style>{`
+        @keyframes empathOrb {
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.85; }
+          33%      { transform: translate(-44%,-56%) scale(1.09); opacity: 0.95; }
+          66%      { transform: translate(-56%,-44%) scale(0.93); opacity: 0.78; }
+        }
+        @keyframes empathOrb2 {
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.5; }
+          50%      { transform: translate(-58%,-42%) scale(1.12); opacity: 0.65; }
+        }
+        @keyframes empathOrbL {
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.55; }
+          33%      { transform: translate(-44%,-56%) scale(1.08); opacity: 0.70; }
+          66%      { transform: translate(-56%,-44%) scale(0.94); opacity: 0.45; }
+        }
+        @keyframes empathOrbL2 {
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.35; }
+          50%      { transform: translate(-58%,-42%) scale(1.11); opacity: 0.50; }
+        }
+      `}</style>
+
+      {themeMode === 'dark' ? (
         <>
-          <style>{`
-            @keyframes empathOrb {
-              0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.85; }
-              33%      { transform: translate(-44%,-56%) scale(1.09); opacity: 0.95; }
-              66%      { transform: translate(-56%,-44%) scale(0.93); opacity: 0.78; }
-            }
-            @keyframes empathOrb2 {
-              0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.5; }
-              50%      { transform: translate(-58%,-42%) scale(1.12); opacity: 0.65; }
-            }
-          `}</style>
           {/* Primary orb — navy-purple centre */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
@@ -429,6 +439,33 @@ export default function App() {
             position: 'fixed', zIndex: 0, pointerEvents: 'none', inset: 0,
             backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
             backgroundSize: '26px 26px',
+          }} />
+        </>
+      ) : (
+        <>
+          {/* Light — primary orb: warm coral-red drift */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none',
+            top: '38%', left: '58%', width: 820, height: 820,
+            borderRadius: '50%', filter: 'blur(90px)',
+            background: 'radial-gradient(circle at center, rgba(233,1,48,0.10) 0%, rgba(27,36,97,0.06) 40%, transparent 70%)',
+            transform: 'translate(-50%,-50%)',
+            animation: 'empathOrbL 16s ease-in-out infinite',
+          }} />
+          {/* Light — secondary orb: soft navy-lavender */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none',
+            top: '65%', left: '36%', width: 580, height: 580,
+            borderRadius: '50%', filter: 'blur(100px)',
+            background: 'radial-gradient(circle at center, rgba(27,36,97,0.08) 0%, rgba(233,1,48,0.05) 50%, transparent 70%)',
+            transform: 'translate(-50%,-50%)',
+            animation: 'empathOrbL2 20s ease-in-out infinite',
+          }} />
+          {/* Light — dot grid texture */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none', inset: 0,
+            backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
           }} />
         </>
       )}
