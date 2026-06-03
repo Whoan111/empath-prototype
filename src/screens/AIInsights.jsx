@@ -10,6 +10,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -34,14 +36,6 @@ const SCREEN_T = {
 }
 
 // ── Brand tokens (identical to the rest of the app) ───────────────────────────
-const C = {
-  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
-  war: '#D97706', warBg:'#FEF3C7', warT:'#92400E',
-  inf: '#2563EB', infBg:'#DBEAFE', infT:'#1E40AF',
-}
 
 // ── Card definitions ──────────────────────────────────────────────────────────
 // Each card uses a bg (very light tint) + accent (darker, for number + visual)
@@ -538,7 +532,9 @@ function MetricCard({ card, onClick, delay }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function AIInsights({ lang = 'en', onBack }) {
+export default function AIInsights({ theme, lang = 'en', onBack }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [selected, setSelected] = useState(null)
 

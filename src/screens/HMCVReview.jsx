@@ -16,6 +16,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -100,15 +102,6 @@ const SCREEN_T = {
 }
 
 // ── Brand tokens ──────────────────────────────────────────────────────────────
-const C = {
-  red:    '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:   '#1C1917', muted: '#78716C', border: '#F0D0D4',
-  white:  '#FFFFFF', gray: '#F5F4F3', grayB: '#E5E2DF',
-  suc: '#059669', sucBg: '#D1FAE5', sucT: '#065F46',
-  war: '#D97706', warBg: '#FEF3C7', warT: '#92400E',
-  inf: '#2563EB', infBg: '#DBEAFE', infT: '#1E40AF',
-  purp: '#6D28D9', purpBg: '#EDE9FE', purpL: '#DDD8F9',
-}
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const POSITIONS_HM = [
@@ -379,7 +372,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T }) {
   const hasURLPortfolio = !hasPDFPortfolio && !!cv.portfolio
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F0EDE9' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
       {/* Toolbar */}
       <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -702,6 +695,8 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
 // Main export  (idx-based — same pattern as CVTriage, no stacking bug)
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   const [idx,              setIdx]              = useState(0)

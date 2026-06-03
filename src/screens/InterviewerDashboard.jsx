@@ -6,6 +6,8 @@
 //  section='debrief' → pending & submitted interview-summary work
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -111,16 +113,6 @@ const SCREEN_T = {
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const C = {
-  red:    '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:   '#1C1917', muted: '#78716C', border: '#E8E4E0',
-  white:  '#FFFFFF', gray: '#F5F4F3', grayB: '#EAE7E4',
-  suc:    '#059669', sucBg: '#D1FAE5', sucT: '#065F46', sucBorder: '#BBF7D0',
-  war:    '#D97706', warBg: '#FEF3C7', warT: '#92400E', warBorder: '#FDE68A',
-  inf:    '#2563EB', infBg: '#DBEAFE', infT: '#1E40AF',
-  purp:   '#6D28D9', purpBg: '#EDE9FE', purpL: '#DDD8F9',
-  navy:   '#1B2461', navyBg: 'rgba(27,36,97,0.06)', navyB: 'rgba(27,36,97,0.13)',
-}
 
 // ── Interviewer identity ──────────────────────────────────────────────────────
 const INTERVIEWER = { name: 'Alessandro S.', ini: 'AL', role: 'Senior UX Designer' }
@@ -309,7 +301,7 @@ function CVDocumentMockup({ cv }) {
 function DocumentViewer({ cv }) {
   const [zoom, setZoom] = useState(1)
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F0EDE9' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
       <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <span style={{ background: C.infBg, color: C.infT, fontSize: 11, fontWeight: 600, padding: '4px 11px', borderRadius: 20 }}>📄 CV</span>
         <span style={{ fontSize: 11, color: C.muted }}>{cv.file}</span>
@@ -607,7 +599,7 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
   const submitted = MY_CANDIDATES.filter(c => c.debriefDone)
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: '#FAFAF8' }}>
+    <div style={{ flex: 1, overflow: 'auto', background: C.gray }}>
       <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
@@ -732,6 +724,8 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function InterviewerDashboard({ lang = 'en', theme, section = 'home', onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   // Full CV profile view (used from Summary section)
@@ -802,7 +796,7 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       {/* Scrollable main content */}
-      <div style={{ flex: 1, overflow: 'auto', background: '#FAFAF8' }}>
+      <div style={{ flex: 1, overflow: 'auto', background: C.gray }}>
 
         {/* Header */}
         <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>

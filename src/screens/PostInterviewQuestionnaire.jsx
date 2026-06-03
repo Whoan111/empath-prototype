@@ -16,6 +16,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 const SCREEN_T = {
   en: {
@@ -167,14 +169,6 @@ const SCREEN_T = {
 }
 
 // ── Brand tokens ──────────────────────────────────────────────────────────────
-const C = {
-  red:   '#C9394A', redH: '#A82D3B', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
-  war: '#D97706', warBg:'#FEF3C7', warT:'#92400E',
-  inf: '#2563EB', infBg:'#DBEAFE', infT:'#1E40AF',
-}
 
 // ── Mock candidate ────────────────────────────────────────────────────────────
 const MOCK_CANDIDATE = {
@@ -923,7 +917,9 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function PostInterviewQuestionnaire({ lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, summariesScreen = 'debrief-list', homeScreen = 'hiring-manager', onBack, onNavigate }) {
+export default function PostInterviewQuestionnaire({ theme, lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, summariesScreen = 'debrief-list', homeScreen = 'hiring-manager', onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   // Current user — derived from role so the debrief form shows the right name

@@ -13,6 +13,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 const SCREEN_T = {
   en: {
@@ -81,14 +83,6 @@ const SCREEN_T = {
   },
 }
 
-const C = {
-  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
-  war: '#D97706', warBg:'#FEF3C7', warT:'#92400E',
-  inf: '#2563EB', infBg:'#DBEAFE', infT:'#1E40AF',
-}
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 // Pending — interview took place, no debrief submitted yet
@@ -218,7 +212,9 @@ function CompletedRow({ item, onEdit, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DebriefList({ lang = 'en', onBack, onNavigate }) {
+export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [pendingOpen,   setPendingOpen]   = useState(true)
   const [completedOpen, setCompletedOpen] = useState(false)

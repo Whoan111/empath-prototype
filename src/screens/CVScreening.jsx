@@ -16,6 +16,7 @@
 //   onNavigate(screen, data?) — parent navigation handler
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { buildC, THEMES } from '../designSystem'
 import { useState, useEffect, useCallback } from 'react'
 
 // ── Translations ──────────────────────────────────────────────────────────────
@@ -120,15 +121,7 @@ const SCREEN_T = {
   },
 }
 
-// ── Brand tokens ──────────────────────────────────────────────────────────────
-const C = {
-  red:   '#C9394A', redH:  '#A82D3B', redL:  '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted: '#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray:  '#F5F4F3', grayB: '#E5E2DF',
-  suc: '#059669', sucBg: '#D1FAE5', sucT: '#065F46',
-  war: '#D97706', warBg: '#FEF3C7', warT: '#92400E',
-  inf: '#2563EB', infBg: '#DBEAFE', infT: '#1E40AF',
-}
+let C = buildC(THEMES.light)
 
 // ── Mock data (used when no props are passed) ─────────────────────────────────
 const MOCK_POSITION = { id: 1, title: 'UX Designer', dept: 'Product Design' }
@@ -860,12 +853,14 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages, 
 // ── Root export ───────────────────────────────────────────────────────────────
 export default function CVScreening({
   lang       = 'en',
+  theme      = THEMES.light,
   cvs        = MOCK_CVS,
   position   = MOCK_POSITION,
   manager    = MOCK_MANAGER,
   onBack,
   onNavigate,
 }) {
+  C = buildC(theme)
   const T = SCREEN_T[lang] || SCREEN_T.en
   // Sub-step: 'screen' | 'summary' | 'done'
   const [step,      setStep]      = useState('screen')

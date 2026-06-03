@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 const SCREEN_T = {
   en: {
@@ -62,12 +64,6 @@ const SCREEN_T = {
   },
 }
 
-const C = {
-  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  navy:  '#1B2461',
-}
 
 // Rejected candidates — sorted oldest rejection first within each position
 // previousStage = the Kanban stage they were in when rejected
@@ -441,6 +437,8 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
 }
 
 export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [sentMap, setSentMap] = useState(() => {
     const map = {}
@@ -514,7 +512,7 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
     .filter(g => g.candidates.length > 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: '#FAFAF8' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.gray }}>
 
       {/* Header */}
       <div style={{

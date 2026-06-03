@@ -47,7 +47,7 @@ const SETTINGS_SECTIONS = [
 ]
 
 // ── Fixed sidebar ──────────────────────────────────────────────────────────────
-function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggleLang, notifications, collapsed, onToggleCollapse }) {
+function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRole, onToggleLang, onToggleTheme, notifications, collapsed, onToggleCollapse }) {
   const th = theme
   const [showSettings, setShowSettings] = useState(false)
   const [showPicker,   setShowPicker]   = useState(false)
@@ -228,10 +228,10 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
         {showPicker && (
           <div style={{
             position: 'absolute', bottom: 62, left: 8, right: 8,
-            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)', borderRadius: 12,
-            border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
-            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.12)',
+            background: themeMode === 'dark' ? 'rgba(16,14,28,0.97)' : 'rgba(255,255,255,0.98)',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 12, border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
+            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.18)',
           }}>
             <div style={{ padding: '8px 12px 5px', fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>{T.switchView}</div>
             {Object.values(ROLES).map(r => (
@@ -254,31 +254,53 @@ function Sidebar({ screen, role, theme, lang, onNavigate, onSwitchRole, onToggle
         {showSettings && (
           <div style={{
             position: 'absolute', bottom: 62, left: 8, right: 8,
-            background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)', borderRadius: 12,
-            border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
-            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.12)',
+            background: themeMode === 'dark' ? 'rgba(16,14,28,0.97)' : 'rgba(255,255,255,0.98)',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 12, border: `1px solid ${th.borderBrt}`, overflow: 'hidden',
+            zIndex: 30, boxShadow: '0 -4px 28px rgba(0,0,0,0.18)',
           }}>
             <div style={{ padding: '12px 14px 10px', borderBottom: `1px solid ${th.border}` }}>
               <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Settings</div>
             </div>
             {SETTINGS_SECTIONS.map((section, si) => (
               <div key={si} style={{ borderBottom: si < SETTINGS_SECTIONS.length - 1 ? `1px solid ${th.border}` : 'none', padding: '4px 0' }}>
-                {section.map(item => (
-                  <button key={item.label} className="sb-set-item"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 9,
-                      width: '100%', padding: '8px 14px',
-                      border: 'none', background: 'transparent', cursor: 'default',
-                      fontFamily: 'inherit', color: item.danger ? '#C9394A' : th.textMid,
-                      fontSize: 12, textAlign: 'left',
-                    }}
-                  >
-                    <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
-                    <span style={{ flex: 1 }}>{item.label}</span>
-                    <span style={{ fontSize: 9, color: th.textDim, background: th.surface || '#F5F4F3', padding: '1px 6px', borderRadius: 10, border: `1px solid ${th.border}` }}>soon</span>
-                  </button>
-                ))}
+                {section.map(item => {
+                  const isAppearance = item.label === 'Appearance'
+                  return (
+                    <button key={item.label} className={isAppearance ? 'sb-set-item' : 'sb-set-item'}
+                      onClick={isAppearance ? onToggleTheme : undefined}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 9,
+                        width: '100%', padding: '8px 14px',
+                        border: 'none', background: 'transparent',
+                        cursor: isAppearance ? 'pointer' : 'default',
+                        fontFamily: 'inherit', color: item.danger ? '#C9394A' : th.textMid,
+                        fontSize: 12, textAlign: 'left',
+                      }}
+                    >
+                      <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {isAppearance ? (
+                        /* Light / Dark pill toggle */
+                        <div style={{
+                          display: 'flex', background: themeMode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
+                          borderRadius: 20, padding: 2, gap: 2, border: `1px solid ${th.border}`,
+                        }}>
+                          {['light', 'dark'].map(m => (
+                            <span key={m} style={{
+                              fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 14,
+                              background: themeMode === m ? (m === 'dark' ? '#1B2461' : 'white') : 'transparent',
+                              color: themeMode === m ? (m === 'dark' ? 'rgba(255,255,255,0.9)' : '#1B2461') : th.textDim,
+                              transition: 'all 0.18s',
+                            }}>{m === 'light' ? '☀' : '◑'}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 9, color: th.textDim, background: th.surface || '#F5F4F3', padding: '1px 6px', borderRadius: 10, border: `1px solid ${th.border}` }}>soon</span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             ))}
           </div>
@@ -353,49 +375,91 @@ export default function App() {
   const [customPositions, setCustomPositions] = useState([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Light mode only
-  const theme     = THEMES.light
-  const themeMode = 'light'
+  const [themeMode, setThemeMode] = useState('light')
+  const theme = THEMES[themeMode]
 
   const switchRole = (r) => { setRole(r); setScreen(ROLES[r].home); setScreenData(null) }
   const nav = (dest, data = null) => { setScreenData(data); setScreen(dest) }
   const goBack = () => nav(ROLES[role].home)
 
   const sp = { theme, themeMode, lang, onNavigate: nav, userName: ROLES[role].name }
+  const toggleTheme = () => setThemeMode(m => m === 'light' ? 'dark' : 'light')
 
   // Red dots: triage always has pending CVs, not-suitable always has pending messages,
   // hm-cv-review always has assigned CVs awaiting HM review
   const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'debrief-list': true, 'interviewer-debrief': true }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg, position: 'relative' }}>
+
+      {/* ── Dark mode: animated orb + dot grid ── */}
+      {themeMode === 'dark' && (
+        <>
+          <style>{`
+            @keyframes empathOrb {
+              0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.85; }
+              33%      { transform: translate(-44%,-56%) scale(1.09); opacity: 0.95; }
+              66%      { transform: translate(-56%,-44%) scale(0.93); opacity: 0.78; }
+            }
+            @keyframes empathOrb2 {
+              0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.5; }
+              50%      { transform: translate(-58%,-42%) scale(1.12); opacity: 0.65; }
+            }
+          `}</style>
+          {/* Primary orb — navy-purple centre */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none',
+            top: '42%', left: '56%', width: 860, height: 860,
+            borderRadius: '50%', filter: 'blur(72px)',
+            background: 'radial-gradient(circle at center, rgba(60,30,160,0.42) 0%, rgba(27,36,97,0.28) 38%, rgba(233,1,48,0.07) 60%, transparent 72%)',
+            transform: 'translate(-50%,-50%)',
+            animation: 'empathOrb 14s ease-in-out infinite',
+          }} />
+          {/* Secondary orb — red-pink accent */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none',
+            top: '62%', left: '38%', width: 560, height: 560,
+            borderRadius: '50%', filter: 'blur(90px)',
+            background: 'radial-gradient(circle at center, rgba(233,1,48,0.14) 0%, rgba(100,20,80,0.1) 45%, transparent 68%)',
+            transform: 'translate(-50%,-50%)',
+            animation: 'empathOrb2 18s ease-in-out infinite',
+          }} />
+          {/* Dot grid texture */}
+          <div style={{
+            position: 'fixed', zIndex: 0, pointerEvents: 'none', inset: 0,
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+            backgroundSize: '26px 26px',
+          }} />
+        </>
+      )}
 
       <Sidebar
-        screen={screen} role={role} theme={theme} lang={lang}
+        screen={screen} role={role} theme={theme} themeMode={themeMode} lang={lang}
         onNavigate={nav} onSwitchRole={switchRole}
         onToggleLang={() => setLang(l => l === 'en' ? 'it' : 'en')}
+        onToggleTheme={toggleTheme}
         notifications={notifications}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(v => !v)}
       />
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1, transition: 'background 0.3s' }}>
         {screen === 'home'                && <HomeScreen                    {...sp} role={role} />}
         {screen === 'dashboard'           && <RecruiterDashboard            {...sp} customPositions={customPositions} onAddPosition={p => setCustomPositions(prev => [...prev, p])} />}
         {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} restoreCandidate={screenData?.restoreCandidate} onBack={() => nav('dashboard')} />}
-        {screen === 'import'              && <CVImportScreening             lang={lang} initialPosition={screenData?.position} extraPositions={customPositions} onBack={goBack} onNavigate={nav} />}
-        {screen === 'screening'           && <CVScreening                   lang={lang} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
+        {screen === 'import'              && <CVImportScreening             lang={lang} theme={theme} initialPosition={screenData?.position} extraPositions={customPositions} onBack={goBack} onNavigate={nav} />}
+        {screen === 'screening'           && <CVScreening                   lang={lang} theme={theme} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
         {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} />}
         {screen === 'not-suitable'        && <NotSuitable                   lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
-        {screen === 'craft'               && <CraftMessage                  lang={lang} candidate={screenData?.candidate || null} template={screenData?.template || null} from={screenData?.from || 'dashboard'} onBack={() => nav(screenData?.from || 'dashboard')} onNavigate={nav} />}
-        {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} />}
-        {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} lang={lang} />}
-        {screen === 'recruiter-summary'   && <RecruiterSummary              lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}
-        {screen === 'hiring-summary'      && <HiringManagerSummary          lang={lang} candidate={screenData?.candidate || null} onBack={() => nav('decision-list')} onNavigate={nav} />}
+        {screen === 'craft'               && <CraftMessage                  lang={lang} theme={theme} candidate={screenData?.candidate || null} template={screenData?.template || null} from={screenData?.from || 'dashboard'} onBack={() => nav(screenData?.from || 'dashboard')} onNavigate={nav} />}
+        {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} theme={theme} />}
+        {screen === 'decision-list'       && <SummaryList                   mode="decision" onBack={goBack} onNavigate={nav} lang={lang} theme={theme} />}
+        {screen === 'recruiter-summary'   && <RecruiterSummary              lang={lang} theme={theme} candidate={screenData?.candidate || null} onBack={() => nav('interview-summaries')} onNavigate={nav} />}
+        {screen === 'hiring-summary'      && <HiringManagerSummary          lang={lang} theme={theme} candidate={screenData?.candidate || null} onBack={() => nav('decision-list')} onNavigate={nav} />}
         {screen === 'hm-cv-review'        && <HMCVReview                    lang={lang} theme={theme} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
-        {screen === 'hiring-manager'      && <HiringManagerDashboard        lang={lang} onBack={goBack} onNavigate={nav} />}
-        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} summariesScreen={role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief'} homeScreen={role === 'hiring-manager' ? 'hiring-manager' : 'interviewer-dashboard'} onBack={() => nav(role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief')} onNavigate={nav} />}
-        {screen === 'debrief-list'        && <DebriefList                   lang={lang} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
+        {screen === 'hiring-manager'      && <HiringManagerDashboard        lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
+        {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} theme={theme} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} summariesScreen={role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief'} homeScreen={role === 'hiring-manager' ? 'hiring-manager' : 'interviewer-dashboard'} onBack={() => nav(role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief')} onNavigate={nav} />}
+        {screen === 'debrief-list'        && <DebriefList                   lang={lang} theme={theme} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
         {screen === 'insights'            && <AIInsights                    {...sp} onBack={goBack} />}
         {screen === 'interviewer-dashboard' && <InterviewerDashboard        lang={lang} theme={theme} section="home"   onBack={goBack} onNavigate={nav} />}
         {screen === 'interviewer-debrief'   && <InterviewerDashboard        lang={lang} theme={theme} section="debrief" onBack={goBack} onNavigate={nav} />}

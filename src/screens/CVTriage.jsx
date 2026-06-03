@@ -13,6 +13,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 const SCREEN_T = {
   en: {
@@ -136,15 +138,6 @@ const SCREEN_T = {
 }
 
 // ── Brand tokens ──────────────────────────────────────────────────────────────
-const C = {
-  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
-  war: '#D97706', warBg:'#FEF3C7', warT:'#92400E',
-  inf: '#2563EB', infBg:'#DBEAFE', infT:'#1E40AF',
-  doc: '#1C1917', // document text colour
-}
 
 // ── Positions ─────────────────────────────────────────────────────────────────
 const INIT_POSITIONS = [
@@ -1139,6 +1132,8 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition }) {
+  C = buildC(theme)
+
   const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 

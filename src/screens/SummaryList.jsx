@@ -14,15 +14,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
-const C = {
-  red:   '#C9394A', redL: '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted:'#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray: '#F5F4F3', grayB:'#E5E2DF',
-  suc: '#059669', sucBg:'#D1FAE5', sucT:'#065F46',
-  war: '#D97706', warBg:'#FEF3C7', warT:'#92400E',
-  inf: '#2563EB', infBg:'#DBEAFE', infT:'#1E40AF',
-}
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const TEXT = {
@@ -320,7 +314,9 @@ function DecisionCard({ c, onOpen, T }) {
 }
 
 // ── Root ──────────────────────────────────────────────────────────────────────
-export default function SummaryList({ mode = 'pre-call', lang = 'en', onBack, onNavigate }) {
+export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T         = TEXT[lang] || TEXT.en
   const isPreCall = mode === 'pre-call'
   // Decision mode: only show candidates with a completed summary

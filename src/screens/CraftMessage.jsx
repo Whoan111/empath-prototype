@@ -14,6 +14,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useMemo, useRef } from 'react'
+import { buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -108,14 +110,6 @@ const SCREEN_T = {
 }
 
 // ── Brand tokens ──────────────────────────────────────────────────────────────
-const C = {
-  red:   '#C9394A', redH:  '#A82D3B', redL:  '#FECDD3', redBg: '#FFF5F6',
-  text:  '#1C1917', muted: '#78716C', border:'#F0D0D4',
-  white: '#FFFFFF', gray:  '#F5F4F3', grayB: '#E5E2DF',
-  suc: '#059669', sucBg: '#D1FAE5', sucT: '#065F46',
-  war: '#D97706', warBg: '#FEF3C7', warT: '#92400E',
-  inf: '#2563EB', infBg: '#DBEAFE', infT: '#1E40AF',
-}
 
 // ── Candidate pool ────────────────────────────────────────────────────────────
 const ALL_CANDIDATES = [
@@ -978,7 +972,9 @@ const BACK_LABELS = {
   'hiring-summary': '← Decision report',
 }
 
-export default function CraftMessage({ lang = 'en', candidate = null, from = 'dashboard', onBack, onNavigate }) {
+export default function CraftMessage({ theme, lang = 'en', candidate = null, from = 'dashboard', onBack, onNavigate }) {
+  C = buildC(theme)
+
   const T = SCREEN_T[lang] || SCREEN_T.en
   const backLabel = BACK_LABELS[from] || '← Back'
   const [step,  setStep]  = useState('compose')

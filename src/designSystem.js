@@ -238,3 +238,53 @@ export const TRANSLATIONS = {
 }
 
 export const STAGES = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+
+// ── Shared screen color palette — call once at the top of each screen component ─
+// Maps the global theme tokens onto the `C` naming convention every screen uses.
+// Semantic colours (suc/war/inf/purp) are darkened slightly in dark mode so they
+// stay readable as chip backgrounds without blowing out on a near-black surface.
+export function buildC(theme) {
+  const dk = theme.text?.startsWith('rgba(255') // true in dark mode
+  return {
+    // Brand
+    red:    theme.red,
+    redL:   dk ? 'rgba(233,1,48,0.22)'          : '#FECDD3',
+    redBg:  dk ? 'rgba(233,1,48,0.1)'           : '#FFF5F6',
+    // Text
+    text:   theme.text,
+    muted:  theme.textMid,
+    // Surfaces  (C.white = panel / card bg, NOT literal white)
+    white:  dk ? theme.cardBg                   : '#FFFFFF',
+    gray:   dk ? theme.surface                  : '#F5F4F3',
+    grayB:  dk ? theme.borderBrt               : '#E5E2DF',
+    // Borders
+    border: theme.border,
+    // Success
+    suc:    '#059669',
+    sucBg:  dk ? 'rgba(5,150,105,0.15)'         : '#D1FAE5',
+    sucT:   dk ? '#6EE7B7'                      : '#065F46',
+    sucBorder: dk ? 'rgba(5,150,105,0.3)'       : '#BBF7D0',
+    // Warning
+    war:    '#D97706',
+    warBg:  dk ? 'rgba(217,119,6,0.15)'         : '#FEF3C7',
+    warT:   dk ? '#FCD34D'                      : '#92400E',
+    warBorder: dk ? 'rgba(217,119,6,0.3)'       : '#FDE68A',
+    // Info
+    inf:    '#2563EB',
+    infBg:  dk ? 'rgba(37,99,235,0.15)'         : '#DBEAFE',
+    infT:   dk ? '#93C5FD'                      : '#1E40AF',
+    // Purple
+    purp:   '#6D28D9',
+    purpBg: dk ? 'rgba(109,40,217,0.15)'        : '#EDE9FE',
+    purpL:  dk ? 'rgba(109,40,217,0.28)'        : '#DDD8F9',
+    // Navy aliases
+    navy:   theme.navy,
+    navyBg: dk ? 'rgba(27,36,97,0.22)'          : 'rgba(27,36,97,0.06)',
+    navyB:  dk ? 'rgba(27,36,97,0.4)'           : 'rgba(27,36,97,0.13)',
+    // HM accent
+    hmBg:     dk ? 'rgba(79,107,219,0.1)'       : '#F5F7FF',
+    hmBorder: dk ? 'rgba(79,107,219,0.22)'      : '#D4D9F0',
+    // Document text (stays dark — it's on a white paper mockup)
+    doc:    '#1C1917',
+  }
+}
