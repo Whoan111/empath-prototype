@@ -286,7 +286,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</span>
           {messageSent && (
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#D1FAE5', padding: '1px 8px', borderRadius: 20 }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: '#1B2461', background: 'rgba(27,36,97,0.09)', padding: '1px 8px', borderRadius: 20 }}>
               {T.messageSent}
             </span>
           )}
@@ -418,10 +418,10 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
           {pendingCount === 0 && group.candidates.length > 0 && (
             <div style={{
               padding: '11px 20px',
-              background: 'rgba(5,150,105,0.04)',
-              borderTop: `1px solid rgba(5,150,105,0.12)`,
+              background: 'rgba(27,36,97,0.04)',
+              borderTop: `1px solid rgba(27,36,97,0.12)`,
               display: 'flex', alignItems: 'center', gap: 9,
-              fontSize: 11, color: '#065F46', fontWeight: 500,
+              fontSize: 11, color: '#1B2461', fontWeight: 500,
             }}>
               <span style={{ fontSize: 13 }}>✓</span>
               {T.allSentInGroup(group.positionTitle)}
@@ -564,12 +564,12 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
             position: 'sticky', top: 0, zIndex: 20,
             marginBottom: 18,
             padding: '13px 18px',
-            background: 'rgba(5,150,105,0.08)',
-            border: '1.5px solid rgba(5,150,105,0.22)',
+            background: 'rgba(27,36,97,0.07)',
+            border: '1.5px solid rgba(27,36,97,0.20)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             borderRadius: 10,
-            color: '#065F46',
+            color: '#1B2461',
             fontSize: 13, fontWeight: 500, lineHeight: 1.55,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>

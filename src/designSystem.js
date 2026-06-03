@@ -281,6 +281,11 @@ export function buildC(theme) {
     navy:   theme.navy,
     navyBg: dk ? 'rgba(27,36,97,0.22)'          : 'rgba(27,36,97,0.06)',
     navyB:  dk ? 'rgba(27,36,97,0.4)'           : 'rgba(27,36,97,0.13)',
+    // Navy semantic (advance / accept — replaces green in brand palette)
+    nav:    dk ? '#8BA8FF'                      : '#1B2461',
+    navBg:  dk ? 'rgba(27,36,97,0.18)'          : 'rgba(27,36,97,0.09)',
+    navT:   dk ? '#8BA8FF'                      : '#1B2461',
+    navL:   dk ? 'rgba(27,36,97,0.35)'          : 'rgba(27,36,97,0.22)',
     // HM accent
     hmBg:     dk ? 'rgba(79,107,219,0.1)'       : '#F5F7FF',
     hmBorder: dk ? 'rgba(79,107,219,0.22)'      : '#D4D9F0',

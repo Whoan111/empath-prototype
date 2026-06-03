@@ -362,79 +362,162 @@ function PortfolioMockup({ cv }) {
   )
 }
 
+// ── Design-role check ────────────────────────────────────────────────────────
+const DESIGN_KEYWORDS_HM = ['design', 'ux', 'ui', 'visual', 'interaction', 'creative', 'brand', 'motion', 'art director']
+function isDesignRole(role = '') {
+  return DESIGN_KEYWORDS_HM.some(k => role.toLowerCase().includes(k))
+}
+
+// ── Portfolio URL view — centered link, no document ───────────────────────────
+function PortfolioLinkView({ cv }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, padding: '48px 40px', background: C.gray }}>
+      <div style={{ fontSize: 52 }}>🎨</div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>Portfolio</div>
+        <div style={{ fontSize: 12, color: C.muted }}>{cv.name}'s external portfolio website</div>
+      </div>
+      <a
+        href={`https://${cv.portfolio}`}
+        target="_blank"
+        rel="noreferrer"
+        style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '13px 28px', borderRadius: 12,
+          background: C.purpBg, color: C.purp,
+          border: `1.5px solid ${C.purpL}`,
+          fontSize: 14, fontWeight: 600, textDecoration: 'none',
+          boxShadow: '0 2px 14px rgba(109,40,217,0.13)',
+          transition: 'opacity 0.15s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
+        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+      >
+        <span>🔗</span>
+        <span>{cv.portfolio}</span>
+        <span style={{ fontSize: 12, opacity: 0.65 }}>↗</span>
+      </a>
+      <p style={{ fontSize: 11, color: C.muted, textAlign: 'center', maxWidth: 260, lineHeight: 1.65, margin: 0 }}>
+        Opens in a new tab. External link provided by the candidate.
+      </p>
+    </div>
+  )
+}
+
+// ── Shared zoom bar ───────────────────────────────────────────────────────────
+function ZoomBar({ zoom, setZoom, T }) {
+  return (
+    <div style={{ padding: '8px 16px', background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <button onClick={() => setZoom(z => Math.max(0.6, z - 0.1))} style={{ width: 26, height: 26, borderRadius: '50%', border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+      <span style={{ fontSize: 11, color: C.muted, width: 44, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+      <button onClick={() => setZoom(z => Math.min(1.8, z + 0.1))} style={{ width: 26, height: 26, borderRadius: '50%', border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+      <span style={{ width: 1, height: 16, background: C.border }} />
+      <button onClick={() => setZoom(1)} style={{ fontSize: 10, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{T.reset}</button>
+    </div>
+  )
+}
+
 // ── Center: Document viewer ───────────────────────────────────────────────────
-function DocumentViewer({ cv, docType, onOverrideType, T }) {
+function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
   const [zoom, setZoom] = useState(1)
-  // Default to portfolio view only if the uploaded file IS a portfolio PDF
-  const [viewMode, setViewMode] = useState(docType === 'portfolio' ? 'portfolio' : 'cv')
 
   const hasPDFPortfolio = docType === 'portfolio'
   const hasURLPortfolio = !hasPDFPortfolio && !!cv.portfolio
+  const portfolioAvailable = showPortfolio && (hasPDFPortfolio || hasURLPortfolio)
+
+  const [viewMode, setViewMode] = useState('cv')
+
+  const tabStyle = (active, purple = false) => ({
+    padding: '11px 20px',
+    border: 'none',
+    borderBottom: active ? `2px solid ${purple ? C.purp : C.red}` : '2px solid transparent',
+    background: 'none',
+    color: active ? (purple ? C.purp : C.text) : C.muted,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    fontSize: 12,
+    fontWeight: active ? 600 : 400,
+    display: 'flex', alignItems: 'center', gap: 6,
+    transition: 'color 0.15s, border-color 0.15s',
+    whiteSpace: 'nowrap',
+  })
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
-      {/* Toolbar */}
-      <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <DocTypeBadge type={viewMode === 'portfolio' ? 'portfolio' : docType === 'unknown' ? 'unknown' : 'cv'} />
-          <span style={{ fontSize: 11, color: C.muted }}>{cv.file}</span>
-          <span style={{ fontSize: 10, color: C.muted }}>· {cv.pages} page{cv.pages !== 1 ? 's' : ''}</span>
-        </div>
 
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          {/* Unknown type: identify buttons */}
-          {docType === 'unknown' && (
-            <>
-              <span style={{ fontSize: 11, color: C.muted }}>{T.identifyAs}</span>
-              <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
-              <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
-            </>
-          )}
-          {/* Portfolio PDF: toggle between CV view and portfolio view */}
-          {hasPDFPortfolio && viewMode === 'portfolio' && (
-            <button onClick={() => setViewMode('cv')} style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              📄 {T.backToCV}
-            </button>
-          )}
-          {hasPDFPortfolio && viewMode === 'cv' && (
-            <button onClick={() => setViewMode('portfolio')} style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              🎨 {T.viewPortfolio}
-            </button>
-          )}
-          {/* Portfolio URL: open as link */}
-          {hasURLPortfolio && (
-            <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer"
-              style={{ padding: '4px 12px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
-            >
-              🎨 {cv.portfolio} ↗
-            </a>
-          )}
-        </div>
+      {/* ── Tab bar ── */}
+      <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
+
+        {/* CV tab */}
+        {!hasPDFPortfolio && (
+          <button onClick={() => setViewMode('cv')} style={tabStyle(viewMode === 'cv')}>
+            <span>📄</span>
+            <span>CV</span>
+            <span style={{ fontSize: 10, color: C.muted, fontWeight: 400 }}>· {cv.file}</span>
+            <span style={{ fontSize: 9, color: C.muted }}>({cv.pages}p)</span>
+          </button>
+        )}
+
+        {/* Portfolio tab — design roles only */}
+        {portfolioAvailable && (
+          <button onClick={() => setViewMode('portfolio')} style={tabStyle(viewMode === 'portfolio', true)}>
+            <span>🎨</span>
+            <span>Portfolio</span>
+            {hasPDFPortfolio
+              ? <><span style={{ fontSize: 10, color: C.muted, fontWeight: 400 }}>· {cv.file}</span><span style={{ fontSize: 9, color: C.muted }}>({cv.pages}p)</span></>
+              : <span style={{ fontSize: 10, color: C.muted, fontWeight: 400 }}>· {cv.portfolio}</span>
+            }
+          </button>
+        )}
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Unknown-type identify buttons */}
+        {docType === 'unknown' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px' }}>
+            <span style={{ fontSize: 10, color: C.muted }}>{T.identifyAs}</span>
+            <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,  background: C.infBg,  color: C.infT,  fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
+            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
+          </div>
+        )}
       </div>
 
-      {/* Document scroll area */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-          {docType !== 'unknown' && viewMode === 'cv'        && <CVDocumentMockup cv={cv} />}
-          {docType !== 'unknown' && viewMode === 'portfolio' && <PortfolioMockup  cv={cv} />}
-          {docType === 'unknown' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 16, textAlign: 'center' }}>
-              <div style={{ fontSize: 48 }}>📎</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{cv.file}</div>
-              <div style={{ fontSize: 12, color: C.muted }}>{cv.pages} pages · Could not auto-detect type</div>
+      {/* ── CV view ── */}
+      {viewMode === 'cv' && (
+        <>
+          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+              {docType !== 'unknown' && <CVDocumentMockup cv={cv} />}
+              {docType === 'unknown' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 16, textAlign: 'center' }}>
+                  <div style={{ fontSize: 48 }}>📎</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{cv.file}</div>
+                  <div style={{ fontSize: 12, color: C.muted }}>{cv.pages} pages · Could not auto-detect type</div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+        </>
+      )}
 
-      {/* Zoom controls */}
-      <div style={{ padding: '8px 16px', background: C.white, borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={() => setZoom(z => Math.max(0.6, z - 0.1))} style={{ width: 26, height: 26, borderRadius: '50%', border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-        <span style={{ fontSize: 11, color: C.muted, width: 44, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom(z => Math.min(1.8, z + 0.1))} style={{ width: 26, height: 26, borderRadius: '50%', border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-        <span style={{ width: 1, height: 16, background: C.border }} />
-        <button onClick={() => setZoom(1)} style={{ fontSize: 10, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{T.reset}</button>
-      </div>
+      {/* ── Portfolio PDF view ── */}
+      {viewMode === 'portfolio' && hasPDFPortfolio && (
+        <>
+          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+              <PortfolioMockup cv={cv} />
+            </div>
+          </div>
+          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+        </>
+      )}
+
+      {/* ── Portfolio URL view ── */}
+      {viewMode === 'portfolio' && hasURLPortfolio && (
+        <PortfolioLinkView cv={cv} />
+      )}
     </div>
   )
 }
@@ -495,29 +578,31 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
           </div>
         </div>
 
-        {/* Portfolio link */}
-        {candidate.portfolio ? (
-          <div style={{ background: C.purpBg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${C.purpL}` }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: C.purp, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-              {T.portfolio}
+        {/* Portfolio link — design roles only */}
+        {isDesignRole(candidate.role) && (
+          candidate.portfolio ? (
+            <div style={{ background: C.purpBg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${C.purpL}` }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.purp, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+                {T.portfolio}
+              </div>
+              <a
+                href={`https://${candidate.portfolio}`}
+                target="_blank" rel="noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.purp, textDecoration: 'none', fontWeight: 600 }}
+              >
+                <span>🎨</span>
+                <span style={{ flex: 1 }}>{candidate.portfolio}</span>
+                <span style={{ fontSize: 11, opacity: 0.7 }}>↗</span>
+              </a>
             </div>
-            <a
-              href={`https://${candidate.portfolio}`}
-              target="_blank" rel="noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.purp, textDecoration: 'none', fontWeight: 600 }}
-            >
-              <span>🎨</span>
-              <span style={{ flex: 1 }}>{candidate.portfolio}</span>
-              <span style={{ fontSize: 11, opacity: 0.7 }}>↗</span>
-            </a>
-          </div>
-        ) : (
-          <div style={{ background: C.gray, borderRadius: 10, padding: '10px 14px', border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
-              {T.portfolio}
+          ) : (
+            <div style={{ background: C.gray, borderRadius: 10, padding: '10px 14px', border: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+                {T.portfolio}
+              </div>
+              <span style={{ fontSize: 12, color: C.muted }}>{T.noPortfolio}</span>
             </div>
-            <span style={{ fontSize: 12, color: C.muted }}>{T.noPortfolio}</span>
-          </div>
+          )
         )}
 
         {/* HM notes */}
@@ -536,9 +621,9 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
             onClick={handleSave}
             style={{
               marginTop: 6, width: '100%', padding: '7px 0', borderRadius: 8,
-              background: savedFlash ? C.sucBg : 'transparent',
-              color: savedFlash ? C.sucT : C.muted,
-              border: `1px solid ${savedFlash ? '#BBF7D0' : C.border}`,
+              background: savedFlash ? C.navBg : 'transparent',
+              color: savedFlash ? C.navT : C.muted,
+              border: `1px solid ${savedFlash ? C.navL : C.border}`,
               fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
             }}
           >
@@ -555,16 +640,16 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
         {decision ? (
           <div style={{
             padding: '12px 14px', borderRadius: 9,
-            background: decision === 'accept' ? C.sucBg : C.redBg,
-            border: `1px solid ${decision === 'accept' ? C.sucBorder : C.redL}`,
+            background: decision === 'accept' ? C.navBg : C.redBg,
+            border: `1px solid ${decision === 'accept' ? C.navL : C.redL}`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.sucT : C.red }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.navT : C.red }}>
                   {decision === 'accept' ? T.acceptedLabel : T.rejectedLabel}
                 </div>
                 {decision === 'accept' && (
-                  <div style={{ fontSize: 10, color: C.suc, marginTop: 2 }}>{T.acceptedSub}</div>
+                  <div style={{ fontSize: 10, color: C.nav, marginTop: 2 }}>{T.acceptedSub}</div>
                 )}
               </div>
               <button
@@ -612,9 +697,9 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
           {T.batchProgress}
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.sucBg, borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.suc, lineHeight: 1 }}>{accepted}</div>
-            <div style={{ fontSize: 8, color: C.sucT, fontWeight: 600, marginTop: 2 }}>{T.accepted}</div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.navBg, borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.nav, lineHeight: 1 }}>{accepted}</div>
+            <div style={{ fontSize: 8, color: C.navT, fontWeight: 600, marginTop: 2 }}>{T.accepted}</div>
           </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: '#FEE2E2', borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{rejected}</div>
@@ -677,7 +762,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
                     <div style={{ flexShrink: 0 }}>
                       <div style={{
                         width: 8, height: 8, borderRadius: '50%',
-                        background: dec === 'accept' ? C.suc : dec === 'reject' ? C.red : C.grayB,
+                        background: dec === 'accept' ? C.nav : dec === 'reject' ? C.red : C.grayB,
                       }} />
                     </div>
                   </button>
@@ -775,7 +860,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
           {acceptedCount > 0 && (
-            <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
+            <span style={{ background: C.navBg, color: C.navT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
               ✓ {acceptedCount} {T.accepted.toLowerCase()}
             </span>
           )}
@@ -793,9 +878,9 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
           /* Completion screen — held back until exit animation finishes */
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, background: C.white }}>
             <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-              <circle cx="44" cy="44" r="42" fill="#ECFDF5"/>
-              <circle cx="44" cy="44" r="30" fill="#D1FAE5"/>
-              <polyline points="27,44 37,54 61,30" stroke="#059669" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="44" cy="44" r="42" fill="rgba(27,36,97,0.07)"/>
+              <circle cx="44" cy="44" r="30" fill="rgba(27,36,97,0.13)"/>
+              <polyline points="27,44 37,54 61,30" stroke="#1B2461" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <div style={{ textAlign: 'center' }}>
               <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>{T.allDoneTitle}</h2>
@@ -836,6 +921,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
                     docType={effectiveDocType(cv)}
                     onOverrideType={(t) => handleOverrideType(cv.id, t)}
                     T={T}
+                    showPortfolio={isDesignRole(cv?.role)}
                   />
                 </div>
                 <HMCandidatePanel

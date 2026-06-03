@@ -34,7 +34,7 @@ function NotificationBubble({ role, th, onNavigate }) {
 
   return (
     <div style={{
-      position: 'absolute', top: 28, right: 32,
+      position: 'absolute', top: 28, right: 62,
       display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
       gap: 10, zIndex: 10,
     }}>

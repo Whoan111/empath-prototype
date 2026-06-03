@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { THEMES, TRANSLATIONS } from './designSystem'
 import HomeScreen                from './screens/HomeScreen'
 import RecruiterDashboard        from './screens/RecruiterDashboard'
@@ -127,18 +127,18 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
 
           {/* › → expand sidebar */}
           <button
-            className="sb-collapse"
             onClick={onToggleCollapse}
             title="Expand menu"
             style={{
               width: 28, height: 28, borderRadius: 8,
-              background: 'rgba(255,255,255,0.82)',
-              border: `1px solid ${th.border}`,
-              backdropFilter: 'blur(8px)',
+              background: 'transparent',
+              border: 'none',
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, color: th.textDim, fontFamily: 'inherit',
-              transition: 'all 0.15s',
+              fontSize: 16, color: th.textDim, fontFamily: 'inherit',
+              transition: 'all 0.18s',
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(233,1,48,0.12)'; e.currentTarget.style.color = '#E90130' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent';          e.currentTarget.style.color = th.textDim }}
           >›</button>
         </div>
       )}
@@ -385,32 +385,43 @@ export default function App() {
   const sp = { theme, themeMode, lang, onNavigate: nav, userName: ROLES[role].name }
   const toggleTheme = () => setThemeMode(m => m === 'light' ? 'dark' : 'light')
 
+  // Cursor spotlight — direct DOM update for perf (no re-render on every mousemove)
+  const spotlightRef = useRef(null)
+  const handleMouseMove = (e) => {
+    if (!spotlightRef.current) return
+    const c = themeMode === 'dark'
+      ? 'rgba(255,255,255,0.038)'
+      : 'rgba(27,36,97,0.05)'
+    spotlightRef.current.style.background =
+      `radial-gradient(circle 360px at ${e.clientX}px ${e.clientY}px, ${c} 0%, transparent 70%)`
+  }
+
   // Red dots: triage always has pending CVs, not-suitable always has pending messages,
   // hm-cv-review always has assigned CVs awaiting HM review
   const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'debrief-list': true, 'interviewer-debrief': true }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg, position: 'relative' }}>
+    <div onMouseMove={handleMouseMove} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg, position: 'relative' }}>
 
       {/* ── Animated orb background (dark + light) ── */}
       <style>{`
         @keyframes empathOrb {
           0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.85; }
-          33%      { transform: translate(-44%,-56%) scale(1.09); opacity: 0.95; }
-          66%      { transform: translate(-56%,-44%) scale(0.93); opacity: 0.78; }
+          33%      { transform: translate(-42%,-58%) scale(1.12); opacity: 0.95; }
+          66%      { transform: translate(-58%,-42%) scale(0.91); opacity: 0.75; }
         }
         @keyframes empathOrb2 {
-          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.5; }
-          50%      { transform: translate(-58%,-42%) scale(1.12); opacity: 0.65; }
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.55; }
+          50%      { transform: translate(-60%,-40%) scale(1.15); opacity: 0.72; }
         }
         @keyframes empathOrbL {
-          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.55; }
-          33%      { transform: translate(-44%,-56%) scale(1.08); opacity: 0.70; }
-          66%      { transform: translate(-56%,-44%) scale(0.94); opacity: 0.45; }
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.85; }
+          33%      { transform: translate(-42%,-58%) scale(1.11); opacity: 1;    }
+          66%      { transform: translate(-58%,-42%) scale(0.92); opacity: 0.70; }
         }
         @keyframes empathOrbL2 {
-          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.35; }
-          50%      { transform: translate(-58%,-42%) scale(1.11); opacity: 0.50; }
+          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.65; }
+          50%      { transform: translate(-60%,-40%) scale(1.14); opacity: 0.85; }
         }
       `}</style>
 
@@ -423,7 +434,7 @@ export default function App() {
             borderRadius: '50%', filter: 'blur(68px)',
             background: 'radial-gradient(circle at center, rgba(80,40,200,0.58) 0%, rgba(27,36,97,0.40) 36%, rgba(233,1,48,0.12) 58%, transparent 72%)',
             transform: 'translate(-50%,-50%)',
-            animation: 'empathOrb 14s ease-in-out infinite',
+            animation: 'empathOrb 8s ease-in-out infinite',
           }} />
           {/* Secondary orb — red-pink accent */}
           <div style={{
@@ -432,7 +443,7 @@ export default function App() {
             borderRadius: '50%', filter: 'blur(80px)',
             background: 'radial-gradient(circle at center, rgba(233,1,48,0.24) 0%, rgba(140,20,100,0.18) 42%, transparent 68%)',
             transform: 'translate(-50%,-50%)',
-            animation: 'empathOrb2 18s ease-in-out infinite',
+            animation: 'empathOrb2 11s ease-in-out infinite',
           }} />
           {/* Dot grid texture */}
           <div style={{
@@ -443,23 +454,23 @@ export default function App() {
         </>
       ) : (
         <>
-          {/* Light — primary orb: warm coral-red drift */}
+          {/* Light — primary orb: vibrant coral-red */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
-            top: '38%', left: '58%', width: 820, height: 820,
-            borderRadius: '50%', filter: 'blur(90px)',
-            background: 'radial-gradient(circle at center, rgba(233,1,48,0.10) 0%, rgba(27,36,97,0.06) 40%, transparent 70%)',
+            top: '38%', left: '58%', width: 900, height: 900,
+            borderRadius: '50%', filter: 'blur(70px)',
+            background: 'radial-gradient(circle at center, rgba(233,1,48,0.28) 0%, rgba(233,1,48,0.12) 38%, rgba(27,36,97,0.06) 60%, transparent 75%)',
             transform: 'translate(-50%,-50%)',
-            animation: 'empathOrbL 16s ease-in-out infinite',
+            animation: 'empathOrbL 9s ease-in-out infinite',
           }} />
-          {/* Light — secondary orb: soft navy-lavender */}
+          {/* Light — secondary orb: rich navy-blue */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
-            top: '65%', left: '36%', width: 580, height: 580,
-            borderRadius: '50%', filter: 'blur(100px)',
-            background: 'radial-gradient(circle at center, rgba(27,36,97,0.08) 0%, rgba(233,1,48,0.05) 50%, transparent 70%)',
+            top: '65%', left: '36%', width: 660, height: 660,
+            borderRadius: '50%', filter: 'blur(80px)',
+            background: 'radial-gradient(circle at center, rgba(27,36,97,0.22) 0%, rgba(27,36,97,0.10) 45%, rgba(233,1,48,0.06) 65%, transparent 78%)',
             transform: 'translate(-50%,-50%)',
-            animation: 'empathOrbL2 20s ease-in-out infinite',
+            animation: 'empathOrbL2 12s ease-in-out infinite',
           }} />
           {/* Light — dot grid texture */}
           <div style={{
@@ -479,6 +490,32 @@ export default function App() {
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(v => !v)}
       />
+
+      {/* ── Cursor spotlight overlay ── */}
+      <div ref={spotlightRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 4 }} />
+
+      {/* ── Fixed theme toggle (top-right) ── */}
+      <button
+        onClick={toggleTheme}
+        title={themeMode === 'dark' ? 'Switch to light' : 'Switch to dark'}
+        style={{
+          position: 'fixed', top: 14, right: 16, zIndex: 50,
+          width: 34, height: 34, borderRadius: '50%',
+          background: theme.cardBg,
+          border: `1.5px solid ${theme.borderBrt}`,
+          backdropFilter: theme.blur, WebkitBackdropFilter: theme.blur,
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 15, color: theme.text,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
+          transition: 'all 0.15s',
+          fontFamily: 'inherit',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = theme.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.16)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = theme.cardBg;    e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.10)' }}
+      >
+        {themeMode === 'dark' ? '☀' : '◑'}
+      </button>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1, transition: 'background 0.3s' }}>
         {screen === 'home'                && <HomeScreen                    {...sp} role={role} />}

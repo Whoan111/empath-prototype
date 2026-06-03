@@ -663,11 +663,11 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
                     <span style={{ fontSize: 18 }}>📄</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 500, color: th.text }}>{f.name}</div>
-                      <div style={{ fontSize: 10, color: done ? '#059669' : th.textDim }}>
+                      <div style={{ fontSize: 10, color: done ? '#1B2461' : th.textDim }}>
                         {done ? L.done : L.waiting}
                       </div>
                     </div>
-                    {done && <span style={{ fontSize: 13, color: '#059669', fontWeight: 700 }}>✓</span>}
+                    {done && <span style={{ fontSize: 13, color: '#1B2461', fontWeight: 700 }}>✓</span>}
                   </div>
                 )
               })}
