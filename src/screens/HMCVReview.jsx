@@ -346,8 +346,8 @@ function PortfolioMockup({ cv }) {
               <div style={{ height: 70, background: `linear-gradient(135deg, ${bgl}, ${bgd})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 22, opacity: 0.6 }}>{'🎨📐📱🖥🎭✏'.split('')[i]}</span>
               </div>
-              <div style={{ padding: '7px 10px', background: 'white' }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#1C1917', marginBottom: 3 }}>{p}</div>
+              <div style={{ padding: '7px 10px', background: C.white }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: C.doc, marginBottom: 3 }}>{p}</div>
                 <div style={{ height: 5, background: '#F0F0F0', borderRadius: 2 }} />
               </div>
             </div>
@@ -660,7 +660,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
                     style={{
                       width: '100%', display: 'flex', alignItems: 'center', gap: 9,
                       padding: '10px 14px', border: 'none',
-                      background: isSel ? '#FFF0F1' : 'transparent',
+                      background: isSel ? C.redBg : 'transparent',
                       borderLeft: `3px solid ${isSel ? C.red : 'transparent'}`,
                       borderBottom: `1px solid ${C.border}`,
                       cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.12s',

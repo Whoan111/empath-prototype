@@ -267,8 +267,8 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
 
   // Subtle row tint: very light amber/red wash for waiting candidates
   const rowBg = hov
-    ? (isVeryLong ? '#FFF5F5' : isLong ? '#FFFBF2' : '#FFF8F8')
-    : (isVeryLong ? 'rgba(201,57,74,0.025)' : isLong ? 'rgba(217,119,6,0.025)' : C.white)
+    ? (isVeryLong ? C.redBg : isLong ? C.warBg : C.surfaceHov)
+    : (isVeryLong ? C.redBg : isLong ? C.warBg : C.white)
 
   return (
     <div
@@ -373,7 +373,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
         style={{
           width: '100%', padding: '14px 20px',
           display: 'flex', alignItems: 'center', gap: 12,
-          background: '#FFF5F6', border: 'none', cursor: 'pointer',
+          background: C.redBg, border: 'none', cursor: 'pointer',
           fontFamily: 'inherit',
         }}
       >
@@ -395,7 +395,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
             {group.candidates.length} candidate{group.candidates.length !== 1 ? 's' : ''}
           </span>
           {pendingCount > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.red, background: '#FEE2E2', padding: '2px 9px', borderRadius: 20 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.red, background: C.redL, padding: '2px 9px', borderRadius: 20 }}>
               {pendingCount} pending
             </span>
           )}

@@ -800,7 +800,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                     display: 'grid', gridTemplateColumns: '2fr 100px 1fr',
                     alignItems: 'center', padding: '13px 20px',
                     borderBottom: i < sortedActive.length - 1 ? `1px solid ${C.border}` : 'none',
-                    background: isSel ? C.redBg : 'white',
+                    background: isSel ? C.redBg : C.white,
                     cursor: 'pointer', transition: 'background 0.1s',
                   }}
                 >

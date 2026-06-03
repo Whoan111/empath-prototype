@@ -204,6 +204,13 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
       {/* Footer actions */}
       <div style={{ padding: '12px 16px', borderTop: `1px solid ${th.border}`, display: 'flex', flexDirection: 'column', gap: 7 }}>
         <button
+          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.06)', color: '#1B2461', border: '1px solid rgba(27,36,97,0.18)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.13)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.06)'}
+        >
+          📄 View CV →
+        </button>
+        <button
           onClick={onContact}
           style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.09)', color: '#1B2461', border: '1px solid rgba(27,36,97,0.2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.16)'}

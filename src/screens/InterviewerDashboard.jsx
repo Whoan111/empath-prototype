@@ -523,7 +523,7 @@ function CandidateCard({ candidate, onViewProfile, isSelected, T }) {
   const [hov, setHov] = useState(false)
   const isRejected = candidate.outcome === 'notAdvancing'
 
-  const topBorderColor = isRejected ? '#D1D5DB'
+  const topBorderColor = isRejected ? C.grayB
     : candidate.outcome === 'advancing' ? C.suc
     : candidate.outcome === 'debrief' ? C.red
     : C.border
@@ -534,7 +534,7 @@ function CandidateCard({ candidate, onViewProfile, isSelected, T }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: isSelected ? C.redBg : isRejected ? '#FAFAF9' : (hov ? '#FFFAFA' : C.white),
+        background: isSelected ? C.redBg : isRejected ? C.gray : (hov ? C.surfaceHov : C.white),
         border: `1.5px solid ${isSelected ? C.redL : hov && !isRejected ? C.redL : C.border}`,
         borderTop: `3px solid ${topBorderColor}`,
         borderRadius: '0.75rem',

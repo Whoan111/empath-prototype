@@ -373,7 +373,7 @@ function DictationField({ label, value, onChange, placeholder, required, rows = 
           border: `1.5px solid ${active ? C.red : required && isEmpty ? '#FECACA' : C.border}`,
           fontSize: 13, resize: 'vertical', color: C.text, lineHeight: 1.7,
           boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none',
-          background: active ? C.redBg : 'white',
+          background: active ? C.redBg : C.white,
           transition: 'border-color 0.2s, background 0.2s',
         }}
       />
@@ -445,6 +445,7 @@ function FitRating({ value, onChange, criterion, T }) {
           {['strong', 'fit', 'not-fit'].map(level => {
             const lcfg = FIT_CONFIG[level]
             const isSelected = value === level
+            const fitBg = level === 'strong' ? C.sucBg : level === 'fit' ? C.warBg : C.redBg
             return (
               <button
                 key={level}
@@ -452,7 +453,7 @@ function FitRating({ value, onChange, criterion, T }) {
                 style={{
                   padding: '7px 16px', borderRadius: 22, cursor: 'pointer',
                   border: `2px solid ${isSelected ? lcfg.color : C.border}`,
-                  background: isSelected ? lcfg.bg : C.white,
+                  background: isSelected ? fitBg : C.white,
                   color: isSelected ? lcfg.color : C.muted,
                   fontSize: 12, fontWeight: isSelected ? 700 : 400,
                   fontFamily: 'inherit', transition: 'all 0.13s',
@@ -568,7 +569,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser, T }) {
             width: '100%', padding: '11px 14px', borderRadius: 9,
             border: `1.5px solid ${context.interviewDate ? C.red : C.border}`,
             fontSize: 14, color: context.interviewDate ? C.text : C.muted,
-            background: 'white', cursor: 'pointer', fontFamily: 'inherit',
+            background: C.white, cursor: 'pointer', fontFamily: 'inherit',
             boxSizing: 'border-box', outline: 'none', maxWidth: 260,
           }}
         />
@@ -795,7 +796,9 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
-        {RECOMMENDATIONS.map(rec => (
+        {RECOMMENDATIONS.map(rec => {
+          const recBg = { 'strongly-advance': C.sucBg, 'advance': C.warBg, 'reservations': C.warBg, 'not-moving': C.redBg }
+          return (
           <button
             key={rec.id}
             onClick={() => onChangeRec(rec.id)}
@@ -803,7 +806,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
               display: 'flex', alignItems: 'center', gap: 13,
               padding: '14px 18px', borderRadius: 11, cursor: 'pointer',
               border: `2px solid ${recommendation === rec.id ? rec.color : C.border}`,
-              background: recommendation === rec.id ? rec.bg : C.white,
+              background: recommendation === rec.id ? recBg[rec.id] : C.white,
               textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
             }}
           >
@@ -815,7 +818,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
               <div style={{ width: 20, height: 20, borderRadius: '50%', background: rec.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: 'white', fontWeight: 700, flexShrink: 0 }}>✓</div>
             )}
           </button>
-        ))}
+        )})}
       </div>
 
       <DictationField

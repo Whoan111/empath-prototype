@@ -284,6 +284,8 @@ export function buildC(theme) {
     // HM accent
     hmBg:     dk ? 'rgba(79,107,219,0.1)'       : '#F5F7FF',
     hmBorder: dk ? 'rgba(79,107,219,0.22)'      : '#D4D9F0',
+    // Hover surface (slightly brighter than white/gray)
+    surfaceHov: dk ? 'rgba(255,255,255,0.08)'      : 'rgba(0,0,0,0.04)',
     // Document text (stays dark — it's on a white paper mockup)
     doc:    '#1C1917',
   }

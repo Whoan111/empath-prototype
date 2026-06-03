@@ -252,11 +252,11 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
 
           {/* Count chips */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
-            <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #FDE68A' }}>
+            <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.warBorder}` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.war, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
               <div style={{ fontSize: 9, color: C.warT, fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
-            <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #BBF7D0' }}>
+            <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.sucBorder}` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
               <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>{T.completedLabel}</div>
             </div>
@@ -278,7 +278,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
           {pendingOpen && (
             PENDING.length > 0 ? (
               <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 140px', padding: '9px 20px 9px 72px', background: C.warBg, borderBottom: `1px solid #FDE68A` }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 140px', padding: '9px 20px 9px 72px', background: C.warBg, borderBottom: `1px solid ${C.warBorder}` }}>
                   {[T.colCandidate, T.colDaysAgo, T.colAction].map(h => (
                     <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                   ))}

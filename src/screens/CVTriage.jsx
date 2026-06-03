@@ -453,7 +453,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T }) {
   const hasURLPortfolio = !hasPDFPortfolio && !!cv.portfolio
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#F0EDE9' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
       {/* Toolbar */}
       <div style={{ padding: '10px 16px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -634,7 +634,7 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.redBg, color: C.red, border: `2px solid ${C.redL}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.notMovingFwd}
             </button>
             <button onClick={() => onDecide('advance')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -706,7 +706,7 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
             <div style={{ fontSize: 17, fontWeight: 700, color: C.suc, lineHeight: 1 }}>{advancing}</div>
             <div style={{ fontSize: 8, color: C.sucT, fontWeight: 600, marginTop: 2 }}>{T.advancing}</div>
           </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: '#FEE2E2', borderRadius: 8 }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{passing}</div>
             <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
           </div>
@@ -728,7 +728,7 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 9,
                 padding: '10px 13px', border: 'none',
-                background: curr ? '#FFF0F1' : 'transparent',
+                background: curr ? C.redBg : 'transparent',
                 borderLeft: `3px solid ${curr ? C.red : 'transparent'}`,
                 borderBottom: `1px solid ${C.border}`,
                 cursor: 'pointer', fontFamily: 'inherit',
@@ -1324,7 +1324,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
         {/* Stats + nav */}
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {advancing > 0 && <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✓ {advancing} {T.advancing.toLowerCase()}</span>}
-          {passing   > 0 && <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✕ {passing} {T.notFwd.toLowerCase()}</span>}
+          {passing   > 0 && <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>✕ {passing} {T.notFwd.toLowerCase()}</span>}
           <span style={{ fontSize: 12, color: C.muted }}>{total > 0 ? `${idx + 1} / ${total}` : '0 CVs'}</span>
           <button onClick={() => goTo(idx - 1)} disabled={idx === 0}           style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === 0 ? C.gray : C.border}`, background: C.white, cursor: idx === 0 ? 'default' : 'pointer', fontSize: 13, color: idx === 0 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
           <button onClick={() => goTo(idx + 1)} disabled={idx === total - 1}   style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === total - 1 ? C.gray : C.border}`, background: C.white, cursor: idx === total - 1 ? 'default' : 'pointer', fontSize: 13, color: idx === total - 1 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
