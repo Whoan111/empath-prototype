@@ -276,7 +276,7 @@ function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId =
             background: 'transparent', cursor: 'pointer', fontFamily: 'inherit',
             color: C.muted, fontSize: 13,
           }}>
-            + New position
+            New position
           </button>
         </div>
       </div>

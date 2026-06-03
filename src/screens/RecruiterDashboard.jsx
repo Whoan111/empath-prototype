@@ -600,7 +600,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
             onClick={() => setShowNewPosition(true)}
             style={{ padding:'10px 20px', borderRadius:'0.75rem', background:th.red, color:'white', border:'none', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.04em', boxShadow:`0 0 20px ${th.redGlow}`, display:'flex', alignItems:'center', gap:8 }}
           >
-            + New Position
+            New Position
           </button>
         </div>
 

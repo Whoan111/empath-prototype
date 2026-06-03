@@ -708,6 +708,8 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const [decisions,        setDecisions]        = useState({})
   const [savedNotes,       setSavedNotes]       = useState({})
   const [docTypeOverrides, setDocTypeOverrides] = useState({})
+  const [leaving,          setLeaving]          = useState(false)   // true while exit animation is running
+  const [leavingDir,       setLeavingDir]       = useState('right') // 'left' = rejected, 'right' = accepted
 
   const all = ASSIGNED_CANDIDATES
   const cv  = idx >= 0 && idx < all.length ? all[idx] : null
@@ -715,17 +717,29 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const goTo = (i) => setIdx(i)
 
   const handleDecide = (id, value) => {
+    if (leaving) return
+
     if (value === null) {
+      // Undo — no animation needed
       setDecisions(d => { const n = { ...d }; delete n[id]; return n })
       return
     }
+
+    // Record decision immediately (right panel confirms before document slides away)
     const updated = { ...decisions, [id]: value }
     setDecisions(updated)
-    // Auto-advance to next unreviewed candidate (setTimeout lets the decision
-    // render settle before the panels swap — prevents stacking flicker)
+
+    // Compute next undecided index before state updates
     let nextIdx = all.findIndex((c, i) => i > idx && !updated[c.id])
     if (nextIdx === -1) nextIdx = all.findIndex(c => !updated[c.id])
-    if (nextIdx !== -1) setTimeout(() => goTo(nextIdx), 300)
+
+    // Kick off 250 ms slide-out (rejected → left, accepted → right)
+    setLeavingDir(value === 'reject' ? 'left' : 'right')
+    setLeaving(true)
+    setTimeout(() => {
+      if (nextIdx !== -1) goTo(nextIdx)
+      setLeaving(false)
+    }, 250)
   }
 
   const handleSaveNotes    = (id, text) => setSavedNotes(n => ({ ...n, [id]: text }))
@@ -738,7 +752,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const acceptedCount = all.filter(c => decisions[c.id] === 'accept').length
   const rejectedCount = all.filter(c => decisions[c.id] === 'reject').length
   const toReviewCount = all.length - acceptedCount - rejectedCount
-  const allDone       = toReviewCount === 0 && all.length > 0
+  const allDone       = toReviewCount === 0 && all.length > 0 && !leaving
 
   const effectiveDocType = (c) => docTypeOverrides[c?.id] || c?.docType || 'unknown'
 
@@ -781,9 +795,13 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
       {/* ── Body ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {allDone ? (
-          /* Completion screen */
+          /* Completion screen — held back until exit animation finishes */
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, background: C.white }}>
-            <div style={{ width: 68, height: 68, borderRadius: '50%', background: C.sucBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>✓</div>
+            <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
+              <circle cx="44" cy="44" r="42" fill="#ECFDF5"/>
+              <circle cx="44" cy="44" r="30" fill="#D1FAE5"/>
+              <polyline points="27,44 37,54 61,30" stroke="#059669" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             <div style={{ textAlign: 'center' }}>
               <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>{T.allDoneTitle}</h2>
               <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>{T.allDoneSub(acceptedCount, rejectedCount)}</p>
@@ -803,15 +821,28 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
               onSelect={handleSelectById}
               T={T}
             />
-            {cv && (
+
+            {/* Only the document viewer slides; HM panel stays anchored */}
+            {cv && !(allDone && !leaving) && (
               <>
-                <DocumentViewer
-                  key={cv.id}
-                  cv={cv}
-                  docType={effectiveDocType(cv)}
-                  onOverrideType={(t) => handleOverrideType(cv.id, t)}
-                  T={T}
-                />
+                <div style={{
+                  flex: 1, overflow: 'hidden',
+                  transform: leaving
+                    ? leavingDir === 'left' ? 'translateX(-100%)' : 'translateX(100%)'
+                    : 'translateX(0)',
+                  opacity: leaving ? 0 : 1,
+                  transition: leaving
+                    ? 'transform 250ms ease-in, opacity 250ms ease-in'
+                    : 'none',
+                }}>
+                  <DocumentViewer
+                    key={cv.id}
+                    cv={cv}
+                    docType={effectiveDocType(cv)}
+                    onOverrideType={(t) => handleOverrideType(cv.id, t)}
+                    T={T}
+                  />
+                </div>
                 <HMCandidatePanel
                   key={cv.id}
                   candidate={cv}
