@@ -45,18 +45,18 @@ function NotificationBubble({ role, th, onNavigate }) {
         title={collapsed ? 'Show notification' : 'Hide notification'}
         style={{
           width: 42, height: 42, borderRadius: '50%',
-          background: NAVY_BG,
-          border: `1.5px solid ${NAVY_BORDER}`,
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
+          background: th.cardBg,
+          border: `1.5px solid ${th.borderBrt}`,
+          backdropFilter: th.blur,
+          WebkitBackdropFilter: th.blur,
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 14px rgba(27,36,97,0.14)',
+          boxShadow: '0 2px 14px rgba(0,0,0,0.10)',
           transition: 'background 0.18s, box-shadow 0.18s',
           position: 'relative', fontFamily: 'inherit',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.17)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(27,36,97,0.22)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = NAVY_BG; e.currentTarget.style.boxShadow = '0 2px 14px rgba(27,36,97,0.14)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)' }}
       >
         {/* Bell SVG */}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -77,14 +77,14 @@ function NotificationBubble({ role, th, onNavigate }) {
       {/* ── Expandable card ── */}
       <div style={{
         width: 288,
-        background: NAVY_BG,
-        border: `1.5px solid ${NAVY_BORDER}`,
+        background: th.cardBg,
+        border: `1.5px solid ${th.borderBrt}`,
         borderLeft: `3px solid ${NAVY}`,
         borderRadius: '0.75rem',
         padding: '15px 17px 14px',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        boxShadow: '0 8px 32px rgba(27,36,97,0.18), 0 2px 8px rgba(0,0,0,0.07)',
+        backdropFilter: `blur(28px)`,
+        WebkitBackdropFilter: `blur(28px)`,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07)',
         // Collapse animation
         opacity:       collapsed ? 0 : 1,
         transform:     collapsed ? 'translateY(-6px) scale(0.96)' : 'translateY(0) scale(1)',
@@ -97,9 +97,9 @@ function NotificationBubble({ role, th, onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
           <span style={{
             width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 3,
-            background: NAVY, boxShadow: '0 0 6px rgba(27,36,97,0.35)',
+            background: '#C9394A', boxShadow: '0 0 6px rgba(201,57,74,0.45)',
           }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: NAVY, lineHeight: 1.4 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: th.text, lineHeight: 1.4 }}>
             {n.headline}
           </span>
         </div>

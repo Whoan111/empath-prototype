@@ -164,7 +164,7 @@ function PendingRow({ item, onFill, T }) {
       </div>
 
       <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 70 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: C.war }}>{item.daysAgo}d ago</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{item.daysAgo}d ago</div>
       </div>
 
       <button
@@ -252,9 +252,9 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
 
           {/* Count chips */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
-            <div style={{ background: C.warBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.warBorder}` }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: C.war, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
-              <div style={{ fontSize: 9, color: C.warT, fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
+            <div style={{ background: C.redBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.redL}` }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
+              <div style={{ fontSize: 9, color: C.red, fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
             <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.sucBorder}` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
@@ -272,15 +272,15 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
             <span style={{ fontSize: 11, color: C.red, transition: 'transform 0.2s', display: 'inline-block', transform: pendingOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0, display: 'inline-block' }} />
             <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.pendingTitle}</h2>
-            <span style={{ background: C.warBg, color: C.warT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
+            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
           </button>
 
           {pendingOpen && (
             PENDING.length > 0 ? (
               <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 140px', padding: '9px 20px 9px 72px', background: C.warBg, borderBottom: `1px solid ${C.warBorder}` }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 140px', padding: '9px 20px 9px 72px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
                   {[T.colCandidate, T.colDaysAgo, T.colAction].map(h => (
-                    <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
+                    <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                   ))}
                 </div>
                 {PENDING.map(item => <PendingRow key={`${item.id}-${item.round}`} item={item} onFill={handleFill} T={T} />)}

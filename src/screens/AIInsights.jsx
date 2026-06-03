@@ -406,15 +406,16 @@ function DetailPanel({ card, onClose, T }) {
   return (
     <>
       {/* Backdrop */}
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,23,0.25)', zIndex: 100, backdropFilter: 'blur(2px)' }} />
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: isDark ? 'rgba(0,0,0,0.55)' : 'rgba(28,25,23,0.30)', zIndex: 100, backdropFilter: 'blur(8px)' }} />
 
       {/* Panel */}
       <div style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, width: 380,
-        background: C.white, zIndex: 101, display: 'flex', flexDirection: 'column',
+        background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF',
+        zIndex: 101, display: 'flex', flexDirection: 'column',
         borderLeft: `1px solid ${C.border}`,
         animation: 'panelIn 0.22s ease',
-        boxShadow: '-8px 0 32px rgba(201,57,74,0.08)',
+        boxShadow: '-8px 0 40px rgba(0,0,0,0.28)',
       }}>
         <style>{`@keyframes panelIn { from { transform: translateX(40px); opacity:0; } to { transform: translateX(0); opacity:1; } }`}</style>
 
