@@ -12,7 +12,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { STAGE_TOKENS, STAGES, TRANSLATIONS } from '../designSystem'
+import { STAGE_TOKENS, STAGES, TRANSLATIONS, buildC, THEMES } from '../designSystem'
+let C = buildC(THEMES.light)
 
 // ── Staleness computation (dual: opacity + saturation) ───────────────────────
 const STALE_RULES = {
@@ -513,13 +514,181 @@ const INIT = {
 
 const VIS_STAGES = STAGES.filter(s => s !== 'Screening')
 
+// ── Add-candidates modal ───────────────────────────────────────────────────────
+const IMPORT_FILES = [
+  { name: 'YasmineBouali_CV.pdf',    size: '1.1 MB' },
+  { name: 'DiegoMendoza_CV.pdf',     size: '890 KB' },
+  { name: 'PriyaKumar_CV.pdf',       size: '1.3 MB' },
+  { name: 'TomasVarga_CV.pdf',       size: '760 KB' },
+  { name: 'AishaOkonkwo_CV.pdf',     size: '1.0 MB' },
+  { name: 'MarcosAlves_CV.pdf',      size: '1.4 MB' },
+]
+const IMPORT_CANDIDATES = [
+  {
+    id:901, name:'Yasmine Bouali',  ini:'YB', role:'UX Designer',     loc:'Paris, France',  exp:'4 yrs', daysAgo:0,
+    skills:['Figma','Research','Design Systems'],
+    email:'yasmine.bouali@email.com', phone:null,
+    edu:'ESAG Penninghen · BA Design',
+    snippet:'Led end-to-end UX redesign for a retail e-commerce platform, increasing conversion by 28%. Strong in qualitative research and component-level design systems.',
+    portfolio:'yasminedesign.com', linkedin:'linkedin.com/in/yasminedesign',
+    file:'YasmineBouali_CV.pdf', docType:'cv', pages:2,
+  },
+  {
+    id:902, name:'Diego Mendoza',   ini:'DM', role:'Product Designer', loc:'Madrid, Spain', exp:'6 yrs', daysAgo:0,
+    skills:['Sketch','Prototyping','Agile'],
+    email:'diego.mendoza@email.com', phone:null,
+    edu:'IED Madrid · BA Product Design',
+    snippet:'6 years shipping B2B SaaS products at scale. Experience leading cross-functional design teams and running stakeholder workshops.',
+    portfolio:'diegomendoza.io', linkedin:'linkedin.com/in/diegomendoza',
+    file:'DiegoMendoza_CV.pdf', docType:'cv', pages:2,
+  },
+  {
+    id:903, name:'Priya Kumar',     ini:'PK', role:'UX Researcher',    loc:'London, UK',    exp:'3 yrs', daysAgo:0,
+    skills:['UserTesting','Usability','Analytics'],
+    email:'priya.kumar@email.com', phone:null,
+    edu:'UCL · MSc Human-Computer Interaction',
+    snippet:'Specialist in mixed-methods research. Published work on accessibility in mobile banking apps. Comfortable presenting findings to C-level stakeholders.',
+    portfolio:null, linkedin:'linkedin.com/in/priyakumarux',
+    file:'PriyaKumar_CV.pdf', docType:'cv', pages:1,
+  },
+]
+
+function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
+  const [phase,    setPhase]    = useState('drop')
+  const [progress, setProgress] = useState(0)
+  const [loaded,   setLoaded]   = useState(0)
+  const total = IMPORT_FILES.length
+
+  const isIt = lang === 'it'
+  const L = {
+    badge:      'CV Import',
+    title:      isIt ? `Importa CV per ${posTitle}` : `Import CVs for ${posTitle}`,
+    drop:       isIt ? 'Trascina file PDF o Word qui'           : 'Drop PDF or Word files here',
+    hint:       isIt ? 'o clicca per sfogliare · Più file supportati' : 'or click to browse · Multiple files supported',
+    types:      isIt ? 'PDF, DOCX — max 10 MB ciascuno'         : 'PDF, DOCX — max 10 MB each',
+    analysing:  isIt ? (n, t) => `Analisi di ${n} su ${t} CV…` : (n, t) => `Analysing ${n} of ${t} CVs…`,
+    done:       isIt ? 'Analizzato ✓' : 'Analysed ✓',
+    waiting:    isIt ? 'In attesa…'   : 'Waiting…',
+  }
+
+  const startImport = () => {
+    if (phase !== 'drop') return
+    setPhase('loading')
+    let prog = 0
+    const timer = setInterval(() => {
+      prog += 7
+      const capped = Math.min(100, prog)
+      setProgress(capped)
+      setLoaded(Math.round((capped / 100) * total))
+      if (capped >= 100) {
+        clearInterval(timer)
+        setTimeout(() => onComplete(IMPORT_CANDIDATES), 380)
+      }
+    }, 80)
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.58)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:400, backdropFilter:'blur(7px)' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: th.bgPanel, backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
+          borderRadius: '1rem', padding: '32px 36px', width: 500,
+          border: `1px solid ${th.borderBrt}`,
+          boxShadow: '0 28px 72px rgba(0,0,0,0.5)',
+          animation: 'modalIn 0.22s ease',
+        }}
+      >
+        {/* Badge + title */}
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#E90130', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+          {L.badge}
+        </div>
+        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: th.text, margin: '0 0 24px', lineHeight: 1.2 }}>
+          {L.title}
+        </h2>
+
+        {/* ── Drop zone ── */}
+        {phase === 'drop' && (
+          <div
+            onClick={startImport}
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); startImport() }}
+            style={{
+              border: `2px dashed ${th.border}`,
+              borderRadius: 14, padding: '52px 28px',
+              textAlign: 'center', cursor: 'pointer',
+              background: th.surface, transition: 'border-color 0.2s, background 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#E90130'; e.currentTarget.style.background = 'rgba(233,1,48,0.09)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = th.border;  e.currentTarget.style.background = th.surface }}
+          >
+            <div style={{ fontSize: 44, marginBottom: 14 }}>📂</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: th.text, marginBottom: 6 }}>{L.drop}</div>
+            <div style={{ fontSize: 12, color: th.textDim, lineHeight: 1.6 }}>
+              {L.hint}<br />
+              <span style={{ fontSize: 11 }}>{L.types}</span>
+            </div>
+          </div>
+        )}
+
+        {/* ── Loading / analysing ── */}
+        {phase === 'loading' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: th.textDim, marginBottom: 8 }}>
+              <span>{L.analysing(loaded, total)}</span>
+              <span style={{ fontWeight: 700, color: '#E90130' }}>{progress}%</span>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ background: th.surface, borderRadius: 6, height: 6, marginBottom: 22, overflow: 'hidden', border: `1px solid ${th.border}` }}>
+              <div style={{ height: '100%', background: '#E90130', borderRadius: 6, width: `${progress}%`, transition: 'width 0.08s linear' }} />
+            </div>
+
+            {/* File rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {IMPORT_FILES.map((f, i) => {
+                const done = i < loaded
+                return (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '9px 14px', borderRadius: 9,
+                    background: done ? th.bgPanel : th.surface,
+                    border: `1px solid ${done ? th.borderBrt : th.border}`,
+                    opacity: done ? 1 : 0.38,
+                    transition: 'opacity 0.28s, background 0.28s, border-color 0.28s',
+                  }}>
+                    <span style={{ fontSize: 18 }}>📄</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: th.text }}>{f.name}</div>
+                      <div style={{ fontSize: 10, color: done ? '#059669' : th.textDim }}>
+                        {done ? L.done : L.waiting}
+                      </div>
+                    </div>
+                    {done && <span style={{ fontSize: 13, color: '#059669', fontWeight: 700 }}>✓</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 export default function KanbanBoard({ position, restoreCandidate, theme, themeMode, lang, onBack, onNavigate }) {
+  C = buildC(theme)
   const pos    = position || { id:1, title:'UX Designer', dept:'Product Design' }
   const posId  = pos.id ?? 1
   const th     = theme
   const stageT = STAGE_TOKENS[themeMode]
   const T      = TRANSLATIONS[lang]
+
+  const [showImport, setShowImport] = useState(false)
 
   const [candidates, setCandidates] = useState(() => {
     const base = INIT[posId] || {}
@@ -616,7 +785,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
 
         <div style={{ display:'flex', gap:7, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }}>
           <button
-            onClick={() => onNavigate?.('import', { position: pos })}
+            onClick={() => setShowImport(true)}
             style={{ fontSize:10, fontWeight:700, color:'white', background:'#E90130', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s' }}
             onMouseEnter={e => { e.currentTarget.style.background='#C8012A' }}
             onMouseLeave={e => { e.currentTarget.style.background='#E90130' }}
@@ -695,6 +864,23 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
 
       {/* Celebration */}
       {celebration && <Celebration msg={celebration} onDone={() => setCelebration(null)} />}
+
+      {/* Add-candidates import modal */}
+      {showImport && (
+        <AddCandidatesModal
+          posTitle={pos.title}
+          th={th}
+          lang={lang}
+          onClose={() => setShowImport(false)}
+          onComplete={(newCandidates) => {
+            setShowImport(false)
+            setCelebration(`${newCandidates.length} CVs sent to CV Triage! 🎉`)
+            setTimeout(() => {
+              onNavigate?.('triage', { position: pos, extraCandidates: newCandidates })
+            }, 1600)
+          }}
+        />
+      )}
     </div>
   )
 }

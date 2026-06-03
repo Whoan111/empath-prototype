@@ -486,7 +486,7 @@ export default function App() {
         {screen === 'kanban'              && <KanbanBoard                   {...sp} position={screenData?.position} restoreCandidate={screenData?.restoreCandidate} onBack={() => nav('dashboard')} />}
         {screen === 'import'              && <CVImportScreening             lang={lang} theme={theme} initialPosition={screenData?.position} extraPositions={customPositions} onBack={goBack} onNavigate={nav} />}
         {screen === 'screening'           && <CVScreening                   lang={lang} theme={theme} position={screenData?.position} manager={screenData?.manager} cvs={screenData?.cvs} onBack={() => nav('import')} onNavigate={nav} />}
-        {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} />}
+        {screen === 'triage'              && <CVTriage                      {...sp} onBack={goBack} onNavigate={nav} initialPosition={screenData?.position} extraCandidates={screenData?.extraCandidates} />}
         {screen === 'not-suitable'        && <NotSuitable                   lang={lang} theme={theme} onBack={goBack} onNavigate={nav} />}
         {screen === 'craft'               && <CraftMessage                  lang={lang} theme={theme} candidate={screenData?.candidate || null} template={screenData?.template || null} from={screenData?.from || 'dashboard'} onBack={() => nav(screenData?.from || 'dashboard')} onNavigate={nav} />}
         {screen === 'interview-summaries' && <SummaryList                   mode="pre-call" onBack={goBack} onNavigate={nav} lang={lang} theme={theme} />}

@@ -1131,20 +1131,27 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition }) {
+export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition, extraCandidates }) {
   C = buildC(theme)
 
   const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   const [positions, setPositions] = useState(() => {
-    if (initialPosition && !INIT_POSITIONS.find(p => p.id === initialPosition.id)) {
-      return [...INIT_POSITIONS, {
+    const base = INIT_POSITIONS.map(p => {
+      // Bump the count for the initial position if extraCandidates were injected
+      if (extraCandidates?.length && initialPosition?.id === p.id) {
+        return { ...p, count: p.count + extraCandidates.length }
+      }
+      return p
+    })
+    if (initialPosition && !base.find(p => p.id === initialPosition.id)) {
+      return [...base, {
         id: initialPosition.id, title: initialPosition.title,
-        dept: initialPosition.dept || '', count: 0, openDays: initialPosition.openDays || 0,
+        dept: initialPosition.dept || '', count: extraCandidates?.length || 0, openDays: initialPosition.openDays || 0,
       }]
     }
-    return INIT_POSITIONS
+    return base
   })
   const [activePosId, setActivePosId] = useState(() => initialPosition?.id ?? null)   // null = position picker
   const [idx,              setIdx]              = useState(0)
@@ -1154,10 +1161,16 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const [closedPositions,  setClosedPositions]  = useState({})   // id → { reason: 'hired' | 'no-match' }
   const [closePending,     setClosePending]     = useState(null) // position id waiting for close reason
   // Batch import state — importedCVs stores mock CVs for any position that went through inline import
-  const [importedCVs,  setImportedCVs]  = useState({})
+  // Pre-populate with any candidates injected from the Kanban "Add candidates" flow
+  const [importedCVs,  setImportedCVs]  = useState(() =>
+    extraCandidates?.length && initialPosition?.id
+      ? { [initialPosition.id]: extraCandidates }
+      : {}
+  )
   // Auto-open the importer if CVTriage was opened with a new position that has no CVs
+  // (skip if we already have extraCandidates to show)
   const [showImporter, setShowImporter] = useState(() =>
-    initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0)
+    initialPosition != null && !(TRIAGE_DATA[initialPosition.id]?.length > 0) && !(extraCandidates?.length > 0)
   )
   const [leaving,    setLeaving]    = useState(false)    // true while card exit-animation is running
   const [leavingDir, setLeavingDir] = useState('right')  // 'left' = rejected, 'right' = advanced
@@ -1169,10 +1182,11 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const reopenPosition = (id) => setClosedPositions(s => { const n = { ...s }; delete n[id]; return n })
 
   const activePos = positions.find(p => p.id === activePosId)
-  // Use TRIAGE_DATA first; fall back to anything imported inline this session
-  const cvList    = (TRIAGE_DATA[activePosId]?.length
-    ? TRIAGE_DATA[activePosId]
-    : importedCVs[activePosId]) || []
+  // Merge TRIAGE_DATA + any imported (inline or from Kanban) for the active position
+  const cvList    = [
+    ...(TRIAGE_DATA[activePosId] || []),
+    ...(importedCVs[activePosId] || []),
+  ]
   const cv        = cvList[idx]
   const total     = cvList.length
   const decided   = cvList.filter(c => decisions[c.id]).length
