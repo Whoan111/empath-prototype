@@ -15,6 +15,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -453,7 +454,7 @@ function isDesignRole(role = '') {
 // ── Portfolio link view (URL portfolio — no document) ─────────────────────────
 function PortfolioLinkView({ cv }) {
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, padding: '48px 40px', background: C.gray }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, padding: '48px 40px', background: isDark ? C.gray : 'transparent' }}>
       <div style={{ fontSize: 52 }}>🎨</div>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>Portfolio</div>
@@ -500,7 +501,7 @@ function ZoomBar({ zoom, setZoom, T }) {
 }
 
 // ── Left panel: document viewer ───────────────────────────────────────────────
-function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
+function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving = false, leavingDir = 'right' }) {
   const [zoom, setZoom] = useState(1)
 
   // Is the uploaded *file* itself a portfolio PDF?
@@ -530,10 +531,24 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
     whiteSpace: 'nowrap',
   })
 
-  return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
+  // Animation applies only to the content area, not the tab bar.
+  // Transition is always set so browsers reliably animate when `leaving` flips.
+  const contentAnimStyle = {
+    flex: 1,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    transform: leaving
+      ? leavingDir === 'left' ? 'translateX(-120%)' : 'translateX(120%)'
+      : 'translateX(0)',
+    opacity: leaving ? 0 : 1,
+    transition: 'transform 240ms ease-in, opacity 180ms ease-in',
+  }
 
-      {/* ── Tab bar ── */}
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
+
+      {/* ── Tab bar — stays anchored during animation ── */}
       <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
 
         {/* CV tab — always present (unless file IS a portfolio PDF and there's no CV) */}
@@ -571,35 +586,40 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
         )}
       </div>
 
-      {/* ── CV view ── */}
-      {viewMode === 'cv' && (
-        <>
-          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-              {docType !== 'unknown' && <CVDocumentMockup cv={cv} />}
-              {docType === 'unknown' && <UnknownDocMockup cv={cv} />}
-            </div>
-          </div>
-          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
-        </>
-      )}
+      {/* ── Animated content area (tab bar above stays fixed) ── */}
+      <div style={contentAnimStyle}>
 
-      {/* ── Portfolio PDF view ── */}
-      {viewMode === 'portfolio' && hasPDFPortfolio && (
-        <>
-          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-              <PortfolioMockup cv={cv} />
+        {/* ── CV view ── */}
+        {viewMode === 'cv' && (
+          <>
+            <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+                {docType !== 'unknown' && <CVDocumentMockup cv={cv} />}
+                {docType === 'unknown' && <UnknownDocMockup cv={cv} />}
+              </div>
             </div>
-          </div>
-          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
-        </>
-      )}
+            <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+          </>
+        )}
 
-      {/* ── Portfolio URL view — centered link, no document ── */}
-      {viewMode === 'portfolio' && hasURLPortfolio && (
-        <PortfolioLinkView cv={cv} />
-      )}
+        {/* ── Portfolio PDF view ── */}
+        {viewMode === 'portfolio' && hasPDFPortfolio && (
+          <>
+            <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+                <PortfolioMockup cv={cv} />
+              </div>
+            </div>
+            <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+          </>
+        )}
+
+        {/* ── Portfolio URL view — centered link, no document ── */}
+        {viewMode === 'portfolio' && hasURLPortfolio && (
+          <PortfolioLinkView cv={cv} />
+        )}
+
+      </div>
     </div>
   )
 }
@@ -705,8 +725,8 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
       <div style={{ padding: '14px 20px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
         {decision ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ padding: '11px 14px', borderRadius: 9, textAlign: 'center', background: decision === 'advance' ? C.redBg : 'rgba(37,99,235,0.08)', border: `1px solid ${decision === 'advance' ? C.redL : '#BFDBFE'}` }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.red : '#1E40AF' }}>
+            <div style={{ padding: '11px 14px', borderRadius: 9, textAlign: 'center', background: decision === 'advance' ? C.redBg : C.infBg, border: `1px solid ${decision === 'advance' ? C.redL : C.infL}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.red : C.infT }}>
                 {decision === 'advance' ? T.movingToScreen : T.notMovingDec}
               </span>
             </div>
@@ -716,7 +736,7 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '2px solid #BFDBFE', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.infBg, color: C.infT, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.notMovingFwd}
             </button>
             <button onClick={() => onDecide('advance')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -1215,6 +1235,7 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavigate, initialPosition, extraCandidates }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
@@ -1481,28 +1502,19 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           />
         )}
 
-        {/* Still reviewing — only the CV document slides; candidate card stays put */}
+        {/* Still reviewing — only the document content slides; tab bar stays anchored */}
         {cv && !(decided === total && !leaving) && (
           <>
-            <div style={{
-              flex: 1, overflow: 'hidden',
-              transform: leaving
-                ? leavingDir === 'left' ? 'translateX(-100%)' : 'translateX(100%)'
-                : 'translateX(0)',
-              opacity: leaving ? 0 : 1,
-              transition: leaving
-                ? 'transform 250ms ease-in, opacity 250ms ease-in'
-                : 'none',
-            }}>
-              <DocumentViewer
-                key={cv?.id}
-                cv={cv}
-                docType={effectiveDocType(cv)}
-                onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}
-                T={T}
-                showPortfolio={isDesignRole(cv?.role)}
-              />
-            </div>
+            <DocumentViewer
+              key={cv?.id}
+              cv={cv}
+              docType={effectiveDocType(cv)}
+              onOverrideType={(t) => setDocTypeOverrides(d => ({ ...d, [cv.id]: t }))}
+              T={T}
+              showPortfolio={isDesignRole(cv?.role)}
+              leaving={leaving}
+              leavingDir={leavingDir}
+            />
             <CandidateCard
               cv={cv}
               docType={effectiveDocType(cv)}

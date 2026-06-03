@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -285,13 +286,13 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</span>
-          {messageSent && (
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#1B2461', background: 'rgba(27,36,97,0.09)', padding: '1px 8px', borderRadius: 20 }}>
-              {T.messageSent}
-            </span>
-          )}
         </div>
         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{candidate.role}</div>
+        {messageSent && (
+          <span style={{ display: 'inline-block', marginTop: 4, fontSize: 10, fontWeight: 500, color: C.infT, background: C.infBg, padding: '2px 8px', borderRadius: 20 }}>
+            {T.messageSent}
+          </span>
+        )}
         {waitLabel && (
           <div style={{
             fontSize: 11, marginTop: 4,
@@ -332,8 +333,8 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           onClick={() => onMarkSent(candidate.id, false)}
           style={{
             padding: '7px 16px', borderRadius: 8,
-            background: 'transparent', border: `1px solid ${C.border}`,
-            color: C.muted, fontSize: 11, cursor: 'pointer',
+            background: C.infBg, border: 'none',
+            color: C.infT, fontSize: 11, fontWeight: 600, cursor: 'pointer',
             fontFamily: 'inherit', whiteSpace: 'nowrap',
           }}
         >
@@ -435,6 +436,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
 
 export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [sentMap, setSentMap] = useState(() => {
@@ -509,11 +511,12 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
     .filter(g => g.candidates.length > 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.gray }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
 
       {/* Header */}
       <div style={{
         padding: '16px 28px',
+        paddingRight: 60,
         background: C.white,
         borderBottom: `1px solid ${C.border}`,
         display: 'flex', alignItems: 'center', gap: 16,

@@ -35,7 +35,6 @@ const SETTINGS_SECTIONS = [
     { icon: '👤', label: 'Edit profile'       },
     { icon: '🔔', label: 'Notifications'      },
     { icon: '🌐', label: 'Language & region'  },
-    { icon: '🎨', label: 'Appearance'         },
   ],
   [
     { icon: '❓', label: 'Help & support'     },

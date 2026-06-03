@@ -8,6 +8,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -55,7 +56,7 @@ const SCREEN_T = {
     fitLabel:           'Your fit assessment',
     closedBanner:       (d) => `This candidate was not selected · Process closed ${d}`,
     // Outcome notifications
-    updatesTitle:       '📬 Updates on your candidates',
+    updatesTitle:       'Updates on your candidates',
     dismiss:            'Dismiss',
     newTag:             'New',
     newOutcomeMsg:      (name, outcome) => `${name} — ${outcome}`,
@@ -104,7 +105,7 @@ const SCREEN_T = {
     yourRoundLabel:     (type, date) => `${type} · ${date}`,
     fitLabel:           'La tua valutazione',
     closedBanner:       (d) => `Candidato non selezionato · Processo chiuso ${d}`,
-    updatesTitle:       '📬 Aggiornamenti sui tuoi candidati',
+    updatesTitle:       'Aggiornamenti sui tuoi candidati',
     dismiss:            'Chiudi',
     newTag:             'Nuovo',
     newOutcomeMsg:      (name, outcome) => `${name} — ${outcome}`,
@@ -217,18 +218,18 @@ function Av({ id, ini, size = 36, muted = false }) {
 
 function FitPill({ fit }) {
   if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
-  if (fit === 'strongly-advance') return <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
-  if (fit === 'advance') return <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
-  return <span style={{ background: '#FEE2E2', color: '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
+  if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(99,102,241,0.32)' : '#1B2461', color: isDark ? '#C7D2FE' : 'white', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
+  if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(59,130,246,0.28)' : '#DBEAFE', color: isDark ? '#BAE6FD' : '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
+  return <span style={{ background: isDark ? 'rgba(201,57,74,0.22)' : '#FEE2E2', color: isDark ? '#FCA5A5' : '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
 
 function OutcomePill({ outcome, T }) {
   const map = {
-    advancing:    { bg: C.redBg,                    color: C.red,     border: C.redL,      label: T.outcome.advancing    },
-    offer:        { bg: C.redBg,                    color: C.red,     border: C.redL,      label: T.outcome.offer        },
-    notAdvancing: { bg: 'rgba(37,99,235,0.08)',      color: '#1E40AF', border: '#BFDBFE',   label: T.outcome.notAdvancing },
-    pending:      { bg: 'rgba(27,36,97,0.08)',       color: '#1B2461', border: '#C7D2FE',   label: T.outcome.pending      },
-    debrief:      { bg: 'rgba(37,99,235,0.08)',      color: '#1E40AF', border: '#BFDBFE',   label: T.outcome.debrief      },
+    advancing:    { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.advancing    },
+    offer:        { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.offer        },
+    notAdvancing: { bg: C.gray,     color: C.muted, border: C.border,    label: T.outcome.notAdvancing },
+    pending:      { bg: C.gray,     color: C.muted, border: C.border,    label: T.outcome.pending      },
+    debrief:      { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.debrief      },
   }
   const o = map[outcome] || map.pending
   return (
@@ -440,11 +441,93 @@ function ILStagePipeline({ stage }) {
   )
 }
 
+// ── CV overlay modal ──────────────────────────────────────────────────────────
+function CVModal({ candidate, onClose }) {
+  if (!candidate) return null
+  const Line = ({ w = '100%', h = 7, mb = 5 }) => (
+    <div style={{ width: w, height: h, background: '#E8E4E0', borderRadius: 2, marginBottom: mb }} />
+  )
+  const Sec = ({ children }) => (
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>{children}</div>
+  )
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden' }}
+      >
+        <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#C9394A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.loc ? ` · ${candidate.loc}` : ''}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: '#888', lineHeight: 1, padding: '0 0 0 16px' }}>×</button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', background: '#FAFAF9', fontFamily: 'Georgia, serif', color: '#1C1917' }}>
+          <div style={{ marginBottom: 20, paddingBottom: 14, borderBottom: '2px solid #1C1917' }}>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 3 }}>{candidate.name}</div>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>{candidate.role}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 10, color: '#888' }}>
+              {candidate.email    && <span>✉ {candidate.email}</span>}
+              {candidate.phone    && <span>📞 {candidate.phone}</span>}
+              {candidate.loc      && <span>📍 {candidate.loc}</span>}
+              {candidate.linkedin && <span>💼 {candidate.linkedin}</span>}
+            </div>
+          </div>
+          <Sec>Professional Experience</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>{candidate.role}</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2022 – Present</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>TechCorp · {candidate.loc?.split(',')[1]?.trim() || 'Europe'}</div>
+            <Line w="91%" /><Line w="84%" /><Line w="78%" /><Line w="88%" />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>Previous Role</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2020 – 2022</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>DesignStudio · {candidate.loc?.split(',')[1]?.trim() || 'Europe'}</div>
+            <Line w="87%" /><Line w="72%" /><Line w="80%" />
+          </div>
+          <Sec>Education</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>{candidate.edu?.split('·')[1]?.trim() || 'Design Degree'}</div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>{candidate.edu?.split('·')[0]?.trim() || 'University'} · 2016–2020</div>
+            <Line w="55%" />
+          </div>
+          {candidate.skills?.length > 0 && (
+            <>
+              <Sec>Skills</Sec>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 16 }}>
+                {candidate.skills.map(s => (
+                  <span key={s} style={{ background: '#F5F2EF', border: '1px solid #E0DDD9', borderRadius: 3, padding: '2px 8px', fontSize: 10, color: '#555' }}>{s}</span>
+                ))}
+              </div>
+            </>
+          )}
+          <Sec>Projects & Highlights</Sec>
+          <Line w="94%" /><Line w="88%" /><Line w="76%" /><Line w="82%" /><Line w="68%" />
+          <div style={{ marginTop: 10 }} />
+          <Line w="90%" /><Line w="83%" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Right panel — shown inline on home view ───────────────────────────────────
 function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
+  const [showCV, setShowCV] = useState(false)
   const avPalette = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
 
   return (
+    <>
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
 
       {/* ── Header ── */}
@@ -515,13 +598,15 @@ function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
       {/* ── Footer ── */}
       <div style={{ padding: '12px 18px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
         <button
-          onClick={() => onNavigate?.('hm-cv-review')}
+          onClick={() => setShowCV(true)}
           style={{ width: '100%', padding: '10px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           📄 View CV
         </button>
       </div>
     </aside>
+    {showCV && <CVModal candidate={candidate} onClose={() => setShowCV(false)} />}
+    </>
   )
 }
 
@@ -595,7 +680,7 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
   const submitted = MY_CANDIDATES.filter(c => c.debriefDone)
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: C.gray }}>
+    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
@@ -716,11 +801,58 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
   )
 }
 
+// ── Outcome summary bar (advanced vs not-advanced visualization) ──────────────
+function CandidateOutcomeBar({ candidates }) {
+  const adv   = candidates.filter(c => ['advancing', 'offer'].includes(c.outcome)).length
+  const noAdv = candidates.filter(c => c.outcome === 'notAdvancing').length
+  const pend  = candidates.filter(c => ['debrief', 'pending'].includes(c.outcome)).length
+  const total = candidates.length
+
+  const stats = [
+    { count: adv,   barColor: C.red,                                             numColor: C.red,                              label: 'Advancing'       },
+    { count: noAdv, barColor: isDark ? 'rgba(255,255,255,0.18)' : '#CBD5E1',     numColor: C.muted,                            label: 'Not advancing'   },
+    { count: pend,  barColor: '#F59E0B',                                         numColor: isDark ? '#FCD34D' : '#D97706',     label: 'Debrief pending' },
+  ]
+
+  return (
+    <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+      {/* Segmented proportion bar */}
+      <div style={{ display: 'flex', height: 5 }}>
+        {stats.map((s, i) => s.count > 0 && (
+          <div key={i} style={{ flex: s.count, background: s.barColor, transition: 'flex 0.4s ease' }} />
+        ))}
+      </div>
+      {/* Stats row */}
+      <div style={{ display: 'flex' }}>
+        {stats.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              flex: 1, padding: '14px 20px',
+              borderLeft: i > 0 ? `1px solid ${C.border}` : 'none',
+              display: 'flex', alignItems: 'center', gap: 12,
+            }}
+          >
+            <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 34, fontWeight: 400, color: s.numColor, lineHeight: 1 }}>
+              {s.count}
+            </span>
+            <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>{s.label}</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px', borderLeft: `1px solid ${C.border}` }}>
+          <span style={{ fontSize: 11, color: C.muted }}>{total} total</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function InterviewerDashboard({ lang = 'en', theme, section = 'home', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
 
@@ -792,20 +924,15 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       {/* Scrollable main content */}
-      <div style={{ flex: 1, overflow: 'auto', background: C.gray }}>
+      <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
 
         {/* Header */}
-        <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
+        <header style={{ padding: '22px 32px 20px', paddingRight: 60, background: C.white, borderBottom: `1px solid ${C.border}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
-                  {T.greeting(INTERVIEWER.name)} 👋
-                </h1>
-                <span style={{ background: C.navyBg, color: C.navy, fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, border: `1px solid ${C.navyB}` }}>
-                  {T.badge}
-                </span>
-              </div>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3 }}>
+                {T.myInterviews} · {INTERVIEWER.name}
+              </p>
               <p style={{ margin: 0, fontSize: 11, color: C.muted }}>
                 {T.interviewsDone(MY_CANDIDATES.length)} ·{' '}
                 {pendingDebriefs.length > 0 ? T.debriefPending(pendingDebriefs.length) : T.allDebriefsDone}
@@ -820,7 +947,6 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
           {/* ── New outcome notification banner ── */}
           {!notifDismissed && newOutcomeCandidates.length > 0 && (
             <div style={{ padding: '14px 20px', background: C.infBg, borderRadius: 12, border: `1px solid #BFDBFE`, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-              <span style={{ fontSize: 20, flexShrink: 0 }}>📬</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: C.infT, marginBottom: 7 }}>{T.updatesTitle}</div>
                 {newOutcomeCandidates.map(c => (
@@ -843,6 +969,9 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
           <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: 0, letterSpacing: '-0.01em' }}>
             {T.myInterviews}
           </h2>
+
+          {/* ── Outcome summary bar ── */}
+          <CandidateOutcomeBar candidates={MY_CANDIDATES} />
 
           {/* ── Active processes ── */}
           {(() => {

@@ -169,7 +169,7 @@ function MiniPipeline({ stage, th }) {
 }
 
 // ── Profile panel (right sidebar) ────────────────────────────────────────────
-function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact }) {
+function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact, onViewCV }) {
   return (
     <aside style={{
       width: 300, flexShrink: 0,
@@ -210,6 +210,7 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
       {/* Footer actions */}
       <div style={{ padding: '12px 16px', borderTop: `1px solid ${th.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
+          onClick={() => onViewCV?.(candidate)}
           style={{ padding: '10px', borderRadius: 9, background: `${th.red}0D`, color: th.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
           onMouseEnter={e => e.currentTarget.style.background = `${th.red}1A`}
           onMouseLeave={e => e.currentTarget.style.background = `${th.red}0D`}
@@ -218,9 +219,9 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
         </button>
         <button
           onClick={onContact}
-          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.06)', color: '#1B2461', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.13)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.06)'}
+          style={{ padding: '10px', borderRadius: 9, background: C.infBg, color: C.infT, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
           ✉ Send message
         </button>
@@ -250,11 +251,11 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: isSelected ? st.bg : (hov ? th.cardBgHov : th.cardBg),
+        background: isSelected ? `${th.red}0E` : (hov ? th.cardBgHov : th.cardBg),
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         borderRadius: '0.75rem',
-        border: `1px solid ${isSelected ? st.dot + '80' : isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
-        borderLeft: `3px solid ${isSelected ? st.dot : isStale ? '#E90130' : st.dot}`,
+        border: `1px solid ${isSelected ? th.red + '60' : isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
+        borderLeft: `3px solid ${isSelected ? th.red : isStale ? '#E90130' : st.dot}`,
         padding: '11px 12px',
         marginBottom: 8,
         cursor: isDragging ? 'grabbing' : 'pointer',
@@ -418,21 +419,15 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
 
 // ── Mock candidate data (matches Dashboard POSITIONS totals) ──────────────────
 const INIT = {
-  1: {  // UX Designer — Pre-Call:6, Interviews:5, Decision:2, Offer:1 = 14
+  1: {  // UX Designer — Pre-Call:3, Interviews:2, Decision:2, Offer:1 = 8
     'Pre-Call': [
       { id:105, name:'Marco Bianchi',     ini:'MB', role:'Senior UX',            loc:'Rome',     exp:'7 yrs', daysAgo:2,  skills:['Strategy','Leadership'] },
       { id:106, name:'Anna Ferretti',     ini:'AF', role:'Visual Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:6,  skills:['Figma','Branding']      },
       { id:107, name:'Carla Esposito',    ini:'CE', role:'UX Researcher',        loc:'Rome',     exp:'3 yrs', daysAgo:10, skills:['Research','Survey']     },
-      { id:112, name:'Martina Conti',     ini:'MC', role:'UX Designer',          loc:'Naples',   exp:'4 yrs', daysAgo:1,  skills:['Figma','Sketch']        },
-      { id:113, name:'Riccardo De Luca',  ini:'RL', role:'Visual Designer',      loc:'Venice',   exp:'5 yrs', daysAgo:8,  skills:['Adobe XD','Figma']      },
-      { id:114, name:'Beatrice Ferri',    ini:'BF', role:'UI Designer',          loc:'Milan',    exp:'2 yrs', daysAgo:12, skills:['Figma','CSS']           },
     ],
     Interviews: [
       { id:108, name:'Luca Ferrari',      ini:'LF', role:'Product Designer',     loc:'Florence', exp:'5 yrs', daysAgo:5,  skills:['Figma','Agile']         },
       { id:109, name:'Chiara Lombardi',   ini:'CL', role:'UX Researcher',        loc:'Milan',    exp:'6 yrs', daysAgo:14, skills:['Research','Analysis']   },
-      { id:115, name:'Alessandro Monti',  ini:'AM', role:'Senior UX',            loc:'Turin',    exp:'6 yrs', daysAgo:3,  skills:['Strategy','Research']   },
-      { id:116, name:'Francesca Amato',   ini:'FA', role:'Interaction Designer', loc:'Rome',     exp:'4 yrs', daysAgo:11, skills:['Figma','Prototyping']   },
-      { id:117, name:'Lorenzo Rinaldi',   ini:'LR', role:'UX Researcher',        loc:'Bologna',  exp:'3 yrs', daysAgo:18, skills:['Research','Testing']    },
     ],
     Decision: [
       { id:110, name:'Giulia Rossi',      ini:'GR', role:'Mid UX Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:3,  skills:['Figma','Research']      },
@@ -676,6 +671,86 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
   )
 }
 
+// ── CV overlay modal ──────────────────────────────────────────────────────────
+function CVModal({ candidate, onClose }) {
+  if (!candidate) return null
+  const Line = ({ w = '100%', h = 7, mb = 5 }) => (
+    <div style={{ width: w, height: h, background: '#E8E4E0', borderRadius: 2, marginBottom: mb }} />
+  )
+  const Sec = ({ children }) => (
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>{children}</div>
+  )
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden', animation: 'modalIn 0.22s ease' }}
+      >
+        {/* Modal toolbar */}
+        <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#E90130', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.loc ? ` · ${candidate.loc}` : ''}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: '#888', lineHeight: 1, padding: '0 0 0 16px' }}>×</button>
+        </div>
+        {/* Scrollable document */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', background: '#FAFAF9', fontFamily: 'Georgia, serif', color: '#1C1917' }}>
+          <div style={{ marginBottom: 20, paddingBottom: 14, borderBottom: '2px solid #1C1917' }}>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 3 }}>{candidate.name}</div>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>{candidate.role}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 10, color: '#888' }}>
+              {candidate.loc && <span>📍 {candidate.loc}</span>}
+              {candidate.exp && <span>🕐 {candidate.exp} experience</span>}
+            </div>
+          </div>
+          <Sec>Professional Experience</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>{candidate.role}</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2022 – Present</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>TechCorp · {candidate.loc?.split(',')[0] || 'Europe'}</div>
+            <Line w="91%" /><Line w="84%" /><Line w="78%" /><Line w="88%" />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>Previous Role</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2020 – 2022</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>Design Studio · Europe</div>
+            <Line w="87%" /><Line w="72%" /><Line w="80%" />
+          </div>
+          <Sec>Education</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>Bachelor of Design</div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>Design University · 2016–2020</div>
+            <Line w="55%" />
+          </div>
+          {candidate.skills?.length > 0 && (
+            <>
+              <Sec>Skills</Sec>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 16 }}>
+                {candidate.skills.map(s => (
+                  <span key={s} style={{ background: '#F5F2EF', border: '1px solid #E0DDD9', borderRadius: 3, padding: '2px 8px', fontSize: 10, color: '#555' }}>{s}</span>
+                ))}
+              </div>
+            </>
+          )}
+          <Sec>Projects & Highlights</Sec>
+          <Line w="94%" /><Line w="88%" /><Line w="76%" /><Line w="82%" /><Line w="68%" />
+          <div style={{ marginTop: 10 }} />
+          <Line w="90%" /><Line w="83%" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 export default function KanbanBoard({ position, restoreCandidate, theme, themeMode, lang, onBack, onNavigate }) {
   C = buildC(theme)
@@ -703,6 +778,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
   const [dragState,       setDragState]       = useState({ id:null, from:null })
   const [dragOverCol,     setDragOverCol]     = useState(null)
   const [selectedInfo,    setSelectedInfo]    = useState(null)   // { candidate, stage }
+  const [cvCandidate,     setCvCandidate]     = useState(null)   // open CV modal
   const [restoredBanner,  setRestoredBanner]  = useState(
     restoreCandidate ? { name: restoreCandidate.name, stage: restoreCandidate.stage } : null
   )
@@ -768,22 +844,19 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
       `}</style>
 
       {/* Header */}
-      <div style={{ padding:'12px 22px', background:th.bgPanel, backdropFilter:th.blur, WebkitBackdropFilter:th.blur, borderBottom:`1px solid ${th.border}`, display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-          <button onClick={onBack} style={{ background:'none', border:'none', color:th.textDim, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
+      <div style={{ padding:'12px 22px', background:th.bgPanel, backdropFilter:th.blur, WebkitBackdropFilter:th.blur, borderBottom:`1px solid ${th.border}`, display:'flex', alignItems:'center', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14, flex:1 }}>
+          <button onClick={onBack} style={{ background:'none', border:'none', color:th.textDim, cursor:'pointer', fontSize:13, fontFamily:'inherit', flexShrink:0 }}>
             {T.backBtn}
           </button>
-          <div style={{ width:1, height:18, background:th.border }} />
-          <div>
+          <div style={{ width:1, height:18, background:th.border, flexShrink:0 }} />
+          <div style={{ flexShrink:0 }}>
             <div style={{ fontSize:10, color:th.textDim, letterSpacing:'0.06em' }}>{pos.dept}</div>
             <div style={{ fontFamily:'DM Serif Display, serif', fontSize:17, color:th.text, lineHeight:1.2 }}>{pos.title}</div>
           </div>
-        </div>
-
-        <div style={{ display:'flex', gap:7, flexWrap:'wrap', justifyContent:'flex-end', alignItems:'center' }}>
           <button
             onClick={() => setShowImport(true)}
-            style={{ fontSize:10, fontWeight:700, color:'white', background:'#E90130', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s' }}
+            style={{ fontSize:10, fontWeight:700, color:'white', background:'#E90130', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s', flexShrink:0 }}
             onMouseEnter={e => { e.currentTarget.style.background='#C8012A' }}
             onMouseLeave={e => { e.currentTarget.style.background='#E90130' }}
           >
@@ -843,6 +916,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
             th={th} stageT={stageT} T={T}
             onClose={() => setSelectedInfo(null)}
             onContact={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate }) }}
+            onViewCV={c => setCvCandidate(c)}
           />
         )}
       </div>
@@ -860,6 +934,9 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
 
       {/* Celebration */}
       {celebration && <Celebration msg={celebration} onDone={() => setCelebration(null)} />}
+
+      {/* CV overlay */}
+      {cvCandidate && <CVModal candidate={cvCandidate} onClose={() => setCvCandidate(null)} />}
 
       {/* Add-candidates import modal */}
       {showImport && (

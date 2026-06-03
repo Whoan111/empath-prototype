@@ -18,6 +18,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const SCREEN_T = {
@@ -418,7 +419,7 @@ function ZoomBar({ zoom, setZoom, T }) {
 }
 
 // ── Center: Document viewer ───────────────────────────────────────────────────
-function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
+function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving = false, leavingDir = 'right' }) {
   const [zoom, setZoom] = useState(1)
 
   const hasPDFPortfolio = docType === 'portfolio'
@@ -442,10 +443,24 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
     whiteSpace: 'nowrap',
   })
 
-  return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.gray }}>
+  // Animation applies only to the content area, not the tab bar.
+  // Transition is always set so browsers reliably animate when `leaving` flips.
+  const contentAnimStyle = {
+    flex: 1,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    transform: leaving
+      ? leavingDir === 'left' ? 'translateX(-120%)' : 'translateX(120%)'
+      : 'translateX(0)',
+    opacity: leaving ? 0 : 1,
+    transition: 'transform 240ms ease-in, opacity 180ms ease-in',
+  }
 
-      {/* ── Tab bar ── */}
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
+
+      {/* ── Tab bar — stays anchored during animation ── */}
       <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
 
         {/* CV tab */}
@@ -483,41 +498,46 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
         )}
       </div>
 
-      {/* ── CV view ── */}
-      {viewMode === 'cv' && (
-        <>
-          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-              {docType !== 'unknown' && <CVDocumentMockup cv={cv} />}
-              {docType === 'unknown' && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 16, textAlign: 'center' }}>
-                  <div style={{ fontSize: 48 }}>📎</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{cv.file}</div>
-                  <div style={{ fontSize: 12, color: C.muted }}>{cv.pages} pages · Could not auto-detect type</div>
-                </div>
-              )}
-            </div>
-          </div>
-          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
-        </>
-      )}
+      {/* ── Animated content area (tab bar above stays fixed) ── */}
+      <div style={contentAnimStyle}>
 
-      {/* ── Portfolio PDF view ── */}
-      {viewMode === 'portfolio' && hasPDFPortfolio && (
-        <>
-          <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
-              <PortfolioMockup cv={cv} />
+        {/* ── CV view ── */}
+        {viewMode === 'cv' && (
+          <>
+            <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+                {docType !== 'unknown' && <CVDocumentMockup cv={cv} />}
+                {docType === 'unknown' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 48 }}>📎</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{cv.file}</div>
+                    <div style={{ fontSize: 12, color: C.muted }}>{cv.pages} pages · Could not auto-detect type</div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
-        </>
-      )}
+            <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+          </>
+        )}
 
-      {/* ── Portfolio URL view ── */}
-      {viewMode === 'portfolio' && hasURLPortfolio && (
-        <PortfolioLinkView cv={cv} />
-      )}
+        {/* ── Portfolio PDF view ── */}
+        {viewMode === 'portfolio' && hasPDFPortfolio && (
+          <>
+            <div style={{ flex: 1, overflow: 'auto', padding: '28px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ background: 'white', width: `${Math.min(100, 72 * zoom)}%`, minHeight: '100%', padding: '48px 52px', boxShadow: '0 2px 24px rgba(0,0,0,0.10)', borderRadius: 2, boxSizing: 'border-box' }}>
+                <PortfolioMockup cv={cv} />
+              </div>
+            </div>
+            <ZoomBar zoom={zoom} setZoom={setZoom} T={T} />
+          </>
+        )}
+
+        {/* ── Portfolio URL view ── */}
+        {viewMode === 'portfolio' && hasURLPortfolio && (
+          <PortfolioLinkView cv={cv} />
+        )}
+
+      </div>
     </div>
   )
 }
@@ -682,11 +702,12 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
 }
 
 // ── Left: candidate list panel ────────────────────────────────────────────────
-function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
-  const all        = ASSIGNED_CANDIDATES
-  const accepted   = all.filter(c => decisions[c.id] === 'accept').length
-  const rejected   = all.filter(c => decisions[c.id] === 'reject').length
-  const toReview   = all.length - accepted - rejected
+function CandidateListPanel({ selectedId, decisions, onSelect, activePosId, T }) {
+  const [collapsed, setCollapsed] = useState({})
+  const all      = ASSIGNED_CANDIDATES
+  const accepted = all.filter(c => decisions[c.id] === 'accept').length
+  const rejected = all.filter(c => decisions[c.id] === 'reject').length
+  const toReview = all.length - accepted - rejected
 
   return (
     <div style={{ width: 232, flexShrink: 0, background: C.white, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -718,24 +739,47 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
           const posCandidates = all.filter(c => c.positionId === pos.id)
           if (!posCandidates.length) return null
           const posUnreviewed = posCandidates.filter(c => !decisions[c.id]).length
+          const isCollapsedPos = !!collapsed[pos.id]
+          const isActivePos    = pos.id === activePosId
           return (
             <div key={pos.id}>
-              {/* Position header */}
-              <div style={{ padding: '8px 14px 6px', background: C.gray, borderBottom: `1px solid ${C.border}`, borderTop: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
-                  {posUnreviewed > 0 && (
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.4)', flexShrink: 0 }} />
-                  )}
-                  <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{pos.title}</div>
+              {/* Position header — collapsible */}
+              <button
+                onClick={() => setCollapsed(s => ({ ...s, [pos.id]: !s[pos.id] }))}
+                style={{
+                  width: '100%', textAlign: 'left',
+                  padding: '8px 14px 6px',
+                  background: isActivePos ? C.redBg : C.gray,
+                  borderBottom: `1px solid ${C.border}`,
+                  borderTop: `1px solid ${C.border}`,
+                  borderLeft: 'none', borderRight: 'none',
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  display: 'flex', alignItems: 'flex-start', gap: 7,
+                }}
+              >
+                {/* Collapse arrow */}
+                <span style={{
+                  fontSize: 11, color: C.muted, flexShrink: 0, lineHeight: 1,
+                  display: 'inline-block', marginTop: 3,
+                  transform: isCollapsedPos ? 'rotate(-90deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.15s',
+                }}>▾</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: isActivePos ? C.red : C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
+                    {posUnreviewed > 0 && (
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.4)', flexShrink: 0 }} />
+                    )}
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pos.title}</div>
+                  </div>
+                  <div style={{ fontSize: 9, color: C.muted, marginTop: 1 }}>
+                    {T.assignedBy(pos.recruiter)} · {T.daysAgo(pos.assignedDaysAgo)}
+                  </div>
                 </div>
-                <div style={{ fontSize: 9, color: C.muted, marginTop: 1 }}>
-                  {T.assignedBy(pos.recruiter)} · {T.daysAgo(pos.assignedDaysAgo)}
-                </div>
-              </div>
+              </button>
 
               {/* Candidate rows */}
-              {posCandidates.map(c => {
+              {!isCollapsedPos && posCandidates.map(c => {
                 const dec   = decisions[c.id]
                 const isSel = c.id === selectedId
                 return (
@@ -781,6 +825,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
 
@@ -790,9 +835,11 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const [docTypeOverrides, setDocTypeOverrides] = useState({})
   const [leaving,          setLeaving]          = useState(false)   // true while exit animation is running
   const [leavingDir,       setLeavingDir]       = useState('right') // 'left' = rejected, 'right' = accepted
+  const [activePosId,      setActivePosId]      = useState(POSITIONS_HM[0]?.id)
 
-  const all = ASSIGNED_CANDIDATES
-  const cv  = idx >= 0 && idx < all.length ? all[idx] : null
+  // Scope triage to ONE position at a time — mirrors CVTriage architecture
+  const cvList = ASSIGNED_CANDIDATES.filter(c => c.positionId === activePosId)
+  const cv     = idx >= 0 && idx < cvList.length ? cvList[idx] : null
 
   const goTo = (i) => setIdx(i)
 
@@ -809,9 +856,9 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
     const updated = { ...decisions, [id]: value }
     setDecisions(updated)
 
-    // Compute next undecided index before state updates
-    let nextIdx = all.findIndex((c, i) => i > idx && !updated[c.id])
-    if (nextIdx === -1) nextIdx = all.findIndex(c => !updated[c.id])
+    // Compute next undecided index within current position only
+    let nextIdx = cvList.findIndex((c, i) => i > idx && !updated[c.id])
+    if (nextIdx === -1) nextIdx = cvList.findIndex(c => !updated[c.id])
 
     // Kick off 250 ms slide-out (rejected → left, accepted → right)
     setLeavingDir(value === 'reject' ? 'left' : 'right')
@@ -825,14 +872,25 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
   const handleSaveNotes    = (id, text) => setSavedNotes(n => ({ ...n, [id]: text }))
   const handleOverrideType = (id, t)    => setDocTypeOverrides(o => ({ ...o, [id]: t }))
   const handleSelectById   = (id)       => {
-    const i = all.findIndex(c => c.id === id)
-    if (i !== -1) setIdx(i)
+    const cand = ASSIGNED_CANDIDATES.find(c => c.id === id)
+    if (!cand) return
+    if (cand.positionId !== activePosId) {
+      // Switching to a different position — recompute list for the new position
+      const newList = ASSIGNED_CANDIDATES.filter(c => c.positionId === cand.positionId)
+      const i = newList.findIndex(c => c.id === id)
+      setActivePosId(cand.positionId)
+      setIdx(i !== -1 ? i : 0)
+    } else {
+      const i = cvList.findIndex(c => c.id === id)
+      if (i !== -1) setIdx(i)
+    }
   }
 
-  const acceptedCount = all.filter(c => decisions[c.id] === 'accept').length
-  const rejectedCount = all.filter(c => decisions[c.id] === 'reject').length
-  const toReviewCount = all.length - acceptedCount - rejectedCount
-  const allDone       = toReviewCount === 0 && all.length > 0 && !leaving
+  // Stats scoped to current position for allDone / progress counter
+  const acceptedCount = cvList.filter(c => decisions[c.id] === 'accept').length
+  const rejectedCount = cvList.filter(c => decisions[c.id] === 'reject').length
+  const toReviewCount = cvList.length - acceptedCount - rejectedCount
+  const allDone       = toReviewCount === 0 && cvList.length > 0 && !leaving
 
   const effectiveDocType = (c) => docTypeOverrides[c?.id] || c?.docType || 'unknown'
 
@@ -851,32 +909,30 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
         </div>
 
         {/* Progress counter */}
-        {all.length > 0 && (
+        {cvList.length > 0 && (
           <>
             <div style={{ width: 1, height: 20, background: C.border }} />
-            <span style={{ fontSize: 12, color: C.muted }}>{cv ? idx + 1 : 0} / {all.length}</span>
+            <span style={{ fontSize: 12, color: C.muted }}>{cv ? idx + 1 : 0} / {cvList.length}</span>
           </>
         )}
 
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-          {acceptedCount > 0 && (
-            <span style={{ background: C.navBg, color: C.navT, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
-              ✓ {acceptedCount} {T.accepted.toLowerCase()}
-            </span>
-          )}
-          {toReviewCount > 0 && (
-            <span style={{ background: C.gray, color: C.muted, fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20 }}>
-              {T.subtitle(toReviewCount)}
-            </span>
-          )}
-        </div>
       </header>
 
       {/* ── Body ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+        {/* Left panel is always visible so user can switch positions */}
+        <CandidateListPanel
+          selectedId={cv?.id ?? null}
+          decisions={decisions}
+          onSelect={handleSelectById}
+          activePosId={activePosId}
+          T={T}
+        />
+
         {allDone ? (
-          /* Completion screen — held back until exit animation finishes */
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, background: C.white }}>
+          /* Completion screen for current position — left panel stays for switching */
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, background: isDark ? C.gray : 'transparent' }}>
             <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
               <circle cx="44" cy="44" r="42" fill="rgba(27,36,97,0.07)"/>
               <circle cx="44" cy="44" r="30" fill="rgba(27,36,97,0.13)"/>
@@ -894,49 +950,31 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
             </button>
           </div>
         ) : (
-          <>
-            <CandidateListPanel
-              selectedId={cv?.id ?? null}
-              decisions={decisions}
-              onSelect={handleSelectById}
-              T={T}
-            />
-
-            {/* Only the document viewer slides; HM panel stays anchored */}
-            {cv && !(allDone && !leaving) && (
-              <>
-                <div style={{
-                  flex: 1, overflow: 'hidden',
-                  transform: leaving
-                    ? leavingDir === 'left' ? 'translateX(-100%)' : 'translateX(100%)'
-                    : 'translateX(0)',
-                  opacity: leaving ? 0 : 1,
-                  transition: leaving
-                    ? 'transform 250ms ease-in, opacity 250ms ease-in'
-                    : 'none',
-                }}>
-                  <DocumentViewer
-                    key={cv.id}
-                    cv={cv}
-                    docType={effectiveDocType(cv)}
-                    onOverrideType={(t) => handleOverrideType(cv.id, t)}
-                    T={T}
-                    showPortfolio={isDesignRole(cv?.role)}
-                  />
-                </div>
-                <HMCandidatePanel
-                  key={cv.id}
-                  candidate={cv}
-                  decision={decisions[cv.id] ?? null}
-                  notes={savedNotes[cv.id] || ''}
-                  onDecide={handleDecide}
-                  onSaveNotes={handleSaveNotes}
-                  onClose={() => setIdx(-1)}
-                  T={T}
-                />
-              </>
-            )}
-          </>
+          /* Document + right panel — only the document content slides */
+          cv && (
+            <>
+              <DocumentViewer
+                key={cv.id}
+                cv={cv}
+                docType={effectiveDocType(cv)}
+                onOverrideType={(t) => handleOverrideType(cv.id, t)}
+                T={T}
+                showPortfolio={isDesignRole(cv?.role)}
+                leaving={leaving}
+                leavingDir={leavingDir}
+              />
+              <HMCandidatePanel
+                key={cv.id}
+                candidate={cv}
+                decision={decisions[cv.id] ?? null}
+                notes={savedNotes[cv.id] || ''}
+                onDecide={handleDecide}
+                onSaveNotes={handleSaveNotes}
+                onClose={() => setIdx(-1)}
+                T={T}
+              />
+            </>
+          )
         )}
       </div>
     </div>

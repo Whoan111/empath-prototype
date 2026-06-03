@@ -15,6 +15,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -214,6 +215,7 @@ function CompletedRow({ item, onEdit, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [pendingOpen,   setPendingOpen]   = useState(true)
@@ -230,7 +232,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
   }
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
+    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '28px 36px 48px' }}>
 
         {/* Back */}

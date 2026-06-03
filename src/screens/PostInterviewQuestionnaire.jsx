@@ -18,6 +18,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -569,9 +570,13 @@ function StepContext({ candidate, context, onChange, onNext, currentUser, T }) {
           style={{
             width: '100%', padding: '11px 14px', borderRadius: 9,
             border: `1.5px solid ${context.interviewDate ? C.red : C.border}`,
-            fontSize: 14, color: context.interviewDate ? C.text : C.muted,
-            background: C.white, cursor: 'pointer', fontFamily: 'inherit',
+            fontSize: 13, fontWeight: 500,
+            color: context.interviewDate ? C.text : C.muted,
+            background: isDark ? 'rgba(255,255,255,0.05)' : C.white,
+            cursor: 'pointer', fontFamily: 'inherit',
             boxSizing: 'border-box', outline: 'none', maxWidth: 260,
+            WebkitAppearance: 'none', appearance: 'none',
+            colorScheme: isDark ? 'dark' : 'light',
           }}
         />
         <p style={{ fontSize: 11, color: C.muted, marginTop: 6 }}>
@@ -887,8 +892,8 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
 
       {/* Role-specific message */}
       {isHM ? (
-        <div style={{ background: 'rgba(37,99,235,0.10)', borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BFDBFE', borderLeft: '3px solid #1E40AF', textAlign: 'left' }}>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#1E40AF', margin: 0, lineHeight: 1.7 }}>
+        <div style={{ background: C.gray, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.border}`, textAlign: 'left' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: C.muted, margin: 0, lineHeight: 1.7 }}>
             {T.hmMessage}
           </p>
         </div>
@@ -927,6 +932,7 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
 // ─────────────────────────────────────────────────────────────────────────────
 export default function PostInterviewQuestionnaire({ theme, lang = 'en', candidate = MOCK_CANDIDATE, isHM = true, summariesScreen = 'debrief-list', homeScreen = 'hiring-manager', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
 

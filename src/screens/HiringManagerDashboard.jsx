@@ -345,9 +345,79 @@ function StagePipeline({ stage }) {
   )
 }
 
+// ── CV overlay modal ──────────────────────────────────────────────────────────
+function CVModal({ candidate, onClose }) {
+  if (!candidate) return null
+  const Line = ({ w = '100%', h = 7, mb = 5 }) => (
+    <div style={{ width: w, height: h, background: '#E8E4E0', borderRadius: 2, marginBottom: mb }} />
+  )
+  const Sec = ({ children }) => (
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>{children}</div>
+  )
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden', animation: 'modalIn 0.22s ease' }}
+      >
+        <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#C9394A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.email ? ` · ${candidate.email}` : ''}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: '#888', lineHeight: 1, padding: '0 0 0 16px' }}>×</button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', background: '#FAFAF9', fontFamily: 'Georgia, serif', color: '#1C1917' }}>
+          <div style={{ marginBottom: 20, paddingBottom: 14, borderBottom: '2px solid #1C1917' }}>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 3 }}>{candidate.name}</div>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>{candidate.role}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 10, color: '#888' }}>
+              {candidate.email && <span>✉ {candidate.email}</span>}
+              {candidate.stage && <span>📍 Stage: {candidate.stage}</span>}
+            </div>
+          </div>
+          <Sec>Professional Experience</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>{candidate.role}</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2022 – Present</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>TechCorp · Europe</div>
+            <Line w="91%" /><Line w="84%" /><Line w="78%" /><Line w="88%" />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>Previous Role</span>
+              <span style={{ fontSize: 10, color: '#888' }}>2020 – 2022</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>Design Studio · Europe</div>
+            <Line w="87%" /><Line w="72%" /><Line w="80%" />
+          </div>
+          <Sec>Education</Sec>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>Bachelor of Design</div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 6 }}>Design University · 2016–2020</div>
+            <Line w="55%" />
+          </div>
+          <Sec>Projects & Highlights</Sec>
+          <Line w="94%" /><Line w="88%" /><Line w="76%" /><Line w="82%" /><Line w="68%" />
+          <div style={{ marginTop: 10 }} />
+          <Line w="90%" /><Line w="83%" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Candidate panel ───────────────────────────────────────────────────────────
 function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T }) {
+  const [showCV, setShowCV] = useState(false)
   return (
+    <>
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
 
       {/* Header */}
@@ -417,7 +487,7 @@ function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T 
       {/* Decision footer */}
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
-          onClick={() => onNavigate?.('hm-cv-review')}
+          onClick={() => setShowCV(true)}
           style={{ padding: '9px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           📄 View CV
@@ -448,6 +518,8 @@ function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T 
         )}
       </div>
     </aside>
+    {showCV && <CVModal candidate={candidate} onClose={() => setShowCV(false)} />}
+    </>
   )
 }
 
@@ -470,7 +542,7 @@ function ArchivedSection({ candidates, onRestore, T }) {
       {open && (
         <div style={{ borderTop: `1px solid ${C.border}` }}>
           {candidates.map((c, i) => (
-            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 18px', borderBottom: i < candidates.length - 1 ? `1px solid ${C.border}` : 'none', opacity: 0.6 }}>
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 18px', borderBottom: i < candidates.length - 1 ? `1px solid ${C.border}` : 'none', opacity: 0.75 }}>
               <Av id={c.id} ini={c.ini} size={30} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{c.name}</div>
@@ -618,34 +690,57 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
         </div>
       )}
 
-      {/* ── Top bar ── */}
-      <header style={{ padding: '18px 28px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 2 }}>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: 0 }}>
-              Good morning, {HM.name} ☀️
-            </h1>
-            <span style={{ background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
-              {T.hiringManager}
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: 11, color: C.muted }}>
-            {POSITIONS.map(p => p.title).join(' · ')} · {T.preSelected(allCands.length)}
-          </p>
-        </div>
+      {/* ── Greeting hero + position cards ── */}
+      <header style={{ padding: '26px 32px 22px', paddingRight: 60, background: 'transparent', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 5px' }}>
+          {T.hiringManager}
+        </p>
+        <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 3px', letterSpacing: '-0.01em' }}>
+          Good morning, {HM.name.split(' ')[0]}.
+        </h1>
+        <p style={{ fontSize: 12, color: C.muted, margin: '0 0 20px' }}>
+          {T.preSelected(allCands.length)} across {POSITIONS.length} open positions
+        </p>
 
-        {/* Stats pills */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          {advancing > 0 && (
-            <span style={{ background: C.redBg, color: C.red, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-              {T.advancing(advancing)}
-            </span>
-          )}
-          {notMoving > 0 && (
-            <span style={{ background: '#FEF2F2', color: C.red, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-              {T.archived(notMoving)}
-            </span>
-          )}
+        {/* Position selection cards */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          {POSITIONS.map(p => {
+            const isActive = p.id === activePosId
+            const cands    = PRE_SELECTED[p.id] || []
+            const pending  = cands.filter(c => decisions[c.id] !== 'not-moving-forward').length
+            return (
+              <button
+                key={p.id}
+                onClick={() => { setActivePosId(p.id); setSelectedCandidate(null) }}
+                style={{
+                  flex: 1, textAlign: 'left', padding: '14px 18px', borderRadius: 12,
+                  background: isActive
+                    ? isDark ? 'rgba(233,1,48,0.15)' : C.redBg
+                    : isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.55)',
+                  border: `1.5px solid ${isActive ? C.redL : C.border}`,
+                  borderLeft: isActive ? `4px solid ${C.red}` : `1.5px solid ${C.border}`,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: isActive
+                    ? `0 2px 18px rgba(233,1,48,0.13), 0 1px 4px rgba(0,0,0,0.06)`
+                    : 'none',
+                  backdropFilter: isActive ? 'none' : 'blur(10px)',
+                  WebkitBackdropFilter: isActive ? 'none' : 'blur(10px)',
+                  transition: 'all 0.18s',
+                }}
+              >
+                <div style={{ fontSize: 9, fontWeight: 700, color: isActive ? C.red : C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{p.dept}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginBottom: 4 }}>
+                  <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 30, fontWeight: 400, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
+                    {cands.length}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? C.text : C.muted }}>
+                    {p.title}
+                  </span>
+                </div>
+                <div style={{ fontSize: 10, color: isActive ? C.red : C.muted, opacity: isActive ? 0.75 : 1 }}>{p.recruiter} · {pending} pending</div>
+              </button>
+            )
+          })}
         </div>
       </header>
 
@@ -654,32 +749,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
         {/* ── Main ── */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-
-          {/* Position tabs */}
-          <div style={{ display: 'flex', gap: 0, background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
-            {POSITIONS.map((p, i) => {
-              const isActive = p.id === activePosId
-              const cands    = PRE_SELECTED[p.id] || []
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => { setActivePosId(p.id); setSelectedCandidate(null) }}
-                  style={{
-                    flex: 1, padding: '14px 20px', border: 'none',
-                    background: isActive ? C.redBg : C.white,
-                    borderRight: i < POSITIONS.length - 1 ? `1px solid ${C.border}` : 'none',
-                    cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
-                    borderBottom: isActive ? `3px solid ${C.red}` : '3px solid transparent',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? C.red : C.text }}>{p.title}</div>
-                  <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{p.dept} · {cands.length} pre-selected · Recruiter: {p.recruiter}</div>
-                </button>
-              )
-            })}
-          </div>
+        <div style={{ flex: 1, overflow: 'auto', padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 18, background: isDark ? C.gray : 'transparent' }}>
 
           {/* Filter + sort bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -700,7 +770,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
             </select>
           </div>
 
-          {/* Candidate table */}
+          {/* Candidate table — only rendered when there are candidates */}
+          {sortedActive.length > 0 && (
           <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
             {/* Table header */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1fr', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
@@ -709,14 +780,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
               ))}
             </div>
 
-            {sortedActive.length === 0 && (
-              <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>
-                {T.allReviewed}
-              </div>
-            )}
-
             {sortedActive.map((c, i) => {
-              const dec  = decisions[c.id]
+              const dec   = decisions[c.id]
               const isSel = selectedCandidate?.id === c.id
 
               return (
@@ -779,15 +844,15 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
               )
             })}
           </div>
+          )} {/* end sortedActive.length > 0 */}
 
           {/* Archived section */}
           <ArchivedSection candidates={archived} onRestore={restore} T={T} />
 
-          {/* Empty state if all decided */}
+          {/* Empty state — shown when position has no candidates at all */}
           {active.length === 0 && archived.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: C.muted }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>🎯</div>
-              <div style={{ fontSize: 14, fontWeight: 500, color: C.text, marginBottom: 6 }}>{T.noPreSelected}</div>
+            <div style={{ textAlign: 'center', padding: '52px 0 40px', color: C.muted }}>
+              <div style={{ fontSize: 13, fontWeight: 500, color: C.text, marginBottom: 6 }}>{T.noPreSelected}</div>
               <div style={{ fontSize: 12 }}>{T.noPreSelectedSub}</div>
             </div>
           )}

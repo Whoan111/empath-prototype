@@ -506,20 +506,20 @@ function MetricCard({ card, onClick, delay }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.text, lineHeight: 1.2 }}>{card.title}</div>
-          <div style={{ fontSize: 10, color: card.accent, fontWeight: 500, opacity: 0.8 }}>{card.sub}</div>
+          <div style={{ fontSize: 10, color: isDark ? C.muted : card.accent, fontWeight: 500, opacity: isDark ? 1 : 0.8 }}>{card.sub}</div>
         </div>
-        <span style={{ fontSize: 9, fontWeight: 600, color: card.accent, background: isDark ? card.accent + '22' : card.border + '80', padding: '2px 7px', borderRadius: 20, flexShrink: 0, marginLeft: 6, letterSpacing: '0.04em' }}>
+        <span style={{ fontSize: 9, fontWeight: 600, color: isDark ? C.muted : card.accent, background: isDark ? 'rgba(255,255,255,0.08)' : card.border + '80', padding: '2px 7px', borderRadius: 20, flexShrink: 0, marginLeft: 6, letterSpacing: '0.04em' }}>
           {card.category}
         </span>
       </div>
 
       {/* Big metric */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 6 }}>
-        <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 42, fontWeight: 400, color: card.accent, lineHeight: 1, letterSpacing: '-0.5px' }}>
+        <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 42, fontWeight: 400, color: isDark ? C.text : card.accent, lineHeight: 1, letterSpacing: '-0.5px' }}>
           {card.value}
         </span>
         {card.unit && (
-          <span style={{ fontSize: 17, color: card.accent, opacity: 0.6, marginBottom: 2 }}>{card.unit}</span>
+          <span style={{ fontSize: 17, color: isDark ? C.muted : card.accent, opacity: isDark ? 0.8 : 0.6, marginBottom: 2 }}>{card.unit}</span>
         )}
       </div>
 
@@ -545,7 +545,7 @@ export default function AIInsights({ theme, lang = 'en', onBack }) {
   const [selected, setSelected] = useState(null)
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.redBg : 'linear-gradient(150deg, #FFF1F2 0%, #EEF2FF 42%, #EFF6FF 100%)' }}>
+    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '28px 32px 48px' }}>
 
         {/* Header */}

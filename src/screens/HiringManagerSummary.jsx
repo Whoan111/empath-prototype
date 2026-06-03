@@ -184,7 +184,9 @@ function InterviewCard({ interview, T }) {
 
   return (
     <div style={{
-      background: C.white,
+      background: isDark ? C.white : 'rgba(255,255,255,0.88)',
+      backdropFilter: isDark ? 'none' : 'blur(10px)',
+      WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)',
       border: `1px solid ${C.border}`,
       borderLeft: `4px solid ${borderColor}`,
       borderRadius: 13,
@@ -279,7 +281,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                    : 'advance'
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
+    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 36px 48px' }}>
 
         {/* Back */}
@@ -288,12 +290,12 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </button>
 
         {/* ── Report header card ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
-          <div style={{ height: 4, background: `linear-gradient(90deg, ${C.red}, #F87171)` }} />
+        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
+          <div style={{ height: 4, background: C.grayB }} />
           <div style={{ padding: '20px 24px 18px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
             <Av id={candidate.id} ini={candidate.ini} size={52} />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{T.badge}</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{T.badge}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
                 <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: 0 }}>
                   {candidate.name}
@@ -301,14 +303,14 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                 <FitPill fit={overallFit} T={T} />
               </div>
               <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
-                {candidate.role} · {candidate.pos} · {T.applied} {candidate.appliedDate}
+                {candidate.role} · {T.applied} {candidate.appliedDate}
               </p>
             </div>
           </div>
         </div>
 
         {/* ── Empath AI snapshot ── */}
-        <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 13, border: `1px solid ${C.border}`, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>{T.empath}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.75, margin: 0 }}>{SYNTHESIS_RATIONALE}</p>
@@ -320,15 +322,15 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </div>
 
         {/* ── Decision panel ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
+        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
 
           {decision ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 11,
-              background: decision === 'advance' ? C.redBg : decision === 'pass' ? 'rgba(37,99,235,0.08)' : C.gray,
-              border: `1px solid ${decision === 'advance' ? C.redL : decision === 'pass' ? '#BFDBFE' : C.grayB}` }}>
+              background: decision === 'advance' ? C.redBg : decision === 'pass' ? C.infBg : C.gray,
+              border: `1px solid ${decision === 'advance' ? C.redL : decision === 'pass' ? C.infL : C.grayB}` }}>
               <div style={{ fontSize: 14, fontWeight: 600,
-                color: decision === 'advance' ? C.red : decision === 'pass' ? '#1E40AF' : C.muted }}>
+                color: decision === 'advance' ? C.red : decision === 'pass' ? C.infT : C.muted }}>
                 {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
               </div>
               <button onClick={() => setDecision(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit', padding: '4px 8px' }}>
@@ -351,7 +353,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
               </button>
               <button
                 onClick={() => setDecision('pass')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '1px solid #BFDBFE', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.infBg, color: C.infT, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.reject}
               </button>
