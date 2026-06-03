@@ -281,11 +281,17 @@ function DecisionCard({ c, onOpen, T }) {
           </div>
         </div>
 
-        {/* Position tag */}
-        <div style={{ display: 'inline-flex', alignSelf: 'flex-start' }}>
+        {/* Position tag + action on same row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, border: `1px solid ${C.border}` }}>
             {c.pos}
           </span>
+          <button
+            onClick={() => onOpen(c)}
+            style={{ padding: '5px 14px', borderRadius: 20, background: hovered ? C.red : C.redBg, color: hovered ? 'white' : C.red, border: `1.5px solid ${hovered ? C.red : C.redL}`, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
+          >
+            {T.openReport}
+          </button>
         </div>
 
         {/* Divider */}
@@ -300,15 +306,6 @@ function DecisionCard({ c, onOpen, T }) {
         </div>
       </div>
 
-      {/* Footer / CTA */}
-      <div style={{ padding: '0 16px 16px' }}>
-        <button
-          onClick={() => onOpen(c)}
-          style={{ width: '100%', padding: '9px 0', borderRadius: 9, background: hovered ? C.red : C.redBg, color: hovered ? 'white' : C.red, border: `1.5px solid ${C.red}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s', letterSpacing: '0.01em' }}
-        >
-          {T.openReport}
-        </button>
-      </div>
     </div>
   )
 }
@@ -327,11 +324,14 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
   const [posFilter, setPosFilter] = useState(T.all)
 
   const allPosLabel  = T.all
-  const positions    = [allPosLabel, ...new Set(candidates.map(c => c.pos))]
+  // Always include every position that exists in the full dataset, even if 0 pass the filter
+  const allPosSource = isPreCall ? PRE_CALL_CANDIDATES : DECISION_CANDIDATES
+  const positions    = [allPosLabel, ...new Set(allPosSource.map(c => c.pos))]
 
   // Sync the "All" filter pill label with lang changes
   const effectiveFilter = positions.includes(posFilter) ? posFilter : allPosLabel
 
+  // filtered display list (decision mode only shows complete summaries)
   const filtered = effectiveFilter === allPosLabel
     ? candidates
     : candidates.filter(c => c.pos === effectiveFilter)

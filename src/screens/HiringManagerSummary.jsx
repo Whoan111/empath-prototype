@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -143,24 +144,30 @@ function Av({ id, ini, size = 40 }) {
 
 function FitPill({ fit, T }) {
   if (fit === 'strongly-advance') return (
-    <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+    <span style={{ background: isDark ? 'rgba(27,36,97,0.55)' : '#1B2461', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
   )
   if (fit === 'advance') return (
-    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+    <span style={{ background: isDark ? 'rgba(37,99,235,0.35)' : '#DBEAFE', color: isDark ? '#93C5FD' : '#1E40AF', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
   )
   return (
     <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
   )
 }
 
-function DimBar({ label, value, color }) {
+const valueToFit = (v) =>
+  v >= 80 ? { label: 'Strong fit', color: 'white',   bg: isDark ? 'rgba(27,36,97,0.55)' : '#1B2461' }
+: v >= 60 ? { label: 'Fit',        color: isDark ? '#93C5FD' : '#1E40AF', bg: isDark ? 'rgba(37,99,235,0.35)' : '#DBEAFE' }
+:           { label: 'Not fit',    color: '#C9394A', bg: '#FEF2F2' }
+
+function DimBar({ label, value }) {
+  const fit = valueToFit(value)
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
       <span style={{ fontSize: 10, color: C.muted, whiteSpace: 'nowrap', width: 120, flexShrink: 0 }}>{label}</span>
       <div style={{ flex: 1, height: 4, background: C.grayB, borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 3 }} />
+        <div style={{ width: `${value}%`, height: '100%', background: fit.color, borderRadius: 3 }} />
       </div>
-      <span style={{ fontSize: 10, fontWeight: 700, color, width: 28, textAlign: 'right', flexShrink: 0 }}>{value}</span>
+      <span style={{ fontSize: 9, fontWeight: 600, color: fit.color, background: fit.bg, padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>{fit.label}</span>
     </div>
   )
 }
@@ -171,7 +178,7 @@ function InterviewCard({ interview, T }) {
                     : interview.fit === 'advance'          ? '#1E40AF'
                     : C.red
   const dimColor    = borderColor
-  const avColors = [['#FECDD3', C.red], ['#DBEAFE', C.inf], ['#D1FAE5', C.suc]]
+  const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
   const [avBg, avCol] = avColors[(interview.id - 1) % 3]
   const dims = interview.dimensions
 
@@ -203,31 +210,31 @@ function InterviewCard({ interview, T }) {
       {/* Card body */}
       <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        {/* Strengths */}
-        <div style={{ background: C.sucBg, borderRadius: 9, padding: '10px 13px' }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: C.sucT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+        {/* Strengths — toned-down reddish */}
+        <div style={{ background: isDark ? 'rgba(201,57,74,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FECDD3' : '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
             ✓ {T.strengths}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {interview.positives.map((p, i) => (
               <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                <span style={{ color: C.suc, fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                <span style={{ color: '#C9394A', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
                 <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Improvements */}
+        {/* Improvements — brand blue */}
         {interview.improvements.length > 0 && (
-          <div style={{ background: C.warBg, borderRadius: 9, padding: '10px 13px' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+          <div style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', borderRadius: 9, padding: '10px 13px' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#BFDBFE' : '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
               ⚠ {T.improvements}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {interview.improvements.map((p, i) => (
                 <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                  <span style={{ color: C.war, fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                  <span style={{ color: '#2563EB', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
                   <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
                 </div>
               ))}
@@ -247,10 +254,10 @@ function InterviewCard({ interview, T }) {
 
         {/* Dimension bars */}
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 11, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <DimBar label={T.communication}    value={dims.communication}    color={dimColor} />
-          <DimBar label={T.culturalFit}      value={dims.culturalFit}      color={dimColor} />
-          <DimBar label={T.technicalSkills}  value={dims.technicalSkills}  color={dimColor} />
-          <DimBar label={T.growthPotential}  value={dims.growthPotential}  color={dimColor} />
+          <DimBar label={T.communication}    value={dims.communication}    />
+          <DimBar label={T.culturalFit}      value={dims.culturalFit}      />
+          <DimBar label={T.technicalSkills}  value={dims.technicalSkills}  />
+          <DimBar label={T.growthPotential}  value={dims.growthPotential}  />
         </div>
       </div>
     </div>
@@ -260,6 +267,7 @@ function InterviewCard({ interview, T }) {
 // ── Root ──────────────────────────────────────────────────────────────────────
 export default function HiringManagerSummary({ theme, lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [decision, setDecision] = useState(null)
@@ -305,9 +313,9 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>{T.empath}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.75, margin: 0 }}>{SYNTHESIS_RATIONALE}</p>
           </div>
-          <div style={{ background: C.sucBg, borderRadius: 10, padding: '10px 14px', textAlign: 'center', border: '1px solid #BBF7D0', flexShrink: 0 }}>
-            <div style={{ fontSize: 24, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
-            <div style={{ fontSize: 9, color: C.sucT, fontWeight: 700, marginTop: 3, letterSpacing: '0.05em' }}>{T.recommend}</div>
+          <div style={{ background: C.infBg, borderRadius: 10, padding: '10px 14px', textAlign: 'center', border: `1px solid ${C.infL}`, flexShrink: 0 }}>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.inf, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
+            <div style={{ fontSize: 9, color: C.infT, fontWeight: 700, marginTop: 3, letterSpacing: '0.05em' }}>{T.recommend}</div>
           </div>
         </div>
 
@@ -316,8 +324,11 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
 
           {decision ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 11, background: decision === 'advance' ? C.sucBg : decision === 'pass' ? '#FEF2F2' : C.warBg, border: `1px solid ${decision === 'advance' ? '#BBF7D0' : decision === 'pass' ? '#FECACA' : '#FDE68A'}` }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: decision === 'advance' ? C.sucT : decision === 'pass' ? C.red : C.warT }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 11,
+              background: decision === 'advance' ? C.redBg : decision === 'pass' ? 'rgba(37,99,235,0.08)' : C.gray,
+              border: `1px solid ${decision === 'advance' ? C.redL : decision === 'pass' ? '#BFDBFE' : C.grayB}` }}>
+              <div style={{ fontSize: 14, fontWeight: 600,
+                color: decision === 'advance' ? C.red : decision === 'pass' ? '#1E40AF' : C.muted }}>
                 {decision === 'advance' ? T.movingFwd : decision === 'pass' ? T.notMovingFwd : T.anotherRound}
               </div>
               <button onClick={() => setDecision(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit', padding: '4px 8px' }}>
@@ -328,19 +339,19 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setDecision('advance')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.suc, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.suggestHire}
               </button>
               <button
                 onClick={() => setDecision('another-round')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.gray, color: C.muted, border: `1px solid ${C.grayB}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.requestRound}
               </button>
               <button
                 onClick={() => setDecision('pass')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.gray, color: C.muted, border: `1px solid ${C.grayB}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '1px solid #BFDBFE', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.reject}
               </button>

@@ -55,8 +55,8 @@ function NotificationBubble({ role, th, onNavigate }) {
           transition: 'background 0.18s, box-shadow 0.18s',
           position: 'relative', fontFamily: 'inherit',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if(svg) svg.style.stroke = '#E90130' }}
+        onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)'; const svg = e.currentTarget.querySelector('svg'); if(svg) svg.style.stroke = '' }}
       >
         {/* Bell SVG */}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -333,7 +333,7 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
                 backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
                 transition: 'all 0.15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = th.text; e.currentTarget.style.borderColor = th.borderBrt }}
+              onMouseEnter={e => { e.currentTarget.style.color = th.red; e.currentTarget.style.borderColor = th.borderBrt }}
               onMouseLeave={e => { e.currentTarget.style.color = th.textMid; e.currentTarget.style.borderColor = th.border }}
             >
               {label}

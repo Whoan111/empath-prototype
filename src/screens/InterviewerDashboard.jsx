@@ -224,11 +224,11 @@ function FitPill({ fit }) {
 
 function OutcomePill({ outcome, T }) {
   const map = {
-    advancing:    { bg: C.sucBg,   color: C.sucT,  border: C.sucBorder, label: T.outcome.advancing    },
-    offer:        { bg: C.redBg,   color: C.red,   border: C.redL,      label: T.outcome.offer        },
-    notAdvancing: { bg: '#F3F4F6', color: '#6B7280',border: '#E5E7EB',  label: T.outcome.notAdvancing },
-    pending:      { bg: C.warBg,   color: C.warT,  border: C.warBorder, label: T.outcome.pending      },
-    debrief:      { bg: '#FEF2F2', color: C.red,   border: C.redL,      label: T.outcome.debrief      },
+    advancing:    { bg: C.redBg,                    color: C.red,     border: C.redL,      label: T.outcome.advancing    },
+    offer:        { bg: C.redBg,                    color: C.red,     border: C.redL,      label: T.outcome.offer        },
+    notAdvancing: { bg: 'rgba(37,99,235,0.08)',      color: '#1E40AF', border: '#BFDBFE',   label: T.outcome.notAdvancing },
+    pending:      { bg: 'rgba(27,36,97,0.08)',       color: '#1B2461', border: '#C7D2FE',   label: T.outcome.pending      },
+    debrief:      { bg: 'rgba(37,99,235,0.08)',      color: '#1E40AF', border: '#BFDBFE',   label: T.outcome.debrief      },
   }
   const o = map[outcome] || map.pending
   return (
@@ -395,7 +395,7 @@ function InterviewTimeline({ candidate, onFillDebrief, T }) {
                   {(f.strengths?.length > 0 || f.concerns?.length > 0) && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                       {f.strengths?.map(s => (
-                        <span key={s} style={{ fontSize: 9, fontWeight: 600, color: C.sucT, background: C.sucBg, padding: '2px 7px', borderRadius: 20 }}>{s}</span>
+                        <span key={s} style={{ fontSize: 9, fontWeight: 600, color: '#1B2461', background: 'rgba(27,36,97,0.09)', padding: '2px 7px', borderRadius: 20 }}>{s}</span>
                       ))}
                       {f.concerns?.map(s => (
                         <span key={s} style={{ fontSize: 9, fontWeight: 600, color: C.warT, background: C.warBg, padding: '2px 7px', borderRadius: 20 }}>△ {s}</span>
@@ -412,108 +412,114 @@ function InterviewTimeline({ candidate, onFillDebrief, T }) {
   )
 }
 
+// ── Mini pipeline (reused across panels) ────────────────────────────────────
+const IL_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+function ILStagePipeline({ stage }) {
+  const stageMap = { Closed: 'Decision', Offer: 'Offer', Decision: 'Decision', Interviews: 'Interviews', 'Pre-Call': 'Pre-Call', Screening: 'Screening' }
+  const mapped = stageMap[stage] || stage
+  const idx = IL_PIPELINE.indexOf(mapped)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {IL_PIPELINE.map((s, i) => {
+        const past = i <= idx
+        const curr = i === idx
+        const short = s === 'Screening' ? 'Screen' : s === 'Interviews' ? 'Interview' : s === 'Pre-Call' ? 'Pre-Call' : s
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < IL_PIPELINE.length - 1 && (
+              <div style={{ position: 'absolute', top: 7, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 14, height: 14, borderRadius: 3, transform: 'rotate(45deg)', background: curr ? C.red : past ? C.redL : C.gray, border: `2px solid ${curr ? C.red : past ? C.redL : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 3px ${C.redBg}` : 'none' }} />
+            <div style={{ fontSize: 8, color: curr ? C.red : C.muted, fontWeight: curr ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>
+              {short}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Right panel — shown inline on home view ───────────────────────────────────
 function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
-  const isRejected = candidate.outcome === 'notAdvancing'
-  const myFeedback = candidate.allFeedback.find(f => f.isMine)
+  const avPalette = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
 
   return (
-    <aside style={{ width: 360, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
+    <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
 
       {/* ── Header ── */}
-      <div style={{ padding: '16px 18px 14px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-          <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-            <Av id={candidate.id} ini={candidate.ini} size={42} muted={isRejected} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: isRejected ? C.muted : C.text }}>{candidate.name}</div>
+      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
+            <Av id={candidate.id} ini={candidate.ini} size={46} />
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{candidate.name}</div>
               <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.exp}</div>
-              <div style={{ fontSize: 10, color: C.muted }}>{candidate.loc}</div>
+              <div style={{ fontSize: 11, color: C.muted }}>{candidate.loc}</div>
             </div>
           </div>
           {onClose && (
-            <button
-              onClick={onClose}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0, alignSelf: 'flex-start' }}
-            >
-              {T.closePanel}
-            </button>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 20, lineHeight: 1, padding: 0, alignSelf: 'flex-start' }}>×</button>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <OutcomePill outcome={candidate.outcome} T={T} />
-          {isRejected && (
-            <span style={{ fontSize: 10, color: '#9CA3AF', background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '3px 9px', borderRadius: 20 }}>
-              {T.rejectedOn(candidate.rejectedDate)}
-            </span>
-          )}
-        </div>
+        {/* Pipeline */}
+        <ILStagePipeline stage={candidate.currentStage} />
       </div>
 
-      {/* ── Scrollable body ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px 24px', display: 'flex', flexDirection: 'column', gap: 22 }}>
-
-        {/* Interview history */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{T.interviewHistory}</div>
-            {candidate.allFeedback.length > 0 && (
-              <span style={{ fontSize: 10, color: C.muted, background: C.gray, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.border}` }}>
-                {T.roundCount(candidate.allFeedback.length)}
-              </span>
-            )}
-          </div>
-          {isRejected && (
-            <div style={{ padding: '9px 13px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 14 }}>📁</span>
-              <span style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>{T.closedBanner(candidate.rejectedDate)}</span>
-            </div>
+      {/* ── Feedback ── */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+          Interview feedback {candidate.allFeedback.length > 0 && (
+            <span style={{ background: C.redL, color: C.red, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, marginLeft: 5 }}>{candidate.allFeedback.length}</span>
           )}
-          <InterviewTimeline
-            candidate={candidate}
-            onFillDebrief={() => onNavigate?.('questionnaire', { candidate })}
-            T={T}
-          />
         </div>
-
-        {/* Your contribution */}
-        {myFeedback && (
-          <div style={{ padding: '12px 14px', background: C.navyBg, borderRadius: 10, border: `1px solid ${C.navyB}` }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: C.navy, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
-              {T.yourContribution}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, color: C.text, fontWeight: 500 }}>{T.yourRoundLabel(candidate.myType, candidate.myDate)}</span>
-              {candidate.myFit && <FitPill fit={candidate.myFit} />}
-            </div>
+        {candidate.allFeedback.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '28px 0', color: C.muted }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
+            <div style={{ fontSize: 12 }}>No feedback yet</div>
+            <div style={{ fontSize: 11, marginTop: 3 }}>Debriefs will appear here after interviews</div>
+            <button
+              onClick={() => onNavigate?.('questionnaire', { candidate })}
+              style={{ marginTop: 10, padding: '6px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Fill debrief →
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {candidate.allFeedback.map((f, i) => {
+              const [bg, col] = avPalette[i % 3]
+              const isMe = f.isMine
+              return (
+                <div key={i} style={{ background: isMe ? C.redBg : C.gray, borderRadius: 10, padding: '11px 13px', borderLeft: `3px solid ${isMe ? C.red : col}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: isMe ? C.redL : bg, color: isMe ? C.red : col, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
+                        {f.by.split(' ').map(w => w[0]).join('')}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by} {isMe && <span style={{ fontSize: 9, color: C.red, fontWeight: 700 }}>· You</span>}</div>
+                        <div style={{ fontSize: 9, color: C.muted }}>{f.byRole} · R{f.round}</div>
+                      </div>
+                    </div>
+                    <FitPill fit={f.fit} />
+                  </div>
+                  <p style={{ fontSize: 11, color: C.text, lineHeight: 1.65, margin: 0 }}>{f.txt}</p>
+                </div>
+              )
+            })}
           </div>
         )}
+      </div>
 
-        <div style={{ height: 1, background: C.border }} />
-
-        {/* Stage */}
-        <div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>{T.currentStage}</div>
-          <div style={{ fontSize: 12, fontWeight: 500, color: isRejected ? '#9CA3AF' : C.text }}>{candidate.currentStage}</div>
-        </div>
-
-        {/* Contact */}
-        <div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{T.contact}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            {candidate.email && (
-              <span style={{ fontSize: 11, color: C.text, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <span style={{ color: C.muted }}>✉</span> {candidate.email}
-              </span>
-            )}
-            {candidate.linkedin && (
-              <span style={{ fontSize: 11, color: C.infT, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <span>💼</span> {candidate.linkedin}
-              </span>
-            )}
-          </div>
-        </div>
-
+      {/* ── Footer ── */}
+      <div style={{ padding: '12px 18px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
+        <button
+          onClick={() => onNavigate?.('hm-cv-review')}
+          style={{ width: '100%', padding: '10px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          📄 View CV
+        </button>
       </div>
     </aside>
   )
@@ -619,11 +625,11 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
           </div>
 
           {pending.length === 0 ? (
-            <div style={{ padding: '16px 20px', background: C.sucBg, borderRadius: 12, border: `1px solid ${C.sucBorder}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ padding: '16px 20px', background: C.redBg, borderRadius: 12, border: `1px solid ${C.redL}`, display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontSize: 20 }}>✓</span>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.sucT }}>{T.allDoneTitle}</div>
-                <div style={{ fontSize: 11, color: C.sucT }}>{T.allDoneSub}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.red }}>{T.allDoneTitle}</div>
+                <div style={{ fontSize: 11, color: C.red }}>{T.allDoneSub}</div>
               </div>
             </div>
           ) : (
@@ -662,7 +668,7 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{T.submittedSection}</h2>
-            <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.sucBorder}` }}>
+            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>
               {submitted.length}
             </span>
           </div>
@@ -805,18 +811,7 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
                 {pendingDebriefs.length > 0 ? T.debriefPending(pendingDebriefs.length) : T.allDebriefsDone}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {advancingCount > 0 && (
-                <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 20 }}>
-                  ✓ {T.advancingCount(advancingCount)}
-                </span>
-              )}
-              {pendingDebriefs.length > 0 && (
-                <span style={{ background: '#FEF2F2', color: C.red, fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 20 }}>
-                  📝 {pendingDebriefs.length} pending
-                </span>
-              )}
-            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} />
           </div>
         </header>
 
@@ -859,11 +854,11 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
                   onClick={() => setActiveOpen(o => !o)}
                   style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginBottom: activeOpen ? 14 : 0 }}
                 >
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: activeOpen ? C.suc : 'transparent', border: `2px solid ${activeOpen ? C.suc : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: activeOpen ? C.red : 'transparent', border: `2px solid ${activeOpen ? C.red : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
                     <span style={{ fontSize: 10, color: activeOpen ? 'white' : C.muted, fontWeight: 700, lineHeight: 1 }}>{activeOpen ? '−' : '+'}</span>
                   </div>
                   <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Active processes</span>
-                  <span style={{ fontSize: 11, color: C.muted, background: C.sucBg, padding: '2px 8px', borderRadius: 20, color: C.sucT, fontWeight: 600 }}>{active.length}</span>
+                  <span style={{ background: C.redBg, padding: '2px 8px', borderRadius: 20, color: C.red, fontSize: 11, fontWeight: 600 }}>{active.length}</span>
                 </button>
                 {activeOpen && (
                   <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 16 }}>

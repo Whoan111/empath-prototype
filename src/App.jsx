@@ -97,7 +97,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
       overflow: 'hidden',
     }}>
       <style>{`
-        .sb-nav-btn:hover   { background: rgba(27,36,97,0.06) !important; }
+        .sb-nav-btn:hover   { background: rgba(233,1,48,0.06) !important; color: #E90130 !important; }
         .sb-role-opt:hover  { background: rgba(27,36,97,0.05) !important; }
         .sb-logo:hover      { opacity: 0.75; }
         .sb-set-item:hover  { background: rgba(27,36,97,0.04) !important; }
@@ -390,8 +390,8 @@ export default function App() {
   const handleMouseMove = (e) => {
     if (!spotlightRef.current) return
     const dark = themeMode === 'dark'
-    const c = dark ? 'rgba(100,160,255,0.06)' : 'rgba(233,1,48,0.07)'
-    const r = dark ? 360 : 340
+    const c = dark ? 'rgba(100,160,255,0.07)' : 'rgba(233,1,48,0.15)'
+    const r = dark ? 260 : 210
     spotlightRef.current.style.background =
       `radial-gradient(circle ${r}px at ${e.clientX}px ${e.clientY}px, ${c} 0%, transparent 70%)`
   }
@@ -463,12 +463,12 @@ export default function App() {
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrbL 9s ease-in-out infinite',
           }} />
-          {/* Light — secondary orb: rich navy-blue */}
+          {/* Light — secondary orb: rich navy-blue (more saturated) */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '65%', left: '36%', width: 660, height: 660,
-            borderRadius: '50%', filter: 'blur(80px)',
-            background: 'radial-gradient(circle at center, rgba(27,36,97,0.22) 0%, rgba(27,36,97,0.10) 45%, rgba(233,1,48,0.06) 65%, transparent 78%)',
+            borderRadius: '50%', filter: 'blur(72px)',
+            background: 'radial-gradient(circle at center, rgba(27,36,97,0.42) 0%, rgba(27,36,97,0.22) 45%, rgba(37,99,235,0.10) 65%, transparent 78%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrbL2 12s ease-in-out infinite',
           }} />
@@ -492,7 +492,7 @@ export default function App() {
       />
 
       {/* ── Cursor spotlight overlay ── */}
-      <div ref={spotlightRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 4 }} />
+      <div ref={spotlightRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
 
       {/* ── Fixed theme toggle (top-right) ── */}
       <button

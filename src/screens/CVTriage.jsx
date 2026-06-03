@@ -293,7 +293,7 @@ function Av({ id, ini, size = 44 }) {
 function DocTypeBadge({ type }) {
   const map = {
     cv:        { label: '📄 CV',        bg: C.infBg,  color: C.infT  },
-    portfolio: { label: '🎨 Portfolio', bg: '#EDE9FE', color: '#6D28D9' },
+    portfolio: { label: '🎨 Portfolio', bg: C.infBg, color: C.infT },
     unknown:   { label: '❓ Unknown',   bg: C.warBg,  color: C.warT  },
   }
   const t = map[type] || map.unknown
@@ -515,14 +515,12 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
   const [viewMode, setViewMode] = useState('cv')
 
   // Tab style helper
-  const tabStyle = (active, purple = false) => ({
+  const tabStyle = (active, _unused = false) => ({
     padding: '11px 20px',
     border: 'none',
-    borderBottom: active
-      ? `2px solid ${purple ? '#6D28D9' : C.red}`
-      : '2px solid transparent',
+    borderBottom: active ? `2px solid ${C.red}` : '2px solid transparent',
     background: 'none',
-    color: active ? (purple ? '#6D28D9' : C.text) : C.muted,
+    color: active ? C.text : C.muted,
     cursor: 'pointer',
     fontFamily: 'inherit',
     fontSize: 12,
@@ -568,7 +566,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px' }}>
             <span style={{ fontSize: 10, color: C.muted }}>{T.identifyAs}</span>
             <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,  background: C.infBg,  color: C.infT,    fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
-            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: '1px solid #DDD8F9',      background: '#EDE7F6', color: '#6D28D9', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
+            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`, background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
           </div>
         )}
       </div>
@@ -678,7 +676,7 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
               </a>
             )}
             {cv.portfolio && (
-              <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6D28D9', textDecoration: 'none', padding: '7px 11px', background: '#EDE7F6', borderRadius: 8 }}>
+              <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.infT, textDecoration: 'none', padding: '7px 11px', background: C.infBg, borderRadius: 8 }}>
                 <span>🎨</span> {cv.portfolio}
               </a>
             )}
@@ -707,8 +705,8 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
       <div style={{ padding: '14px 20px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
         {decision ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ padding: '11px 14px', borderRadius: 9, textAlign: 'center', background: decision === 'advance' ? C.navBg : C.redBg, border: `1px solid ${decision === 'advance' ? C.navL : C.redL}` }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.navT : C.red }}>
+            <div style={{ padding: '11px 14px', borderRadius: 9, textAlign: 'center', background: decision === 'advance' ? C.redBg : 'rgba(37,99,235,0.08)', border: `1px solid ${decision === 'advance' ? C.redL : '#BFDBFE'}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: decision === 'advance' ? C.red : '#1E40AF' }}>
                 {decision === 'advance' ? T.movingToScreen : T.notMovingDec}
               </span>
             </div>
@@ -718,7 +716,7 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.redBg, color: C.red, border: `2px solid ${C.redL}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => onDecide('pass')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '2px solid #BFDBFE', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.notMovingFwd}
             </button>
             <button onClick={() => onDecide('advance')} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -786,17 +784,17 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
       <div style={{ padding: '12px 14px 10px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
         <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>{T.batchProgress}</div>
         <div style={{ display: 'flex', gap: 5 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.navBg, borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.nav, lineHeight: 1 }}>{advancing}</div>
-            <div style={{ fontSize: 8, color: C.navT, fontWeight: 600, marginTop: 2 }}>{T.advancing}</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{passing}</div>
-            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
-          </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.gray, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.muted, lineHeight: 1 }}>{remaining}</div>
             <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>{T.remaining}</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(37,99,235,0.08)', borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#1E40AF', lineHeight: 1 }}>{passing}</div>
+            <div style={{ fontSize: 8, color: '#1E40AF', fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{advancing}</div>
+            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.advancing}</div>
           </div>
         </div>
       </div>
@@ -826,7 +824,7 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
               </div>
               <div style={{
                 width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                background: dec === 'advance' ? C.nav : dec === 'pass' ? C.red : C.grayB,
+                background: dec === 'advance' ? C.red : dec === 'pass' ? '#2563EB' : C.grayB,
               }} />
             </button>
           )

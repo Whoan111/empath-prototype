@@ -255,7 +255,7 @@ function Stars({ score, max = 5, size = 12 }) {
 function DocTypeBadge({ type }) {
   const map = {
     cv:        { label: '📄 CV',        bg: C.infBg,  color: C.infT  },
-    portfolio: { label: '🎨 Portfolio', bg: C.purpBg, color: C.purp  },
+    portfolio: { label: '🎨 Portfolio', bg: C.infBg,  color: C.infT  },
     unknown:   { label: '❓ Unknown',   bg: C.warBg,  color: C.warT  },
   }
   const t = map[type] || map.unknown
@@ -384,10 +384,10 @@ function PortfolioLinkView({ cv }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '13px 28px', borderRadius: 12,
-          background: C.purpBg, color: C.purp,
-          border: `1.5px solid ${C.purpL}`,
+          background: C.infBg, color: C.inf,
+          border: `1.5px solid ${C.infL}`,
           fontSize: 14, fontWeight: 600, textDecoration: 'none',
-          boxShadow: '0 2px 14px rgba(109,40,217,0.13)',
+          boxShadow: '0 2px 14px rgba(37,99,235,0.13)',
           transition: 'opacity 0.15s',
         }}
         onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
@@ -430,9 +430,9 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
   const tabStyle = (active, purple = false) => ({
     padding: '11px 20px',
     border: 'none',
-    borderBottom: active ? `2px solid ${purple ? C.purp : C.red}` : '2px solid transparent',
+    borderBottom: active ? `2px solid ${purple ? C.inf : C.red}` : '2px solid transparent',
     background: 'none',
-    color: active ? (purple ? C.purp : C.text) : C.muted,
+    color: active ? (purple ? C.inf : C.text) : C.muted,
     cursor: 'pointer',
     fontFamily: 'inherit',
     fontSize: 12,
@@ -478,7 +478,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px' }}>
             <span style={{ fontSize: 10, color: C.muted }}>{T.identifyAs}</span>
             <button onClick={() => onOverrideType('cv')}        style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infBg}`,  background: C.infBg,  color: C.infT,  fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>📄 CV</button>
-            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.purpL}`, background: C.purpBg, color: C.purp, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
+            <button onClick={() => onOverrideType('portfolio')} style={{ padding: '3px 10px', borderRadius: 7, border: `1px solid ${C.infL}`, background: C.infBg, color: C.infT, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>🎨 Portfolio</button>
           </div>
         )}
       </div>
@@ -564,8 +564,8 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Recruiter's assessment */}
-        <div style={{ background: C.warBg, borderRadius: 10, padding: '13px 14px', border: `1px solid ${C.warBorder}` }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: C.warT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+        <div style={{ background: C.redBg, borderRadius: 10, padding: '13px 14px', border: `1px solid ${C.redL}` }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
             {T.recruiterAssessment}
           </div>
           <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: '0 0 10px' }}>
@@ -573,7 +573,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {candidate.recruiterTags.map(tag => (
-              <span key={tag} style={{ fontSize: 9, fontWeight: 600, color: C.warT, background: C.warBg, padding: '2px 7px', borderRadius: 20 }}>{tag}</span>
+              <span key={tag} style={{ fontSize: 9, fontWeight: 600, color: C.red, background: C.redBg, padding: '2px 7px', borderRadius: 20 }}>{tag}</span>
             ))}
           </div>
         </div>
@@ -581,14 +581,14 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
         {/* Portfolio link — design roles only */}
         {isDesignRole(candidate.role) && (
           candidate.portfolio ? (
-            <div style={{ background: C.purpBg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${C.purpL}` }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: C.purp, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+            <div style={{ background: C.infBg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${C.infL}` }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.infT, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
                 {T.portfolio}
               </div>
               <a
                 href={`https://${candidate.portfolio}`}
                 target="_blank" rel="noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.purp, textDecoration: 'none', fontWeight: 600 }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.inf, textDecoration: 'none', fontWeight: 600 }}
               >
                 <span>🎨</span>
                 <span style={{ flex: 1 }}>{candidate.portfolio}</span>
@@ -640,16 +640,16 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
         {decision ? (
           <div style={{
             padding: '12px 14px', borderRadius: 9,
-            background: decision === 'accept' ? C.navBg : C.redBg,
-            border: `1px solid ${decision === 'accept' ? C.navL : C.redL}`,
+            background: decision === 'accept' ? C.redBg : 'rgba(37,99,235,0.08)',
+            border: `1px solid ${decision === 'accept' ? C.redL : '#BFDBFE'}`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.navT : C.red }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.red : '#1E40AF' }}>
                   {decision === 'accept' ? T.acceptedLabel : T.rejectedLabel}
                 </div>
                 {decision === 'accept' && (
-                  <div style={{ fontSize: 10, color: C.nav, marginTop: 2 }}>{T.acceptedSub}</div>
+                  <div style={{ fontSize: 10, color: C.red, marginTop: 2 }}>{T.acceptedSub}</div>
                 )}
               </div>
               <button
@@ -664,7 +664,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => onDecide(candidate.id, 'reject')}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: C.redBg, color: C.red, border: `2px solid ${C.redL}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '2px solid #BFDBFE', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {T.reject}
             </button>
@@ -697,17 +697,17 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
           {T.batchProgress}
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.navBg, borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.nav, lineHeight: 1 }}>{accepted}</div>
-            <div style={{ fontSize: 8, color: C.navT, fontWeight: 600, marginTop: 2 }}>{T.accepted}</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: '#FEE2E2', borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{rejected}</div>
-            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.rejected}</div>
-          </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.gray, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.muted, lineHeight: 1 }}>{toReview}</div>
             <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>{T.toReview}</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(37,99,235,0.08)', borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#1E40AF', lineHeight: 1 }}>{rejected}</div>
+            <div style={{ fontSize: 8, color: '#1E40AF', fontWeight: 600, marginTop: 2 }}>{T.rejected}</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{accepted}</div>
+            <div style={{ fontSize: 8, color: C.red, fontWeight: 600, marginTop: 2 }}>{T.accepted}</div>
           </div>
         </div>
       </div>
@@ -762,7 +762,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, T }) {
                     <div style={{ flexShrink: 0 }}>
                       <div style={{
                         width: 8, height: 8, borderRadius: '50%',
-                        background: dec === 'accept' ? C.nav : dec === 'reject' ? C.red : C.grayB,
+                        background: dec === 'accept' ? C.red : dec === 'reject' ? '#2563EB' : C.grayB,
                       }} />
                     </div>
                   </button>

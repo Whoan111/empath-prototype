@@ -107,7 +107,7 @@ const CARDS = [
     title: 'Gender Balance',
     sub: 'All Positions',
     value: '54', unit: '%', label: 'Women · Leading',
-    bg: '#F0F9FF', accent: '#0369A1', border: '#BAE6FD',
+    bg: '#EFF6FF', accent: '#2563EB', border: '#BFDBFE',
     visual: 'split',
     detail: {
       trend: [44,46,48,50,51,52,53,54],
@@ -485,16 +485,19 @@ function MetricCard({ card, onClick, delay }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: isDark ? C.white : card.bg,
-        borderRadius: 14,
-        border: `1.5px solid ${hovered ? card.accent + '60' : (isDark ? C.border : card.border)}`,
+        background: isDark ? C.white : `linear-gradient(145deg, ${card.bg} 0%, #ffffff 85%)`,
+        borderRadius: 16,
+        border: `1.5px solid ${hovered ? card.accent + '80' : (isDark ? C.border : card.border)}`,
         padding: '16px 16px 12px',
         cursor: 'pointer',
         display: 'flex', flexDirection: 'column',
         minHeight: 176,
         transition: 'all 0.18s ease',
-        boxShadow: hovered ? `0 6px 24px ${card.accent}18` : '0 1px 4px rgba(0,0,0,0.04)',
+        boxShadow: hovered
+          ? `0 8px 32px ${card.accent}22, 0 2px 8px rgba(0,0,0,0.06)`
+          : '0 2px 8px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)',
         animation: `cardIn 0.35s ease ${delay}s backwards`,
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
       }}
     >
       <style>{`@keyframes cardIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
@@ -542,7 +545,7 @@ export default function AIInsights({ theme, lang = 'en', onBack }) {
   const [selected, setSelected] = useState(null)
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
+    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.redBg : 'linear-gradient(150deg, #FFF1F2 0%, #EEF2FF 42%, #EFF6FF 100%)' }}>
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '28px 32px 48px' }}>
 
         {/* Header */}
@@ -556,7 +559,7 @@ export default function AIInsights({ theme, lang = 'en', onBack }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: C.suc }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: C.red }} />
             <span style={{ fontSize: 11, color: C.muted }}>{T.updatedToday}</span>
           </div>
         </div>

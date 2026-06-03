@@ -909,8 +909,8 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             {sent ? (
               <div style={{
                 padding: '11px 0', borderRadius: 9,
-                background: C.sucBg, border: `1px solid #BBF7D0`,
-                textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.sucT,
+                background: 'rgba(37,99,235,0.08)', border: `1px solid #BFDBFE`,
+                textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#1E40AF',
               }}>
                 {T.sentMsg(candidate?.name?.split(' ')[0] || 'candidate')}
               </div>
@@ -931,9 +931,9 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
               onClick={handleCopy}
               style={{
                 padding: '11px 0', borderRadius: 9,
-                background: copied ? C.sucBg : C.gray,
-                color: copied ? C.sucT : C.muted,
-                border: `1px solid ${copied ? '#BBF7D0' : C.grayB}`,
+                background: copied ? 'rgba(37,99,235,0.08)' : C.gray,
+                color: copied ? '#1E40AF' : C.muted,
+                border: `1px solid ${copied ? '#BFDBFE' : C.grayB}`,
                 fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                 transition: 'all 0.2s',
               }}

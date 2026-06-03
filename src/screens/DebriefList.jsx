@@ -252,13 +252,13 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
 
           {/* Count chips */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
-            <div style={{ background: C.redBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.redL}` }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
-              <div style={{ fontSize: 9, color: C.red, fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
+            <div style={{ background: 'rgba(37,99,235,0.08)', borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #BFDBFE' }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: '#1E40AF', fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
+              <div style={{ fontSize: 9, color: '#1E40AF', fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
-            <div style={{ background: C.sucBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.sucBorder}` }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
-              <div style={{ fontSize: 9, color: C.sucT, fontWeight: 600, marginTop: 3 }}>{T.completedLabel}</div>
+            <div style={{ background: C.redBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.redL}` }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
+              <div style={{ fontSize: 9, color: C.red, fontWeight: 600, marginTop: 3 }}>{T.completedLabel}</div>
             </div>
           </div>
         </div>
@@ -269,10 +269,10 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
             onClick={() => setPendingOpen(o => !o)}
             style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: pendingOpen ? 12 : 0, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0', width: '100%', textAlign: 'left' }}
           >
-            <span style={{ fontSize: 11, color: C.red, transition: 'transform 0.2s', display: 'inline-block', transform: pendingOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0, display: 'inline-block' }} />
+            <span style={{ fontSize: 11, color: '#1E40AF', transition: 'transform 0.2s', display: 'inline-block', transform: pendingOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', boxShadow: '0 0 6px rgba(37,99,235,0.45)', flexShrink: 0, display: 'inline-block' }} />
             <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.pendingTitle}</h2>
-            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
+            <span style={{ background: 'rgba(37,99,235,0.08)', color: '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
           </button>
 
           {pendingOpen && (
@@ -302,7 +302,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
           >
             <span style={{ fontSize: 11, color: C.muted, transition: 'transform 0.2s', display: 'inline-block', transform: completedOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: C.muted, margin: 0 }}>{T.completedTitle}</h2>
-            <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{COMPLETED.length}</span>
+            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{COMPLETED.length}</span>
           </button>
 
           {completedOpen && (

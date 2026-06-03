@@ -220,17 +220,17 @@ const CRITERIA = [
 
 // Fit levels: null = not yet answered, -1 = did not evaluate, 'strong' | 'fit' | 'not-fit'
 const FIT_CONFIG = {
-  strong:   { label: 'Strong fit',  color: C.suc, bg: C.sucBg,  border: '#BBF7D0' },
-  fit:      { label: 'Fit',         color: C.war, bg: C.warBg,  border: '#FDE68A' },
-  'not-fit':{ label: 'Not fit',     color: C.red, bg: '#FEF2F2',border: '#FECACA' },
+  strong:   { label: 'Strong fit', color: '#9F1239', bg: '#FFF1F2',              border: '#FECDD3' },
+  fit:      { label: 'Fit',        color: '#C9394A', bg: '#FFF1F2',              border: '#FECACA' },
+  'not-fit':{ label: 'Not fit',    color: '#1E40AF', bg: 'white',               border: '#BFDBFE' },
 }
 
 // ── Recommendation options ────────────────────────────────────────────────────
 const RECOMMENDATIONS = [
-  { id: 'strongly-advance', label: 'Strong advance',             emoji: '⭐', color: C.suc,  bg: C.sucBg,  border: '#BBF7D0' },
-  { id: 'advance',          label: 'Average fit',                emoji: '◎',  color: C.war,  bg: C.warBg,  border: '#FDE68A' },
-  { id: 'reservations',     label: 'Fit with reservations',      emoji: '△',  color: C.war,  bg: '#FFFBEB', border: '#FDE68A' },
-  { id: 'not-moving',       label: 'Not advancing',              emoji: '✕',  color: C.red,  bg: '#FEF2F2', border: '#FECACA' },
+  { id: 'strongly-advance', label: 'Strong advance',             emoji: '⭐', color: '#1B2461', bg: 'rgba(27,36,97,0.09)',  border: '#C7D2FE' },
+  { id: 'advance',          label: 'Average fit',                emoji: '◎',  color: '#1E40AF', bg: 'rgba(37,99,235,0.10)', border: '#BFDBFE' },
+  { id: 'reservations',     label: 'Fit with reservations',      emoji: '△',  color: '#374DB0', bg: 'rgba(55,77,176,0.08)', border: '#C7D2FE' },
+  { id: 'not-moving',       label: 'Not advancing',              emoji: '✕',  color: C.red,     bg: '#FEF2F2',             border: '#FECACA' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -446,7 +446,7 @@ function FitRating({ value, onChange, criterion, T }) {
           {['strong', 'fit', 'not-fit'].map(level => {
             const lcfg = FIT_CONFIG[level]
             const isSelected = value === level
-            const fitBg = level === 'strong' ? C.sucBg : level === 'fit' ? C.warBg : C.redBg
+            const fitBg = FIT_CONFIG[level].bg
             return (
               <button
                 key={level}
@@ -649,8 +649,8 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.fitSoFar}</div>
             <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
-              {strongCount > 0 && <span style={{ color: C.sucT, fontWeight: 600, marginRight: 8 }}>★ {T.strongFitCount(strongCount)}</span>}
-              {fitCount > 0 && <span style={{ color: C.warT, fontWeight: 600 }}>◎ {T.fitCount(fitCount)}</span>}
+              {strongCount > 0 && <span style={{ color: '#1B2461', fontWeight: 600, marginRight: 8 }}>★ {T.strongFitCount(strongCount)}</span>}
+              {fitCount > 0 && <span style={{ color: '#1E40AF', fontWeight: 600 }}>◎ {T.fitCount(fitCount)}</span>}
             </div>
           </div>
         </div>
@@ -864,7 +864,11 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T }) {
   return (
     <div style={{ textAlign: 'center', padding: '40px 32px', animation: 'stepIn 0.3s ease' }}>
-      <div style={{ fontSize: 52, marginBottom: 14 }}>✅</div>
+      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(37,99,235,0.08)', border: '2px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
       <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
         {T.doneTitle}
       </h2>
@@ -883,8 +887,8 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
 
       {/* Role-specific message */}
       {isHM ? (
-        <div style={{ background: C.sucBg, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BBF7D0', textAlign: 'left' }}>
-          <p style={{ fontSize: 12, color: C.sucT, margin: 0, lineHeight: 1.7 }}>
+        <div style={{ background: 'rgba(37,99,235,0.10)', borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: '1px solid #BFDBFE', borderLeft: '3px solid #1E40AF', textAlign: 'left' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: '#1E40AF', margin: 0, lineHeight: 1.7 }}>
             {T.hmMessage}
           </p>
         </div>

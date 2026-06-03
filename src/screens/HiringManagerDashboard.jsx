@@ -18,6 +18,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -281,7 +282,7 @@ function SummaryBadge({ status }) {
 function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
-    <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
+    <span style={{ background: isDark ? 'rgba(27,36,97,0.55)' : 'rgba(27,36,97,0.09)', color: isDark ? 'white' : '#1B2461', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ★ {T.strongAdvance}
     </span>
   )
@@ -316,7 +317,7 @@ function Av({ id, ini, size = 36 }) {
 
 function DecisionPill({ dec, T }) {
   if (!dec) return <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, fontWeight: 500 }}>{T.pendingDecision}</span>
-  if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.sucT, background: C.sucBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.advancingPill}</span>
+  if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.red, background: C.redBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.advancingPill}</span>
   if (dec === 'request-round') return <span style={{ fontSize: 11, color: C.warT, background: C.warBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>↺ {T.requestRound}</span>
   return <span style={{ fontSize: 11, color: C.red, background: '#FEE2E2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.notMovingPill}</span>
 }
@@ -345,15 +346,12 @@ function StagePipeline({ stage }) {
 }
 
 // ── Candidate panel ───────────────────────────────────────────────────────────
-function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onClose, onNavigate, T }) {
-  const [tab, setTab] = useState(T.tabs.feedback)
-  const [draft, setDraft] = useState(comment || '')
-
+function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T }) {
   return (
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg }}>
+      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
             <Av id={candidate.id} ini={candidate.ini} size={46} />
@@ -365,128 +363,72 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 20, lineHeight: 1, padding: 0, alignSelf: 'flex-start' }}>×</button>
         </div>
-
         {/* Stage pipeline */}
         <StagePipeline stage={candidate.stage} />
-
-        {/* Quick stats */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.interviewsDone}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.interviews}</div>
-          </div>
-          <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 2, textAlign: 'center', border: `1px solid ${C.border}` }}>
-            <div style={{ marginTop: 2 }}><FitPill rec={CANDIDATE_FIT[candidate.id]} T={T} /></div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, marginTop: 3 }}>{T.colFit}</div>
-          </div>
-          <div style={{ background: C.white, borderRadius: 8, padding: '6px 10px', flex: 1, textAlign: 'center', border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidate.lastActivity}</div>
-            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{T.lastActivity}</div>
-          </div>
-        </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}` }}>
-        {[T.tabs.feedback, T.tabs.notes].map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '10px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: tab === t ? 600 : 400, color: tab === t ? C.red : C.muted, borderBottom: `2px solid ${tab === t ? C.red : 'transparent'}`, fontFamily: 'inherit' }}>
-            {t}
-            {t === T.tabs.feedback && candidate.fb.length > 0 && (
-              <span style={{ marginLeft: 5, background: C.redL, color: C.red, fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 10 }}>{candidate.fb.length}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
+      {/* Feedback */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
-        {tab === T.tabs.feedback && (
-          <>
-            {candidate.fb.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '32px 0', color: C.muted }}>
-                <div style={{ fontSize: 26, marginBottom: 8 }}>📋</div>
-                <div style={{ fontSize: 13, marginBottom: 4 }}>{T.noFeedback}</div>
-                <div style={{ fontSize: 11 }}>{T.noFeedbackSub}</div>
-                <button onClick={() => onNavigate?.('questionnaire')} style={{ marginTop: 12, padding: '7px 16px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  {T.fillForm}
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {candidate.fb.map((f, i) => {
-                  const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
-                  const [bg, col] = avColors[i % 3]
-                  return (
-                    <div key={i} style={{ background: C.gray, borderRadius: 11, padding: '12px 14px', borderLeft: `3px solid ${col}` }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: '50%', background: bg, color: col, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
-                            {f.by.split(' ').map(w => w[0]).join('')}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by}</div>
-                            <div style={{ fontSize: 9, color: C.muted }}>{f.byRole} · Round {f.round} · {f.date}</div>
-                          </div>
-                        </div>
-                        <FitPill rec={f.score >= 4 ? 'strongly-advance' : f.score >= 3 ? 'advance' : null} T={T} />
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+          Interview feedback {candidate.fb.length > 0 && <span style={{ background: C.redL, color: C.red, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, marginLeft: 5 }}>{candidate.fb.length}</span>}
+        </div>
+        {candidate.fb.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '28px 0', color: C.muted }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>{T.noFeedback}</div>
+            <div style={{ fontSize: 11 }}>{T.noFeedbackSub}</div>
+            <button onClick={() => onNavigate?.('questionnaire')} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {T.fillForm}
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {candidate.fb.map((f, i) => {
+              const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
+              const [bg, col] = avColors[i % 3]
+              return (
+                <div key={i} style={{ background: C.gray, borderRadius: 10, padding: '11px 13px', borderLeft: `3px solid ${col}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: bg, color: col, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
+                        {f.by.split(' ').map(w => w[0]).join('')}
                       </div>
-                      <p style={{ fontSize: 11, color: C.text, lineHeight: 1.7, margin: '0 0 10px' }}>{f.txt}</p>
-                      {f.strengths.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                          {f.strengths.map(s => <span key={s} style={{ fontSize: 9, fontWeight: 600, color: C.sucT, background: C.sucBg, padding: '2px 7px', borderRadius: 20 }}>{s}</span>)}
-                          {f.concerns.map(s => <span key={s} style={{ fontSize: 9, fontWeight: 600, color: C.warT, background: C.warBg, padding: '2px 7px', borderRadius: 20 }}>△ {s}</span>)}
-                        </div>
-                      )}
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by}</div>
+                        <div style={{ fontSize: 9, color: C.muted }}>{f.byRole} · R{f.round}</div>
+                      </div>
                     </div>
-                  )
-                })}
-
-                {/* Link to full decision summary */}
-                <button
-                  onClick={() => onNavigate?.('hiring-summary', { candidate })}
-                  style={{ padding: '9px 0', borderRadius: 9, background: C.white, color: C.inf, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
-                >
-                  {T.openBrief}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        {tab === T.tabs.notes && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, margin: 0 }}>
-              {T.notesPrivate}
-            </p>
-            {comment && (
-              <div style={{ background: C.redBg, borderRadius: 10, padding: '11px 13px', border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: C.red, marginBottom: 5 }}>{T.savedNote}</div>
-                <p style={{ fontSize: 12, color: C.text, lineHeight: 1.7, margin: 0 }}>{comment}</p>
-              </div>
-            )}
-            <textarea
-              value={draft}
-              onChange={e => setDraft(e.target.value)}
-              placeholder={`Your thoughts on ${candidate.name.split(' ')[0]}…`}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 9, border: `1.5px solid ${C.border}`, fontSize: 12, resize: 'none', height: 100, color: C.text, lineHeight: 1.6, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' }}
-            />
+                    <FitPill rec={f.score >= 4 ? 'strongly-advance' : f.score >= 3 ? 'advance' : null} T={T} />
+                  </div>
+                  <p style={{ fontSize: 11, color: C.text, lineHeight: 1.65, margin: 0 }}>{f.txt}</p>
+                </div>
+              )
+            })}
             <button
-              onClick={() => onComment(candidate.id, draft)}
-              style={{ padding: '9px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              onClick={() => onNavigate?.('hiring-summary', { candidate })}
+              style={{ padding: '8px 0', borderRadius: 9, background: C.white, color: C.inf, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
             >
-              {T.saveNote}
+              {T.openBrief}
             </button>
           </div>
         )}
       </div>
 
       {/* Decision footer */}
-      <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>{T.yourDecision}</div>
+      <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
+        <button
+          onClick={() => onNavigate?.('hm-cv-review')}
+          style={{ padding: '9px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          📄 View CV
+        </button>
+
+        <div style={{ height: 1, background: C.border, margin: '2px 0' }} />
+        <div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{T.yourDecision}</div>
 
         {decision ? (
-          <div style={{ padding: '11px 14px', borderRadius: 9, background: decision === 'advancing' ? C.sucBg : decision === 'request-round' ? C.warBg : '#FEF2F2', border: `1px solid ${decision === 'advancing' ? '#BBF7D0' : decision === 'request-round' ? '#FDE68A' : '#FECACA'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: decision === 'advancing' ? C.sucT : decision === 'request-round' ? C.warT : C.red }}>
+          <div style={{ padding: '10px 13px', borderRadius: 9, background: decision === 'advancing' ? C.redBg : decision === 'request-round' ? C.gray : C.infBg, border: `1px solid ${decision === 'advancing' ? C.redL : decision === 'request-round' ? C.border : C.infL}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: decision === 'advancing' ? C.red : decision === 'request-round' ? C.muted : C.infT }}>
               {decision === 'advancing' ? T.advancingPill : decision === 'request-round' ? `↺ ${T.requestRound}` : T.notMovingPill}
             </span>
             <button onClick={() => onDecide(candidate.id, null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: C.muted, fontFamily: 'inherit' }}>{T.undo}</button>
@@ -496,21 +438,14 @@ function CandidatePanel({ candidate, decision, comment, onDecide, onComment, onC
             <button onClick={() => onDecide(candidate.id, 'advancing')} style={{ padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.advanceBtn}
             </button>
-            <button onClick={() => onDecide(candidate.id, 'request-round')} style={{ padding: '10px 0', borderRadius: 9, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => onDecide(candidate.id, 'request-round')} style={{ padding: '10px 0', borderRadius: 9, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               ↺ {T.requestRound}
             </button>
-            <button onClick={() => onDecide(candidate.id, 'not-moving-forward')} style={{ padding: '10px 0', borderRadius: 9, background: '#FEF2F2', color: C.red, border: '2px solid #FECACA', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => onDecide(candidate.id, 'not-moving-forward')} style={{ padding: '10px 0', borderRadius: 9, background: C.infBg, color: C.infT, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {T.notMovingBtn}
             </button>
           </div>
         )}
-
-        <button
-          onClick={() => onNavigate?.('debrief-list')}
-          style={{ padding: '9px 0', borderRadius: 9, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          {T.postDebrief}
-        </button>
       </div>
     </aside>
   )
@@ -568,7 +503,7 @@ function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
         <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, marginBottom: 14 }}>
           {T.confirmHireTitle}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '12px 14px', background: C.sucBg, borderRadius: 10, border: '1px solid #BBF7D0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '12px 14px', background: C.redBg, borderRadius: 10, border: `1px solid ${C.redL}` }}>
           <Av id={candidate.id} ini={candidate.ini} size={40} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{candidate.name}</div>
@@ -581,7 +516,7 @@ function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             onClick={onConfirm}
-            style={{ padding: '12px 0', borderRadius: 10, background: C.suc, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ padding: '12px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             {T.confirmYes}
           </button>
@@ -602,6 +537,7 @@ function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [activePosId,        setActivePosId]        = useState(1)
@@ -700,11 +636,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
 
         {/* Stats pills */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <span style={{ background: C.gray, color: C.muted, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
-            {T.pendingReview(pendingCount)}
-          </span>
           {advancing > 0 && (
-            <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
+            <span style={{ background: C.redBg, color: C.red, fontSize: 11, fontWeight: 600, padding: '5px 11px', borderRadius: 20 }}>
               {T.advancing(advancing)}
             </span>
           )}
@@ -713,12 +646,6 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
               {T.archived(notMoving)}
             </span>
           )}
-          <button
-            onClick={() => onNavigate?.('debrief-list')}
-            style={{ padding: '5px 12px', borderRadius: 20, background: C.redBg, color: C.red, border: `1px solid ${C.redL}`, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-          >
-            {T.debrief}
-          </button>
         </div>
       </header>
 
@@ -829,19 +756,19 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                       <>
                         <button
                           onClick={() => handleSuggestHire(c.id)}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: C.suc, color: 'white', border: 'none', fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: C.red, color: 'white', border: 'none', fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           {T.suggestHire}
                         </button>
                         <button
                           onClick={() => decide(c.id, 'request-round')}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: C.warBg, color: C.warT, border: `1px solid #FDE68A`, fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           ↺ {T.requestRound}
                         </button>
                         <button
                           onClick={() => decide(c.id, 'not-moving-forward')}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: '#FEF2F2', color: C.red, border: '1px solid #FECACA', fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '5px 8px', borderRadius: 7, background: C.infBg, color: C.infT, border: 'none', fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           {T.rejectBtn}
                         </button>
@@ -883,10 +810,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
             key={selectedCandidate.id}
             candidate={selectedCandidate}
             decision={decisions[selectedCandidate.id]}
-            comment={comments[selectedCandidate.id] || ''}
             onDecide={decide}
             T={T}
-            onComment={saveComment}
             onClose={() => setSelectedCandidate(null)}
             onNavigate={onNavigate}
           />

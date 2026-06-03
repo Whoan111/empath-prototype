@@ -142,9 +142,34 @@ function ConfirmMove({ move, candidates, th, stageT, T, onConfirm, onCancel }) {
   )
 }
 
+// ── Mini pipeline bar ─────────────────────────────────────────────────────────
+const PIPELINE_STAGES = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+function MiniPipeline({ stage, th }) {
+  const idx = PIPELINE_STAGES.indexOf(stage)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+      {PIPELINE_STAGES.map((s, i) => {
+        const past = i <= idx
+        const curr = i === idx
+        const short = s === 'Preliminary Call' ? 'Pre-Call' : s === 'Screening' ? 'Screen' : s === 'Interviews' ? 'Interview' : s
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < PIPELINE_STAGES.length - 1 && (
+              <div style={{ position: 'absolute', top: 6, left: '50%', width: '100%', height: 2, background: i < idx ? th.red : th.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 12, height: 12, borderRadius: 2, transform: 'rotate(45deg)', background: curr ? th.red : past ? `${th.red}55` : th.surface, border: `1.5px solid ${curr ? th.red : past ? `${th.red}55` : th.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 2.5px ${th.surface}` : 'none' }} />
+            <div style={{ fontSize: 7, color: curr ? th.red : th.textDim, fontWeight: curr ? 700 : 400, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+              {short}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Profile panel (right sidebar) ────────────────────────────────────────────
-function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact, onReject }) {
-  const st = stageT[stage]
+function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact }) {
   return (
     <aside style={{
       width: 300, flexShrink: 0,
@@ -154,75 +179,50 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
       {/* Header */}
-      <div style={{ padding: '14px 16px', borderBottom: `1px solid ${th.border}`, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <Av id={candidate.id} ini={candidate.ini} size={38} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: th.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{candidate.name}</div>
-          <div style={{ fontSize: 11, color: th.textDim }}>{candidate.role}</div>
+      <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${th.border}`, background: `${th.red}08`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+          <Av id={candidate.id} ini={candidate.ini} size={40} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: th.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: th.textDim }}>{candidate.role}</div>
+            {(candidate.loc || candidate.exp) && (
+              <div style={{ fontSize: 10, color: th.textDim, marginTop: 2 }}>
+                {[candidate.loc && `📍 ${candidate.loc}`, candidate.exp && `🕐 ${candidate.exp}`].filter(Boolean).join(' · ')}
+              </div>
+            )}
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: th.textDim, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
         </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: th.textDim, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
+        {/* Pipeline */}
+        <MiniPipeline stage={stage} th={th} />
       </div>
 
-      {/* Body */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 12px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* Stage */}
-        <div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Stage</div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: st.accent, background: st.bg, padding: '4px 12px', borderRadius: 20, border: `1px solid ${st.dot}30` }}>
-            {stageLabel(stage, T)}
-          </span>
+      {/* Body — feedback placeholder */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
+        <div style={{ textAlign: 'center', padding: '24px 0', color: th.textDim }}>
+          <div style={{ fontSize: 22, marginBottom: 7 }}>📋</div>
+          <div style={{ fontSize: 12, color: th.textDim }}>No debriefs submitted yet</div>
+          <div style={{ fontSize: 10, color: th.textDim, marginTop: 3 }}>Feedback appears here after interviews</div>
         </div>
-
-        {/* Info pills */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {candidate.loc && (
-            <span style={{ fontSize: 10, color: th.textMid, background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20, backdropFilter: 'blur(4px)' }}>📍 {candidate.loc}</span>
-          )}
-          {candidate.exp && (
-            <span style={{ fontSize: 10, color: th.textMid, background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20 }}>🕐 {candidate.exp}</span>
-          )}
-          <span style={{ fontSize: 10, fontWeight: 700, color: urgencyColor(stage, candidate.daysAgo, stageT), background: th.surface, border: `1px solid ${th.border}`, padding: '3px 9px', borderRadius: 20 }}>
-            📅 {daysLabel(candidate.daysAgo, T)}
-          </span>
-        </div>
-
-        {/* Skills */}
-        {candidate.skills?.length > 0 && (
-          <div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Skills</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {candidate.skills.map(s => (
-                <span key={s} style={{ fontSize: 10, fontWeight: 600, color: st.accent, background: st.bg, padding: '3px 9px', borderRadius: 20, border: `1px solid ${st.dot}20` }}>{s}</span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Footer actions */}
-      <div style={{ padding: '12px 16px', borderTop: `1px solid ${th.border}`, display: 'flex', flexDirection: 'column', gap: 7 }}>
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${th.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
-          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.06)', color: '#1B2461', border: '1px solid rgba(27,36,97,0.18)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.13)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.06)'}
+          style={{ padding: '10px', borderRadius: 9, background: `${th.red}0D`, color: th.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = `${th.red}1A`}
+          onMouseLeave={e => e.currentTarget.style.background = `${th.red}0D`}
         >
           📄 View CV →
         </button>
         <button
           onClick={onContact}
-          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.09)', color: '#1B2461', border: '1px solid rgba(27,36,97,0.2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.16)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.09)'}
+          style={{ padding: '10px', borderRadius: 9, background: 'rgba(27,36,97,0.06)', color: '#1B2461', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(27,36,97,0.13)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(27,36,97,0.06)'}
         >
           ✉ Send message
-        </button>
-        <button
-          onClick={onReject}
-          style={{ padding: '10px', borderRadius: 9, background: 'rgba(233,1,48,0.07)', color: '#E90130', border: '1px solid rgba(233,1,48,0.22)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(233,1,48,0.14)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(233,1,48,0.07)'}
-        >
-          ✕ Not moving forward
         </button>
       </div>
     </aside>
@@ -843,7 +843,6 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
             th={th} stageT={stageT} T={T}
             onClose={() => setSelectedInfo(null)}
             onContact={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate }) }}
-            onReject={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate, template: 'rejection' }) }}
           />
         )}
       </div>
