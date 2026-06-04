@@ -1148,13 +1148,13 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
 
           <button
             onClick={() => choose('hired')}
-            style={{ width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:9, border:'2px solid rgba(5,150,105,0.22)', background:'rgba(5,150,105,0.05)', cursor:'pointer', fontFamily:'inherit', textAlign:'left', display:'flex', alignItems:'center', gap:13, transition:'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(5,150,105,0.5)'; e.currentTarget.style.background='rgba(5,150,105,0.1)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(5,150,105,0.22)'; e.currentTarget.style.background='rgba(5,150,105,0.05)' }}
+            style={{ width:'100%', padding:'15px 16px', borderRadius:11, marginBottom:9, border:`2px solid ${th.red}44`, background:`${th.red}0D`, cursor:'pointer', fontFamily:'inherit', textAlign:'left', display:'flex', alignItems:'center', gap:13, transition:'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor=`${th.red}99`; e.currentTarget.style.background=`${th.red}1A` }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor=`${th.red}44`; e.currentTarget.style.background=`${th.red}0D` }}
           >
             <span style={{ fontSize:22, flexShrink:0 }}>🎯</span>
             <div>
-              <div style={{ fontSize:13, fontWeight:700, color:'#1B2461', marginBottom:3 }}>We found the right candidate</div>
+              <div style={{ fontSize:13, fontWeight:700, color:th.red, marginBottom:3 }}>We found the right candidate</div>
               <div style={{ fontSize:11, color:'#6B7280', lineHeight:1.5 }}>The position has been filled — great work.</div>
             </div>
           </button>

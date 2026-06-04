@@ -543,7 +543,7 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving
 }
 
 // ── Right: enhanced HM candidate panel ───────────────────────────────────────
-function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, onClose, T }) {
+function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, onClose, T, leaving = false }) {
   const [draftNotes, setDraftNotes] = useState(notes || '')
   const [savedFlash, setSavedFlash] = useState(false)
 
@@ -554,7 +554,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
   }
 
   return (
-    <aside style={{ width: 348, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
+    <aside style={{ width: 348, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden', opacity: leaving ? 0 : 1, transition: 'opacity 180ms ease-in' }}>
 
       {/* ── Candidate header ── */}
       <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
@@ -972,11 +972,14 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
                 onSaveNotes={handleSaveNotes}
                 onClose={() => setIdx(-1)}
                 T={T}
+                leaving={leaving}
               />
             </>
           )
         )}
       </div>
+
+
     </div>
   )
 }

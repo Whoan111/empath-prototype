@@ -26,6 +26,37 @@ const ROLE_NOTIFICATIONS = {
   },
 }
 
+// ── Messages icon — top-left shortcut to CraftMessage (recruiter only) ───────
+function MessagesButton({ th, onNavigate }) {
+  return (
+    <button
+      onClick={() => onNavigate('craft', { from: 'home' })}
+      title="Craft a message"
+      style={{
+        position: 'absolute', top: 28, left: 28, zIndex: 10,
+        width: 42, height: 42, borderRadius: '50%',
+        background: th.cardBg,
+        border: `1.5px solid ${th.borderBrt}`,
+        backdropFilter: th.blur,
+        WebkitBackdropFilter: th.blur,
+        cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 2px 14px rgba(0,0,0,0.10)',
+        transition: 'background 0.18s, box-shadow 0.18s',
+        fontFamily: 'inherit',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if (svg) svg.style.stroke = '#E90130' }}
+      onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)'; const svg = e.currentTarget.querySelector('svg'); if (svg) svg.style.stroke = '' }}
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke={th.text} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"
+        style={{ transition: 'stroke 0.18s' }}>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </button>
+  )
+}
+
 // ── Notification bubble — collapsible to a bell icon ─────────────────────────
 function NotificationBubble({ role, th, onNavigate }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -252,6 +283,7 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
 
+      {role === 'recruiter' && <MessagesButton th={th} onNavigate={onNavigate} />}
       <NotificationBubble role={role} th={th} onNavigate={onNavigate} />
 
       {/* Main area — vertically centered */}

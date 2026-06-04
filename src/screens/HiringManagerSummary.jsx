@@ -266,13 +266,65 @@ function InterviewCard({ interview, T }) {
   )
 }
 
+// ── Candidate profile panel (simplified) ──────────────────────────────────────
+function HMSProfilePanel({ candidate, overallFit, T, onClose }) {
+  return (
+    <aside style={{ width: 300, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '20px 18px 16px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+          <Av id={candidate.id} ini={candidate.ini} size={52} />
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 20, lineHeight: 1, padding: 0 }}>×</button>
+        </div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 2 }}>{candidate.name}</div>
+        <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>{candidate.role}</div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.redBg, border: `1px solid ${C.redL}`, borderRadius: 20, padding: '3px 10px', fontSize: 10, fontWeight: 700, color: C.red, letterSpacing: '0.05em' }}>
+          {candidate.pos}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Overall fit */}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>Overall fit</div>
+          <FitPill fit={overallFit} T={T} />
+        </div>
+
+        {/* Applied */}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>Applied</div>
+          <div style={{ fontSize: 13, color: C.text }}>{candidate.appliedDate}</div>
+        </div>
+
+        {/* Stage */}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>Current stage</div>
+          <span style={{ display: 'inline-flex', alignItems: 'center', background: C.gray, border: `1px solid ${C.border}`, borderRadius: 20, padding: '5px 13px', fontSize: 11, color: C.text, fontWeight: 500 }}>
+            {candidate.stage}
+          </span>
+        </div>
+
+        {/* Email */}
+        {candidate.email && (
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>Email</div>
+            <div style={{ fontSize: 12, color: C.infT, wordBreak: 'break-all' }}>{candidate.email}</div>
+          </div>
+        )}
+      </div>
+    </aside>
+  )
+}
+
 // ── Root ──────────────────────────────────────────────────────────────────────
 export default function HiringManagerSummary({ theme, lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
   C = buildC(theme)
   isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
-  const [decision, setDecision] = useState(null)
+  const [decision,     setDecision]     = useState(null)
+  const [showProfile,  setShowProfile]  = useState(false)
 
   const interviews = MOCK_INTERVIEWS
   const advCount   = interviews.filter(i => i.fit !== 'not-advancing').length
@@ -281,7 +333,9 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                    : 'advance'
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <div style={{ flex: 1, overflow: 'auto' }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 36px 48px' }}>
 
         {/* Back */}
@@ -293,13 +347,17 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
           <div style={{ height: 4, background: C.grayB }} />
           <div style={{ padding: '20px 24px 18px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-            <Av id={candidate.id} ini={candidate.ini} size={52} />
+            {/* Clickable avatar */}
+            <button onClick={() => setShowProfile(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 0, flexShrink: 0 }}>
+              <Av id={candidate.id} ini={candidate.ini} size={52} />
+            </button>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{T.badge}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
-                <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: 0 }}>
+                {/* Clickable name */}
+                <button onClick={() => setShowProfile(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text }}>
                   {candidate.name}
-                </h1>
+                </button>
                 <FitPill fit={overallFit} T={T} />
               </div>
               <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
@@ -375,5 +433,17 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
 
       </div>
     </div>
+    </div>
+    {/* Right profile panel */}
+    {showProfile && (
+      <HMSProfilePanel
+        candidate={candidate}
+        overallFit={overallFit}
+        T={T}
+        onClose={() => setShowProfile(false)}
+      />
+    )}
+    </div>
   )
 }
+

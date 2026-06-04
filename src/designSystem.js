@@ -273,6 +273,7 @@ export function buildC(theme) {
     inf:    '#2563EB',
     infBg:  dk ? 'rgba(37,99,235,0.15)'         : '#DBEAFE',
     infT:   dk ? '#93C5FD'                      : '#1E40AF',
+    infL:   dk ? 'rgba(37,99,235,0.3)'          : '#BFDBFE',
     // Purple
     purp:   '#6D28D9',
     purpBg: dk ? 'rgba(109,40,217,0.15)'        : '#EDE9FE',

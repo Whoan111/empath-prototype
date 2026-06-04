@@ -153,19 +153,138 @@ function Av({ id, ini, size = 36 }) {
   )
 }
 
-// ── Pending row ───────────────────────────────────────────────────────────────
-function PendingRow({ item, onFill, T }) {
+// ── Mini pipeline ─────────────────────────────────────────────────────────────
+const DL_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+const DL_STAGE_SHORT = { Screening: 'Screen', 'Pre-Call': 'Pre-Call', Interviews: 'Interview', Decision: 'Decision', Offer: 'Offer' }
+
+function MiniPipeline({ stage }) {
+  const idx = DL_PIPELINE.indexOf(stage)
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: C.white, borderBottom: `1px solid ${C.border}`, transition: 'background 0.1s' }}>
-      <Av id={item.id} ini={item.ini} size={38} />
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {DL_PIPELINE.map((s, i) => {
+        const past = i <= idx
+        const curr = i === idx
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < DL_PIPELINE.length - 1 && (
+              <div style={{ position: 'absolute', top: 6, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 12, height: 12, borderRadius: 2, transform: 'rotate(45deg)', background: curr ? C.red : past ? `${C.red}55` : C.gray, border: `1.5px solid ${curr ? C.red : past ? `${C.red}55` : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 2.5px white` : 'none' }} />
+            <div style={{ fontSize: 7, color: curr ? C.red : C.muted, fontWeight: curr ? 700 : 400, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+              {DL_STAGE_SHORT[s] || s}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Right profile panel ───────────────────────────────────────────────────────
+const REC_COLORS = {
+  'strongly-advance': { bg: 'rgba(27,36,97,0.07)', text: '#1B2461', border: 'rgba(27,36,97,0.2)' },
+  'advance':          { bg: 'rgba(5,150,105,0.07)', text: '#065F46', border: 'rgba(5,150,105,0.25)' },
+  'reservations':     { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' },
+  'not-moving':       { bg: '#FEF2F2', text: '#C9394A', border: '#FECDD3' },
+}
+
+function DebriefProfilePanel({ item, isPending, onFill, onEdit, onClose, T }) {
+  const recColors = item.recommendation ? (REC_COLORS[item.recommendation] || REC_COLORS['advance']) : null
+  // Pending items are in Interviews stage; completed might be at Decision
+  const panelStage = isPending ? 'Interviews' : (item.recommendation === 'strongly-advance' || item.recommendation === 'advance') ? 'Decision' : 'Interviews'
+  return (
+    <aside style={{ width: 300, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${C.border}`, background: `${C.red}08`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+          <Av id={item.id} ini={item.ini} size={40} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{item.role}</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{item.pos}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
+        </div>
+        <MiniPipeline stage={panelStage} />
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+          {isPending ? 'Debrief pending' : 'Debrief completed'}
+        </div>
+
+        {isPending ? (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: C.muted }}>
+            <div style={{ fontSize: 22, marginBottom: 7 }}>📋</div>
+            <div style={{ fontSize: 12, color: C.muted }}>No debrief submitted yet</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>
+              Round {item.round} · {item.interviewType}
+            </div>
+            {item.daysAgo > 0 && (
+              <div style={{ marginTop: 8, fontSize: 11, fontWeight: 600, color: item.daysAgo > 7 ? C.red : '#D97706' }}>
+                {item.daysAgo}d since interview
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Round & type */}
+            <div style={{ background: C.gray, borderRadius: 8, padding: '9px 11px', border: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>Round {item.round} · {item.interviewType}</div>
+              <div style={{ fontSize: 11, color: C.text, fontWeight: 500 }}>{item.completedDate}</div>
+            </div>
+            {/* Recommendation */}
+            {item.recommendation && recColors && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 11px', background: recColors.bg, border: `1px solid ${recColors.border}`, borderRadius: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: recColors.text }}>{T.recLabels[item.recommendation]}</span>
+              </div>
+            )}
+            {/* Submitted by */}
+            {item.submittedBy && (
+              <div style={{ fontSize: 11, color: C.muted }}>
+                by <span style={{ color: C.text, fontWeight: 500 }}>{item.submittedBy}</span> · {item.submitterRole}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
+        <button
+          onClick={() => isPending ? onFill(item) : onEdit(item)}
+          style={{ padding: '10px', borderRadius: 9, background: `${C.red}0D`, color: C.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = `${C.red}1A`}
+          onMouseLeave={e => e.currentTarget.style.background = `${C.red}0D`}
+        >
+          {isPending ? T.fillDebrief : `✏ ${T.editBtn}`}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+// ── Pending row ───────────────────────────────────────────────────────────────
+function PendingRow({ item, onFill, onSelect, isSelected, T }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: isSelected ? C.redBg : hov ? C.surfaceHov : C.white, borderBottom: `1px solid ${C.border}`, borderLeft: isSelected ? `3px solid ${C.red}` : '3px solid transparent', transition: 'background 0.1s' }}
+    >
+      <button onClick={() => onSelect?.(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 0, flexShrink: 0 }}>
+        <Av id={item.id} ini={item.ini} size={38} />
+      </button>
 
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{item.name}</div>
+        <button onClick={() => onSelect?.(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 13, fontWeight: 500, color: C.text, fontFamily: 'inherit', textAlign: 'left' }}>{item.name}</button>
         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{item.role} · {item.pos}</div>
       </div>
 
       <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 70 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{item.daysAgo}d ago</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: item.daysAgo > 7 ? C.red : C.muted }}>{item.daysAgo}d ago</div>
       </div>
 
       <button
@@ -179,14 +298,21 @@ function PendingRow({ item, onFill, T }) {
 }
 
 // ── Completed row ─────────────────────────────────────────────────────────────
-function CompletedRow({ item, onEdit, T }) {
+function CompletedRow({ item, onEdit, onSelect, isSelected, T }) {
+  const [hov, setHov] = useState(false)
   return (
-    <div style={{ background: C.white, borderBottom: `1px solid ${C.border}` }}>
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ background: isSelected ? C.redBg : hov ? C.surfaceHov : C.white, borderBottom: `1px solid ${C.border}`, borderLeft: isSelected ? `3px solid ${C.red}` : '3px solid transparent', transition: 'background 0.1s' }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 20px' }}>
-        <Av id={item.id} ini={item.ini} size={38} />
+        <button onClick={() => onSelect?.(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 0, flexShrink: 0 }}>
+          <Av id={item.id} ini={item.ini} size={38} />
+        </button>
 
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{item.name}</div>
+          <button onClick={() => onSelect?.(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 13, fontWeight: 500, color: C.text, fontFamily: 'inherit', textAlign: 'left' }}>{item.name}</button>
           <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
             {item.role} · {item.pos} · {item.interviewType} · Round {item.round}
           </div>
@@ -220,6 +346,17 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [pendingOpen,   setPendingOpen]   = useState(true)
   const [completedOpen, setCompletedOpen] = useState(false)
+  const [selectedItem,  setSelectedItem]  = useState(null)  // { item, isPending }
+
+  const handleSelect = (item, isPending) => {
+    const key = `${item.id}-${item.round}`
+    const curKey = selectedItem ? `${selectedItem.item.id}-${selectedItem.item.round}` : null
+    if (curKey === key && selectedItem?.isPending === isPending) {
+      setSelectedItem(null)
+    } else {
+      setSelectedItem({ item, isPending })
+    }
+  }
 
   const handleFill = (item) => {
     const candidate = { id: item.id, name: item.name, ini: item.ini, role: item.role, pos: item.pos }
@@ -231,8 +368,15 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
     onNavigate?.('questionnaire', { candidate })
   }
 
+  const isRowSelected = (item, isPending) =>
+    selectedItem?.isPending === isPending &&
+    selectedItem?.item.id === item.id &&
+    selectedItem?.item.round === item.round
+
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <div style={{ flex: 1, overflow: 'auto' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '28px 36px 48px' }}>
 
         {/* Back */}
@@ -285,7 +429,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
                     <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                   ))}
                 </div>
-                {PENDING.map(item => <PendingRow key={`${item.id}-${item.round}`} item={item} onFill={handleFill} T={T} />)}
+                {PENDING.map(item => <PendingRow key={`${item.id}-${item.round}`} item={item} onFill={handleFill} onSelect={(i) => handleSelect(i, true)} isSelected={isRowSelected(item, true)} T={T} />)}
               </div>
             ) : (
               <div style={{ padding: '32px 0', textAlign: 'center', color: C.muted, fontSize: 13 }}>
@@ -315,7 +459,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
                     <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
                   ))}
                 </div>
-                {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onEdit={handleEdit} T={T} />)}
+                {COMPLETED.map((item, i) => <CompletedRow key={`${item.id}-${item.round}-${i}`} item={item} onEdit={handleEdit} onSelect={(it) => handleSelect(it, false)} isSelected={isRowSelected(item, false)} T={T} />)}
               </div>
             ) : (
               <div style={{ padding: '32px 0', textAlign: 'center', color: C.muted, fontSize: 13 }}>
@@ -335,6 +479,20 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
         </div>
 
       </div>
+    </div>
+
+    {/* Right profile panel — inside the flex row so it appears to the right */}
+    {selectedItem && (
+      <DebriefProfilePanel
+        item={selectedItem.item}
+        isPending={selectedItem.isPending}
+        onFill={handleFill}
+        onEdit={handleEdit}
+        onClose={() => setSelectedItem(null)}
+        T={T}
+      />
+    )}
+    </div>
     </div>
   )
 }

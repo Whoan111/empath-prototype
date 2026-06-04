@@ -350,11 +350,15 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
 }
 
 // ── Kanban column ─────────────────────────────────────────────────────────────
-function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, onSelect, selectedId, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
+function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, onSelect, selectedId, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd, depthOffset }) {
   const st           = stageT[stage]
   const isDropTarget = dragOver === stage
   const label        = stageLabel(stage, T)
   const sorted       = [...candidates].sort((a, b) => b.daysAgo - a.daysAgo)
+
+  const isFocused  = depthOffset === 0
+  const opa = isFocused ? 1 : Math.max(0.18, 1 - Math.abs(depthOffset) * 0.27)
+  const tx  = isFocused ? 0 : depthOffset * 14
 
   return (
     <div
@@ -366,7 +370,9 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
         background: isDropTarget ? st.bg : 'transparent',
         border: `2px solid ${isDropTarget ? st.dot+'60' : 'transparent'}`,
         boxShadow: isDropTarget ? `0 0 0 1px ${st.dot}30, 0 4px 20px rgba(0,0,0,0.15)` : 'none',
-        transition: 'all 0.15s ease',
+        opacity: opa,
+        transform: `translateX(${tx}px)`,
+        transition: 'all 0.15s ease, opacity 0.28s ease, transform 0.28s ease',
       }}
     >
       {/* Column header */}
@@ -885,7 +891,10 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
         )}
 
         <div style={{ flex:1, overflowX:'auto', overflowY:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
-          {VIS_STAGES.map(stage => (
+          {VIS_STAGES.map((stage, stageIdx) => {
+            const selIdx = selectedInfo ? VIS_STAGES.indexOf(selectedInfo.stage) : -1
+            const depthOffset = selectedInfo ? stageIdx - selIdx : 0
+            return (
             <Column
               key={stage}
               stage={stage}
@@ -904,8 +913,10 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
               draggingId={dragState.id}
               onCapsuleDragStart={(id) => setDragState({ id, from: stage })}
               onCapsuleDragEnd={() => setDragState({ id:null, from:null })}
+              depthOffset={depthOffset}
             />
-          ))}
+            )
+          })}
         </div>
 
         {selectedInfo && (

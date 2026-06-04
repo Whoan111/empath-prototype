@@ -418,7 +418,7 @@ function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T 
   const [showCV, setShowCV] = useState(false)
   return (
     <>
-    <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
+    <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden', animation: 'hmPanelIn 0.24s cubic-bezier(0.22,0.61,0.36,1) both' }}>
 
       {/* Header */}
       <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
@@ -672,8 +672,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
   const pendingCount = allCands.length - advancing - notMoving
 
   return (
-    <div style={{ display: 'flex', height: '100%', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-      <style>{`@keyframes hmBannerIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', position: 'relative' }}>
+      <style>{`@keyframes hmBannerIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}} @keyframes hmPanelIn{from{transform:translateX(100%);opacity:0.6}to{transform:translateX(0);opacity:1}}`}</style>
 
       {hireBanner && (
         <div style={{
@@ -689,6 +689,9 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
           ✓ This will notify the recruiter about your decision
         </div>
       )}
+
+      {/* ── Left column: header + body ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
 
       {/* ── Greeting hero + position cards ── */}
       <header style={{ padding: '26px 32px 22px', paddingRight: 60, background: 'transparent', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
@@ -746,10 +749,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
 
 
       {/* ── Body ── */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-
-        {/* ── Main ── */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 18, background: isDark ? C.gray : 'transparent' }}>
+      <div style={{ flex: 1, overflow: 'auto', padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 18, background: isDark ? C.gray : 'transparent' }}>
 
           {/* Filter + sort bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -868,20 +868,20 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
             </div>
           )}
         </div>
+      </div> {/* end left column */}
 
-        {/* ── Candidate panel ── */}
-        {selectedCandidate && (
-          <CandidatePanel
-            key={selectedCandidate.id}
-            candidate={selectedCandidate}
-            decision={decisions[selectedCandidate.id]}
-            onDecide={decide}
-            T={T}
-            onClose={() => setSelectedCandidate(null)}
-            onNavigate={onNavigate}
-          />
-        )}
-      </div>
+      {/* ── Candidate panel (full height) ── */}
+      {selectedCandidate && (
+        <CandidatePanel
+          key={selectedCandidate.id}
+          candidate={selectedCandidate}
+          decision={decisions[selectedCandidate.id]}
+          onDecide={decide}
+          T={T}
+          onClose={() => setSelectedCandidate(null)}
+          onNavigate={onNavigate}
+        />
+      )}
 
       {/* ── Confirm hire modal ── */}
       {confirmHireId && allCands.find(c => c.id === confirmHireId) && (

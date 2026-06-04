@@ -247,7 +247,101 @@ const PHRASES_VERY_LONG = [
   "they've been wondering since then.",
 ]
 
-function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline, T, lang }) {
+// ── Mini pipeline ─────────────────────────────────────────────────────────────
+const NS_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+const NS_STAGE_SHORT = { Screening: 'Screen', 'Pre-Call': 'Pre-Call', Interviews: 'Interview', Decision: 'Decision', Offer: 'Offer' }
+
+function MiniPipeline({ stage }) {
+  const idx = NS_PIPELINE.indexOf(stage)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {NS_PIPELINE.map((s, i) => {
+        const past = i <= idx
+        const curr = i === idx
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < NS_PIPELINE.length - 1 && (
+              <div style={{ position: 'absolute', top: 6, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 12, height: 12, borderRadius: 2, transform: 'rotate(45deg)', background: curr ? C.red : past ? `${C.red}55` : C.gray, border: `1.5px solid ${curr ? C.red : past ? `${C.red}55` : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 2.5px white` : 'none' }} />
+            <div style={{ fontSize: 7, color: curr ? C.red : C.muted, fontWeight: curr ? 700 : 400, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+              {NS_STAGE_SHORT[s] || s}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Right profile panel ───────────────────────────────────────────────────────
+function CandidateProfilePanel({ candidate, group, messageSent, onWriteMessage, onBackToPipeline, onClose }) {
+  const d = candidate.rejectedDaysAgo
+  const urgColor = d > 10 ? C.red : d > 5 ? '#D97706' : C.muted
+  return (
+    <aside style={{ width: 300, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${C.border}`, background: `${C.red}08`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+          <Av id={candidate.id} ini={candidate.ini} size={40} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
+            {group && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{group.dept} · {group.positionTitle}</div>}
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
+        </div>
+        <MiniPipeline stage={candidate.previousStage} />
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Rejection status</div>
+
+        {/* Wait time */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 10px', background: d > 5 ? (d > 10 ? C.redBg : '#FEF3C7') : C.gray, borderRadius: 8, border: `1px solid ${d > 10 ? C.redL : d > 5 ? '#FDE68A' : C.border}`, marginBottom: 10 }}>
+          {d > 5 && <span style={{ width: 6, height: 6, borderRadius: '50%', background: urgColor, flexShrink: 0 }} />}
+          <span style={{ fontSize: 11, fontWeight: 600, color: urgColor }}>
+            {d === 0 ? 'Rejected today' : d === 1 ? 'Waiting 1 day' : `Waiting ${d} days`}
+          </span>
+        </div>
+
+        {/* Message status */}
+        {messageSent
+          ? <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.infT, background: C.infBg, padding: '7px 10px', borderRadius: 8 }}>
+              <span>✓</span> Message sent
+            </div>
+          : <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.red, background: C.redBg, padding: '7px 10px', borderRadius: 8 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.red, flexShrink: 0 }} />
+              Not yet messaged
+            </div>
+        }
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
+        <button
+          onClick={() => onWriteMessage(candidate)}
+          style={{ padding: '10px', borderRadius: 9, background: `${C.red}0D`, color: C.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = `${C.red}1A`}
+          onMouseLeave={e => e.currentTarget.style.background = `${C.red}0D`}
+        >
+          ✉ {messageSent ? 'Resend message' : 'Write message'}
+        </button>
+        <button
+          onClick={() => onBackToPipeline(candidate, group)}
+          style={{ padding: '10px', borderRadius: 9, background: C.infBg, color: C.infT, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          ↩ Bring back to pipeline
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBackToPipeline, onSelect, isSelected, T, lang }) {
   const [hov, setHov] = useState(false)
   const d = candidate.rejectedDaysAgo
   const isVeryLong = !messageSent && d > 10
@@ -266,7 +360,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
 
   const waitColor = isVeryLong ? C.red : isLong ? '#D97706' : C.muted
 
-  const rowBg = hov ? C.surfaceHov : C.white
+  const rowBg = isSelected ? C.redBg : hov ? C.surfaceHov : C.white
 
   return (
     <div
@@ -277,15 +371,19 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         padding: '14px 20px',
         background: rowBg,
         borderBottom: `1px solid ${C.border}`,
+        borderLeft: isSelected ? `3px solid ${C.red}` : '3px solid transparent',
         transition: 'background 0.13s',
       }}
     >
-      <Av id={candidate.id} ini={candidate.ini} />
+      {/* Clickable avatar */}
+      <button onClick={() => onSelect?.(candidate)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, lineHeight: 0 }}>
+        <Av id={candidate.id} ini={candidate.ini} />
+      </button>
 
       {/* Name / role / wait time — all in one text block */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{candidate.name}</span>
+          <button onClick={() => onSelect?.(candidate)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 13, fontWeight: 600, color: C.text, fontFamily: 'inherit', textAlign: 'left' }}>{candidate.name}</button>
         </div>
         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{candidate.role}</div>
         {messageSent && (
@@ -357,7 +455,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
   )
 }
 
-function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen, onBackToPipeline, T, lang }) {
+function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen, onBackToPipeline, onSelect, selectedId, T, lang }) {
   const [open, setOpen] = useState(defaultOpen)
   const pendingCount = group.candidates.filter(c => !sentMap[c.id]).length
 
@@ -411,6 +509,8 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
               messageSent={sentMap[c.id] ?? c.messageSent}
               onMarkSent={onMarkSent}
               onBackToPipeline={(cand) => onBackToPipeline(cand, group)}
+              onSelect={(cand) => onSelect?.(cand, group)}
+              isSelected={selectedId === c.id}
               T={T}
               lang={lang}
             />
@@ -446,6 +546,18 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
   })
   const [restoredIds,    setRestoredIds]    = useState(new Set())
   const [restorePending, setRestorePending] = useState(null)  // { candidate, group }
+  const [selectedCandidate, setSelectedCandidate] = useState(null)
+  const [selectedGroup,     setSelectedGroup]     = useState(null)
+
+  const handleSelect = (candidate, group) => {
+    if (selectedCandidate?.id === candidate.id) {
+      setSelectedCandidate(null)
+      setSelectedGroup(null)
+    } else {
+      setSelectedCandidate(candidate)
+      setSelectedGroup(group)
+    }
+  }
 
   const totalPending = REJECTED_BY_POSITION
     .flatMap(g => g.candidates)
@@ -558,48 +670,66 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
         </p>
       </div>
 
-      {/* List */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 40px' }}>
+      {/* Body: list + optional right profile panel */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Positive reinforcement banner — appears when all urgent follow-ups are cleared */}
-        {showBanner && (
-          <div style={{
-            position: 'sticky', top: 0, zIndex: 20,
-            marginBottom: 18,
-            padding: '13px 18px',
-            background: 'rgba(27,36,97,0.07)',
-            border: '1.5px solid rgba(27,36,97,0.20)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            borderRadius: 10,
-            color: '#1B2461',
-            fontSize: 13, fontWeight: 500, lineHeight: 1.55,
-            display: 'flex', alignItems: 'center', gap: 10,
-          }}>
-            <span style={{ fontSize: 16, flexShrink: 0 }}>✓</span>
-            {T.bannerMsg}
-          </div>
-        )}
+        {/* List */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 40px' }}>
 
-        {visibleGroups.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '64px 0', color: C.muted }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
-            <p style={{ fontSize: 14, margin: 0 }}>{T.emptyAll}</p>
-          </div>
-        ) : (
-          visibleGroups.map((group, i) => (
-            <PositionGroup
-              key={group.positionId}
-              group={group}
-              onWriteMessage={handleWriteMessage}
-              sentMap={sentMap}
-              onMarkSent={handleMarkSent}
-              defaultOpen={i === 0}
-              onBackToPipeline={handleBackToPipeline}
-              T={T}
-              lang={lang}
-            />
-          ))
+          {/* Positive reinforcement banner — appears when all urgent follow-ups are cleared */}
+          {showBanner && (
+            <div style={{
+              position: 'sticky', top: 0, zIndex: 20,
+              marginBottom: 18,
+              padding: '13px 18px',
+              background: 'rgba(27,36,97,0.07)',
+              border: '1.5px solid rgba(27,36,97,0.20)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderRadius: 10,
+              color: '#1B2461',
+              fontSize: 13, fontWeight: 500, lineHeight: 1.55,
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>✓</span>
+              {T.bannerMsg}
+            </div>
+          )}
+
+          {visibleGroups.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '64px 0', color: C.muted }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
+              <p style={{ fontSize: 14, margin: 0 }}>{T.emptyAll}</p>
+            </div>
+          ) : (
+            visibleGroups.map((group, i) => (
+              <PositionGroup
+                key={group.positionId}
+                group={group}
+                onWriteMessage={handleWriteMessage}
+                sentMap={sentMap}
+                onMarkSent={handleMarkSent}
+                defaultOpen={i === 0}
+                onBackToPipeline={handleBackToPipeline}
+                onSelect={handleSelect}
+                selectedId={selectedCandidate?.id}
+                T={T}
+                lang={lang}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Right profile panel */}
+        {selectedCandidate && (
+          <CandidateProfilePanel
+            candidate={selectedCandidate}
+            group={selectedGroup}
+            messageSent={sentMap[selectedCandidate.id] ?? selectedCandidate.messageSent}
+            onWriteMessage={handleWriteMessage}
+            onBackToPipeline={handleBackToPipeline}
+            onClose={() => { setSelectedCandidate(null); setSelectedGroup(null) }}
+          />
         )}
       </div>
 

@@ -407,11 +407,17 @@ function DictateButton({ onDictate }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Compose
 // ─────────────────────────────────────────────────────────────────────────────
+// ── All unique positions (derived from candidate pool) ─────────────────────
+const ALL_POSITIONS = [...new Set(ALL_CANDIDATES.map(c => c.pos))]
+
 function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
   const [candidate, setCandidate] = useState(initialCandidate || null)
   const [typeId,    setTypeId]    = useState('rejection')
   const [context,   setContext]   = useState('')
+  const [posFilter, setPosFilter] = useState(null)  // position-first picker
   const tone = 72   // fixed warm tone — slider removed
+
+  const positionCandidates = posFilter ? ALL_CANDIDATES.filter(c => c.pos === posFilter) : ALL_CANDIDATES
 
   const msgType    = MSG_TYPES.find(t => t.id === typeId)
   const canGenerate = !!candidate
@@ -448,7 +454,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
             </label>
 
             {candidate ? (
-              /* Selected candidate card */
+              /* ── State 3: candidate selected ── */
               <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 11, border: `2px solid ${C.red}`, background: C.redBg }}>
                 <Av id={candidate.id} ini={candidate.ini} size={40} />
                 <div style={{ flex: 1 }}>
@@ -458,34 +464,68 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
                 <button
                   onClick={() => setCandidate(null)}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: 0 }}
-                >
-                  ×
-                </button>
+                >×</button>
               </div>
-            ) : (
-              /* Dropdown picker */
-              <div style={{ position: 'relative' }}>
-                <select
-                  onChange={e => {
-                    const c = ALL_CANDIDATES.find(c => c.id === Number(e.target.value))
-                    setCandidate(c || null)
-                  }}
-                  defaultValue=""
-                  style={{
-                    width: '100%', padding: '11px 14px', borderRadius: 10,
-                    border: `1.5px solid ${C.border}`, fontSize: 13,
-                    color: C.text, background: C.white, cursor: 'pointer',
-                    fontFamily: 'inherit', appearance: 'none',
-                  }}
+
+            ) : posFilter ? (
+              /* ── State 2: position chosen, pick candidate ── */
+              <div>
+                <button
+                  onClick={() => setPosFilter(null)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 11, fontFamily: 'inherit', padding: '0 0 9px', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
-                  <option value="" disabled>{T.selectCandidate}</option>
-                  {ALL_CANDIDATES.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} — {c.role} ({c.stage})
-                    </option>
-                  ))}
-                </select>
-                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', fontSize: 12 }}>▾</span>
+                  <span style={{ fontSize: 13 }}>←</span> {posFilter}
+                </button>
+                <div style={{ position: 'relative' }}>
+                  <select
+                    onChange={e => {
+                      const c = positionCandidates.find(c => c.id === Number(e.target.value))
+                      setCandidate(c || null)
+                    }}
+                    defaultValue=""
+                    style={{
+                      width: '100%', padding: '11px 14px', borderRadius: 10,
+                      border: `1.5px solid ${C.border}`, fontSize: 13,
+                      color: C.text, background: C.white, cursor: 'pointer',
+                      fontFamily: 'inherit', appearance: 'none',
+                    }}
+                  >
+                    <option value="" disabled>{T.selectCandidate}</option>
+                    {positionCandidates.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} — {c.role} ({c.stage})
+                      </option>
+                    ))}
+                  </select>
+                  <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', fontSize: 12 }}>▾</span>
+                </div>
+              </div>
+
+            ) : (
+              /* ── State 1: pick a position first ── */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {ALL_POSITIONS.map(pos => (
+                  <button
+                    key={pos}
+                    onClick={() => setPosFilter(pos)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+                      border: `1.5px solid ${C.border}`, background: C.white,
+                      textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.background = C.redBg }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.white }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{pos}</div>
+                      <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
+                        {ALL_CANDIDATES.filter(c => c.pos === pos).length} candidate{ALL_CANDIDATES.filter(c => c.pos === pos).length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 13, color: C.muted }}>→</span>
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -963,12 +1003,13 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 // Root export
 // ─────────────────────────────────────────────────────────────────────────────
 const BACK_LABELS = {
-  'not-suitable':   '← Not suitable',
-  'dashboard':      '← Back to Dashboard',
+  'home':              '← Home',
+  'not-suitable':      '← Not suitable',
+  'dashboard':         '← Back to Dashboard',
   'recruiter-summary': '← Interview report',
   'interview-summaries': '← Interview debriefs',
-  'hiring-manager': '← Dashboard',
-  'hiring-summary': '← Decision report',
+  'hiring-manager':    '← Dashboard',
+  'hiring-summary':    '← Decision report',
 }
 
 export default function CraftMessage({ theme, lang = 'en', candidate = null, from = 'dashboard', onBack, onNavigate }) {

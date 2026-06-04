@@ -164,6 +164,90 @@ function Av({ id, ini, size = 40 }) {
   )
 }
 
+// ── Mini pipeline ─────────────────────────────────────────────────────────────
+const SL_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+const SL_SHORT    = { Screening: 'Screen', 'Pre-Call': 'Pre-Call', 'Preliminary Call': 'Pre-Call', Interviews: 'Interview', Decision: 'Decision', Offer: 'Offer' }
+
+function MiniPipeline({ stage }) {
+  // normalise stage name
+  const normStage = stage === 'Preliminary Call' ? 'Pre-Call' : stage
+  const idx = SL_PIPELINE.indexOf(normStage)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {SL_PIPELINE.map((s, i) => {
+        const past = i <= idx
+        const curr = i === idx
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < SL_PIPELINE.length - 1 && (
+              <div style={{ position: 'absolute', top: 6, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 12, height: 12, borderRadius: 2, transform: 'rotate(45deg)', background: curr ? C.red : past ? `${C.red}55` : C.gray, border: `1.5px solid ${curr ? C.red : past ? `${C.red}55` : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? '0 0 0 2.5px white' : 'none' }} />
+            <div style={{ fontSize: 7, color: curr ? C.red : C.muted, fontWeight: curr ? 700 : 400, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+              {SL_SHORT[s] || s}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Right profile panel ───────────────────────────────────────────────────────
+function SummaryProfilePanel({ candidate, onOpen, onClose, T }) {
+  return (
+    <aside style={{ width: 300, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${C.border}`, background: `${C.red}08`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+          <Av id={candidate.id} ini={candidate.ini} size={40} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
+            {candidate.pos && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{candidate.pos}</div>}
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
+        </div>
+        <MiniPipeline stage={candidate.stage} />
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
+        {candidate.note ? (
+          <div style={{ background: C.gray, borderRadius: 9, padding: '10px 12px', borderLeft: `3px solid ${C.border}`, marginBottom: 10 }}>
+            <p style={{ fontSize: 11, color: C.text, lineHeight: 1.65, margin: 0, fontStyle: 'italic' }}>"{candidate.note}"</p>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: C.muted }}>
+            <div style={{ fontSize: 22, marginBottom: 7 }}>📋</div>
+            <div style={{ fontSize: 12, color: C.muted }}>No debriefs submitted yet</div>
+            <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>Feedback appears here after interviews</div>
+          </div>
+        )}
+        {candidate.interviewsDone > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: C.gray, borderRadius: 8, border: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{candidate.interviewsDone}</span>
+            <span style={{ fontSize: 10, color: C.muted }}>interview{candidate.interviewsDone !== 1 ? 's' : ''} completed</span>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
+        <button
+          onClick={() => onOpen(candidate)}
+          style={{ padding: '10px', borderRadius: 9, background: `${C.red}0D`, color: C.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          onMouseEnter={e => e.currentTarget.style.background = `${C.red}1A`}
+          onMouseLeave={e => e.currentTarget.style.background = `${C.red}0D`}
+        >
+          {T.openReport}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 function UrgencyPill({ days, T }) {
   const bg    = days >= 7 ? '#FEE2E2' : days >= 3 ? C.warBg : C.sucBg
   const color = days >= 7 ? C.red     : days >= 3 ? C.war   : C.suc
@@ -214,19 +298,23 @@ function StagePill({ stage }) {
 }
 
 // ── Pre-call row (Interview Summaries — post-interview only) ──────────────────
-function PreCallRow({ c, onOpen, T }) {
+function PreCallRow({ c, onOpen, onSelect, isSelected, T }) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '2fr 1.2fr 0.8fr 1.2fr 130px',
       alignItems: 'center', padding: '14px 22px',
-      background: C.white,
+      background: isSelected ? C.redBg : C.white,
       borderBottom: `1px solid ${C.border}`,
+      borderLeft: `3px solid ${isSelected ? C.red : 'transparent'}`,
+      transition: 'background 0.15s, border-left-color 0.15s',
     }}>
       {/* Candidate */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-        <Av id={c.id} ini={c.ini} size={38} />
+        <button onClick={() => onSelect?.(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+          <Av id={c.id} ini={c.ini} size={38} />
+        </button>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{c.name}</div>
+          <button onClick={() => onSelect?.(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, color: C.text, display: 'block' }}>{c.name}</button>
           <div style={{ fontSize: 10, color: C.muted }}>{c.role}</div>
         </div>
       </div>
@@ -248,20 +336,20 @@ function PreCallRow({ c, onOpen, T }) {
 }
 
 // ── Decision card ─────────────────────────────────────────────────────────────
-function DecisionCard({ c, onOpen, T }) {
+function DecisionCard({ c, onOpen, onSelect, isSelected, T }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: C.white,
-        border: `1.5px solid ${hovered ? C.red : C.border}`,
+        background: isSelected ? C.redBg : C.white,
+        border: `1.5px solid ${isSelected ? C.red : hovered ? C.red : C.border}`,
         borderRadius: 14,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: hovered ? '0 6px 24px rgba(201,57,74,0.10)' : '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: isSelected ? `0 6px 24px rgba(201,57,74,0.14)` : hovered ? '0 6px 24px rgba(201,57,74,0.10)' : '0 2px 8px rgba(0,0,0,0.04)',
         transition: 'all 0.18s',
         cursor: 'default',
       }}
@@ -274,9 +362,11 @@ function DecisionCard({ c, onOpen, T }) {
 
         {/* Candidate identity */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Av id={c.id} ini={c.ini} size={42} />
+          <button onClick={() => onSelect?.(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+            <Av id={c.id} ini={c.ini} size={42} />
+          </button>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.3 }}>{c.name}</div>
+            <button onClick={() => onSelect?.(c)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, color: C.text, lineHeight: 1.3, display: 'block' }}>{c.name}</button>
             <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{c.role}</div>
           </div>
         </div>
@@ -322,6 +412,11 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
     : DECISION_CANDIDATES.filter(c => c.summaryStatus === 'complete')
 
   const [posFilter, setPosFilter] = useState(T.all)
+  const [selectedCandidate, setSelectedCandidate] = useState(null)
+
+  const handleSelect = (c) => {
+    setSelectedCandidate(prev => prev?.id === c.id ? null : c)
+  }
 
   const allPosLabel  = T.all
   // Always include every position that exists in the full dataset, even if 0 pass the filter
@@ -345,7 +440,9 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
   const cols    = '2fr 1.2fr 0.8fr 1.2fr 130px'
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: C.redBg }}>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: C.redBg }}>
+      {/* Scrollable left content */}
+      <div style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '28px 36px 48px' }}>
 
         {/* Back */}
@@ -398,7 +495,7 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
                 <span key={h} style={{ fontSize: 9, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: i === 2 ? 'center' : 'left' }}>{h}</span>
               ))}
             </div>
-            {filtered.map(c => <PreCallRow key={c.id} c={c} onOpen={handleOpen} T={T} />)}
+            {filtered.map(c => <PreCallRow key={c.id} c={c} onOpen={handleOpen} onSelect={handleSelect} isSelected={selectedCandidate?.id === c.id} T={T} />)}
             {filtered.length === 0 && (
               <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>{T.noMatch}</div>
             )}
@@ -412,7 +509,7 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
               ? <div style={{ padding: 32, textAlign: 'center', color: C.muted, fontSize: 13 }}>{T.noMatch}</div>
               : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-                  {filtered.map(c => <DecisionCard key={c.id} c={c} onOpen={handleOpen} T={T} />)}
+                  {filtered.map(c => <DecisionCard key={c.id} c={c} onOpen={handleOpen} onSelect={handleSelect} isSelected={selectedCandidate?.id === c.id} T={T} />)}
                 </div>
               )
             }
@@ -420,6 +517,16 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
         )}
 
       </div>
+      </div>{/* end scrollable left */}
+
+      {selectedCandidate && (
+        <SummaryProfilePanel
+          candidate={selectedCandidate}
+          onOpen={handleOpen}
+          onClose={() => setSelectedCandidate(null)}
+          T={T}
+        />
+      )}
     </div>
   )
 }
