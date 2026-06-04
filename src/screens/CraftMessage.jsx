@@ -442,7 +442,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
         {T.subtitle}
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.7fr', gap: 28 }}>
 
         {/* ── Left column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -454,7 +454,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
             </label>
 
             {candidate ? (
-              /* ── State 3: candidate selected ── */
+              /* ── Candidate selected — show card ── */
               <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 11, border: `2px solid ${C.red}`, background: C.redBg }}>
                 <Av id={candidate.id} ini={candidate.ini} size={40} />
                 <div style={{ flex: 1 }}>
@@ -467,65 +467,61 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
                 >×</button>
               </div>
 
-            ) : posFilter ? (
-              /* ── State 2: position chosen, pick candidate ── */
-              <div>
-                <button
-                  onClick={() => setPosFilter(null)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 11, fontFamily: 'inherit', padding: '0 0 9px', display: 'flex', alignItems: 'center', gap: 4 }}
-                >
-                  <span style={{ fontSize: 13 }}>←</span> {posFilter}
-                </button>
+            ) : (
+              /* ── Two-step cascade: position → candidate ── */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                {/* Step 1 — position select */}
                 <div style={{ position: 'relative' }}>
                   <select
-                    onChange={e => {
-                      const c = positionCandidates.find(c => c.id === Number(e.target.value))
-                      setCandidate(c || null)
-                    }}
-                    defaultValue=""
+                    value={posFilter || ''}
+                    onChange={e => { setPosFilter(e.target.value || null) }}
                     style={{
                       width: '100%', padding: '11px 14px', borderRadius: 10,
-                      border: `1.5px solid ${C.border}`, fontSize: 13,
-                      color: C.text, background: C.white, cursor: 'pointer',
-                      fontFamily: 'inherit', appearance: 'none',
+                      border: `1.5px solid ${posFilter ? C.red : C.border}`,
+                      background: posFilter ? C.redBg : C.white,
+                      fontSize: 13, color: posFilter ? C.text : C.muted,
+                      cursor: 'pointer', fontFamily: 'inherit', appearance: 'none',
+                      transition: 'border-color 0.15s, background 0.15s',
                     }}
                   >
-                    <option value="" disabled>{T.selectCandidate}</option>
-                    {positionCandidates.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} — {c.role} ({c.stage})
+                    <option value="">Select a position…</option>
+                    {ALL_POSITIONS.map(pos => (
+                      <option key={pos} value={pos}>
+                        {pos} · {ALL_CANDIDATES.filter(c => c.pos === pos).length} candidates
                       </option>
                     ))}
                   </select>
                   <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', fontSize: 12 }}>▾</span>
                 </div>
-              </div>
 
-            ) : (
-              /* ── State 1: pick a position first ── */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                {ALL_POSITIONS.map(pos => (
-                  <button
-                    key={pos}
-                    onClick={() => setPosFilter(pos)}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
-                      border: `1.5px solid ${C.border}`, background: C.white,
-                      textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.background = C.redBg }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.white }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{pos}</div>
-                      <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
-                        {ALL_CANDIDATES.filter(c => c.pos === pos).length} candidate{ALL_CANDIDATES.filter(c => c.pos === pos).length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <span style={{ fontSize: 13, color: C.muted }}>→</span>
-                  </button>
-                ))}
+                {/* Step 2 — candidate select, appears once position is chosen */}
+                {posFilter && (
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      key={posFilter}
+                      onChange={e => {
+                        const c = positionCandidates.find(c => c.id === Number(e.target.value))
+                        setCandidate(c || null)
+                      }}
+                      defaultValue=""
+                      style={{
+                        width: '100%', padding: '11px 14px', borderRadius: 10,
+                        border: `1.5px solid ${C.border}`, fontSize: 13,
+                        color: C.text, background: C.white, cursor: 'pointer',
+                        fontFamily: 'inherit', appearance: 'none',
+                      }}
+                    >
+                      <option value="" disabled>{T.selectCandidate}</option>
+                      {positionCandidates.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.role} ({c.stage})
+                        </option>
+                      ))}
+                    </select>
+                    <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', fontSize: 12 }}>▾</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

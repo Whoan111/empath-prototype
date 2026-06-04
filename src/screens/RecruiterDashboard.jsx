@@ -254,16 +254,26 @@ function ClosePositionModal({ pos, th, onConfirm, onCancel }) {
   )
 }
 
+// ── Hiring manager options ─────────────────────────────────────────────────────
+const HM_OPTIONS = ['Andrea P.', 'Sofia C.', 'Marco R.', 'Elena T.', 'Giulia B.']
+
 // ── New Position modal ─────────────────────────────────────────────────────────
 function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
-  const [title, setTitle] = useState('')
-  const [dept,  setDept]  = useState('')
+  const [title,         setTitle]         = useState('')
+  const [dept,          setDept]          = useState('')
+  const [hiringManager, setHiringManager] = useState('')
 
   const canSubmit = title.trim().length > 0
 
   const handle = (goToTriage) => {
     if (!canSubmit) return
-    const newPos = { id: Date.now(), title: title.trim(), dept: dept.trim() || 'New Department', total: 0, openDays: 0, stages: {} }
+    const newPos = {
+      id: Date.now(),
+      title: title.trim(),
+      dept: dept.trim() || 'New Department',
+      hiringManager: hiringManager || null,
+      total: 0, openDays: 0, stages: {},
+    }
     onCreated?.(newPos)
     onClose()
     if (goToTriage) onNavigate('triage', { position: newPos })
@@ -301,6 +311,7 @@ function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
           Create a new position
         </div>
 
+        {/* Title */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
             Position Title *
@@ -316,7 +327,8 @@ function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
           />
         </div>
 
-        <div style={{ marginBottom: 26 }}>
+        {/* Department */}
+        <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 11, fontWeight: 600, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
             Department
           </label>
@@ -328,6 +340,28 @@ function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
             onFocus={e => (e.target.style.borderColor = th.red)}
             onBlur={e => (e.target.style.borderColor = th.border)}
           />
+        </div>
+
+        {/* Hiring Manager */}
+        <div style={{ marginBottom: 26 }}>
+          <label style={{ fontSize: 11, fontWeight: 600, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
+            Hiring Manager
+          </label>
+          <div style={{ position: 'relative' }}>
+            <select
+              value={hiringManager}
+              onChange={e => setHiringManager(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none', cursor: 'pointer', color: hiringManager ? th.text : th.textDim }}
+              onFocus={e => (e.target.style.borderColor = th.red)}
+              onBlur={e => (e.target.style.borderColor = th.border)}
+            >
+              <option value="">Select hiring manager…</option>
+              {HM_OPTIONS.map(hm => (
+                <option key={hm} value={hm}>{hm}</option>
+              ))}
+            </select>
+            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: th.textDim, pointerEvents: 'none', fontSize: 12 }}>▾</span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
@@ -368,20 +402,20 @@ function ClosedPositionsSection({ positions, th, T, onReopen }) {
         onClick={() => setOpen(o => !o)}
         style={{ display:'flex', alignItems:'center', gap:10, width:'100%', background:'none', border:'none', cursor:'pointer', textAlign:'left', fontFamily:'inherit', marginBottom: open ? 12 : 0 }}
       >
-        <span style={{ fontSize:11, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.08em' }}>
+        <span style={{ fontSize:11, fontWeight:700, color: th.navy, textTransform:'uppercase', letterSpacing:'0.08em' }}>
           Closed positions
         </span>
-        <div style={{ flex:1, height:1, background:th.border }} />
-        <span style={{ fontSize:11, fontWeight:700, color:th.textDim, background:th.surface, border:`1px solid ${th.border}`, borderRadius:20, padding:'2px 9px' }}>
+        <div style={{ flex:1, height:1, background: `${th.navy}28` }} />
+        <span style={{ fontSize:11, fontWeight:700, color: th.navy, background: `${th.navy}10`, border:`1px solid ${th.navy}30`, borderRadius:20, padding:'2px 9px' }}>
           {positions.length}
         </span>
-        <span style={{ fontSize:12, color:th.textDim, transform: open ? 'rotate(90deg)' : 'none', transition:'transform 0.2s', display:'inline-block' }}>
+        <span style={{ fontSize:12, color: th.navy, transform: open ? 'rotate(90deg)' : 'none', transition:'transform 0.2s', display:'inline-block' }}>
           ▶
         </span>
       </button>
 
       {open && (
-        <div style={{ background:th.cardBg, border:`1px solid ${th.border}`, borderRadius:'0.75rem', overflow:'hidden' }}>
+        <div style={{ background: th.text.startsWith('rgba(255') ? 'rgba(27,36,97,0.18)' : th.cardBg, border:`1px solid ${th.navy}28`, borderRadius:'0.75rem', overflow:'hidden' }}>
           {positions.map((p, i) => {
             const hired   = p.closeReason === 'hired'
             const last    = i === positions.length - 1
@@ -435,6 +469,10 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
   const [hov, setHov] = useState(false)
   const active   = (pos.stages.Interviews||0) + (pos.stages.Decision||0) + (pos.stages.Offer||0)
   const hasOffer = (pos.stages.Offer||0) > 0
+  const isDark   = th.text.startsWith('rgba(255')
+  const cardBg   = isDark
+    ? (hov ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.24)')
+    : (hov ? th.cardBgHov : th.cardBg)
 
   return (
     <div
@@ -442,7 +480,7 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
       onMouseLeave={() => setHov(false)}
       onClick={() => onOpen(pos)}
       style={{
-        background: hov ? th.cardBgHov : th.cardBg,
+        background: cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         border: `1px solid ${hov ? th.borderBrt : th.border}`,
         borderTop: `2.5px solid ${th.red}`,
@@ -504,13 +542,14 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
 
 function SpontaneousCard({ th, stageT, T, onOpen }) {
   const [hov, setHov] = useState(false)
+  const isDark = th.text.startsWith('rgba(255')
   return (
     <div
       onClick={() => onOpen({ id:0, title:'Spontaneous Applications', dept:'All Departments', openDays:0, total:3 })}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: hov ? th.cardBgHov : th.cardBg,
+        background: isDark ? (hov ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.24)') : (hov ? th.cardBgHov : th.cardBg),
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         border: `1px dashed ${hov ? th.navy+'99' : th.border}`,
         borderRadius: '0.75rem',
@@ -607,7 +646,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
         {/* Stats row */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:30 }}>
           {stats.map(s => (
-            <div key={s.label} style={{ background:th.cardBg, backdropFilter:th.blur, WebkitBackdropFilter:th.blur, border:`1px solid ${th.border}`, borderRadius:'0.75rem', padding:'14px 18px' }}>
+            <div key={s.label} style={{ background: th.text.startsWith('rgba(255') ? 'rgba(27,36,97,0.24)' : th.cardBg, backdropFilter:th.blur, WebkitBackdropFilter:th.blur, border:`1px solid ${th.border}`, borderRadius:'0.75rem', padding:'14px 18px' }}>
               <div style={{ fontFamily:'DM Serif Display, serif', fontSize:26, fontWeight:400, color:s.color, lineHeight:1, marginBottom:4 }}>{s.value}</div>
               <div style={{ fontSize:10, color:th.textDim, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase' }}>{s.label}</div>
             </div>

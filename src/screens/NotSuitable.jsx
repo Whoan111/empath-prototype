@@ -165,7 +165,7 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
         }}
       >
         {/* Position badge */}
-        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:C.redBg, border:`1px solid ${C.redL}`, borderRadius:20, padding:'3px 12px', marginBottom:18, fontSize:10, fontWeight:700, color:C.red, letterSpacing:'0.06em' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:C.infBg, border:`1px solid ${C.infL}`, borderRadius:20, padding:'3px 12px', marginBottom:18, fontSize:10, fontWeight:700, color:C.infT, letterSpacing:'0.06em' }}>
           {group.positionTitle} · {group.dept}
         </div>
 
@@ -469,7 +469,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
         style={{
           width: '100%', padding: '14px 20px',
           display: 'flex', alignItems: 'center', gap: 12,
-          background: C.redBg, border: 'none', cursor: 'pointer',
+          background: C.infBg, border: 'none', cursor: 'pointer',
           fontFamily: 'inherit',
         }}
       >
@@ -479,7 +479,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {pendingCount > 0 && (
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0 }} />
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.infT, boxShadow: '0 0 6px rgba(37,99,235,0.35)', flexShrink: 0 }} />
             )}
             <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text }}>
               {group.positionTitle}
@@ -491,7 +491,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
             {group.candidates.length} candidate{group.candidates.length !== 1 ? 's' : ''}
           </span>
           {pendingCount > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.red, background: C.redL, padding: '2px 9px', borderRadius: 20 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.infT, background: C.infBg, border: `1px solid ${C.infL}`, padding: '2px 9px', borderRadius: 20 }}>
               {pendingCount} pending
             </span>
           )}

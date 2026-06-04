@@ -61,8 +61,8 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'All CVs reviewed',
     backToPositions:'← Back to positions',
-    allCaughtUp:    "All applications reviewed.",
-    allCaughtUpSub: "Every candidate in this batch has been carefully considered. Those moving forward are ready for the next stage.",
+    allCaughtUp:    "Pre-selection complete.",
+    allCaughtUpSub: "Your hiring manager has been notified and will review your pre-selected candidates. Once they've confirmed who to move forward, you'll know exactly who to contact.",
     // Empty position
     noCVsImported:  'No CVs imported for this position yet',
     importCVs:      'Import CVs →',
@@ -120,8 +120,8 @@ const SCREEN_T = {
     // Completion
     allReviewed:    'Tutti i CV rivisti',
     backToPositions:'← Torna alle posizioni',
-    allCaughtUp:    'Tutte le candidature esaminate.',
-    allCaughtUpSub: 'Ogni candidato in questo gruppo è stato attentamente valutato. Chi avanza è pronto per la fase successiva.',
+    allCaughtUp:    'Pre-selezione completata.',
+    allCaughtUpSub: "Il tuo hiring manager è stato notificato e valuterà i candidati pre-selezionati. Quando avrà confermato chi far avanzare, saprai esattamente chi contattare.",
     // Empty position
     noCVsImported:  'Nessun CV importato per questa posizione',
     importCVs:      'Importa CV →',

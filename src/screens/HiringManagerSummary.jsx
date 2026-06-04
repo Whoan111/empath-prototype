@@ -144,10 +144,10 @@ function Av({ id, ini, size = 40 }) {
 
 function FitPill({ fit, T }) {
   if (fit === 'strongly-advance') return (
-    <span style={{ background: isDark ? 'rgba(27,36,97,0.55)' : '#1B2461', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+    <span style={{ background: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', color: isDark ? '#93C5FD' : 'white', border: isDark ? '1px solid rgba(147,197,253,0.30)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
   )
   if (fit === 'advance') return (
-    <span style={{ background: isDark ? 'rgba(37,99,235,0.35)' : '#DBEAFE', color: isDark ? '#93C5FD' : '#1E40AF', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+    <span style={{ background: isDark ? 'rgba(37,99,235,0.20)' : '#DBEAFE', color: isDark ? '#93C5FD' : '#1E40AF', border: isDark ? '1px solid rgba(147,197,253,0.25)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
   )
   return (
     <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
@@ -155,9 +155,9 @@ function FitPill({ fit, T }) {
 }
 
 const valueToFit = (v) =>
-  v >= 80 ? { label: 'Strong fit', color: 'white',   bg: isDark ? 'rgba(27,36,97,0.55)' : '#1B2461' }
-: v >= 60 ? { label: 'Fit',        color: isDark ? '#93C5FD' : '#1E40AF', bg: isDark ? 'rgba(37,99,235,0.35)' : '#DBEAFE' }
-:           { label: 'Not fit',    color: '#C9394A', bg: '#FEF2F2' }
+  v >= 80 ? { label: 'Strong fit', color: isDark ? '#93C5FD' : 'white', bg: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', border: isDark ? '1px solid rgba(147,197,253,0.30)' : 'none' }
+: v >= 60 ? { label: 'Fit',        color: isDark ? '#93C5FD' : '#1E40AF', bg: isDark ? 'rgba(37,99,235,0.20)' : '#DBEAFE', border: isDark ? '1px solid rgba(147,197,253,0.25)' : 'none' }
+:           { label: 'Not fit',    color: '#C9394A', bg: '#FEF2F2', border: 'none' }
 
 function DimBar({ label, value }) {
   const fit = valueToFit(value)
@@ -167,7 +167,7 @@ function DimBar({ label, value }) {
       <div style={{ flex: 1, height: 4, background: C.grayB, borderRadius: 3, overflow: 'hidden' }}>
         <div style={{ width: `${value}%`, height: '100%', background: fit.color, borderRadius: 3 }} />
       </div>
-      <span style={{ fontSize: 9, fontWeight: 600, color: fit.color, background: fit.bg, padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>{fit.label}</span>
+      <span style={{ fontSize: 9, fontWeight: 600, color: fit.color, background: fit.bg, border: fit.border, padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>{fit.label}</span>
     </div>
   )
 }
@@ -182,84 +182,96 @@ function InterviewCard({ interview, T }) {
   const [avBg, avCol] = avColors[(interview.id - 1) % 3]
   const dims = interview.dimensions
 
+  const stars = Array.from({ length: 5 }, (_, i) => i < interview.score)
+
   return (
     <div style={{
-      background: isDark ? C.white : 'rgba(255,255,255,0.88)',
-      backdropFilter: isDark ? 'none' : 'blur(10px)',
-      WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)',
+      background: isDark ? C.white : 'rgba(255,255,255,0.94)',
       border: `1px solid ${C.border}`,
-      borderLeft: `4px solid ${borderColor}`,
-      borderRadius: 13,
+      borderRadius: 14,
       overflow: 'hidden',
     }}>
-      {/* Card header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: avBg, color: avCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
+      {/* Fit stripe */}
+      <div style={{ height: 3, background: borderColor }} />
+
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: avBg, color: avCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
           {interview.avatarIni}
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>
             {interview.interviewer}
-            <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6 }}>· {interview.interviewerRole}</span>
+            <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6, fontSize: 11 }}>· {interview.interviewerRole}</span>
           </div>
           <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>
             Round {interview.round} · {interview.type} · {interview.date}
           </div>
         </div>
+        {/* Score */}
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, color: borderColor, lineHeight: 1 }}>{interview.score}<span style={{ fontSize: 11, color: C.muted }}>/5</span></div>
+          <div style={{ display: 'flex', gap: 2, justifyContent: 'center', marginTop: 2 }}>
+            {stars.map((f, i) => <span key={i} style={{ fontSize: 9, color: f ? borderColor : C.border }}>★</span>)}
+          </div>
+        </div>
         <FitPill fit={interview.fit} T={T} />
       </div>
 
-      {/* Card body */}
-      <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Body */}
+      <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        {/* Strengths — toned-down reddish */}
-        <div style={{ background: isDark ? 'rgba(201,57,74,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FECDD3' : '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
-            ✓ {T.strengths}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {/* Quoted note */}
+        {interview.note && (
+          <p style={{ fontSize: 12, color: isDark ? C.text : '#374151', lineHeight: 1.65, margin: 0, fontStyle: 'italic', borderLeft: `3px solid ${borderColor}`, paddingLeft: 12, paddingTop: 2, paddingBottom: 2 }}>
+            "{interview.note}"
+          </p>
+        )}
+
+        {/* Strengths + Improvements side by side */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ background: isDark ? 'rgba(201,57,74,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FECDD3' : '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+              ✓ {T.strengths}
+            </div>
             {interview.positives.map((p, i) => (
-              <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                <span style={{ color: '#C9394A', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
-                <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
+              <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: 4 }}>
+                <span style={{ color: '#C9394A', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
+                <span style={{ fontSize: 11, color: isDark ? C.text : '#374151', lineHeight: 1.5 }}>{p}</span>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Improvements — brand blue */}
-        {interview.improvements.length > 0 && (
-          <div style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', borderRadius: 9, padding: '10px 13px' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#BFDBFE' : '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
-              ⚠ {T.improvements}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {interview.improvements.length > 0 && (
+            <div style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', borderRadius: 9, padding: '10px 13px' }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#BFDBFE' : '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+                ⚠ {T.improvements}
+              </div>
               {interview.improvements.map((p, i) => (
-                <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                  <span style={{ color: '#2563EB', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
-                  <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
+                <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: 4 }}>
+                  <span style={{ color: '#2563EB', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
+                  <span style={{ fontSize: 11, color: isDark ? C.text : '#374151', lineHeight: 1.5 }}>{p}</span>
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Note */}
-        {interview.note && (
-          <div style={{ background: C.gray, borderRadius: 9, padding: '10px 13px', borderLeft: `3px solid ${C.grayB}` }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>
-              ℹ {T.interviewerNote}
+        {/* Dimension bars — compact */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+          {[
+            { label: T.communication,   value: dims.communication   },
+            { label: T.culturalFit,     value: dims.culturalFit     },
+            { label: T.technicalSkills, value: dims.technicalSkills },
+            { label: T.growthPotential, value: dims.growthPotential },
+          ].map(d => (
+            <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 5, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', borderRadius: 20, padding: '3px 10px 3px 8px' }}>
+              <div style={{ width: 22, height: 4, background: C.border, borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: `${d.value}%`, height: '100%', background: borderColor, borderRadius: 2 }} />
+              </div>
+              <span style={{ fontSize: 9, color: C.muted, whiteSpace: 'nowrap' }}>{d.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: borderColor }}>{d.value}</span>
             </div>
-            <p style={{ fontSize: 12, color: C.text, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>"{interview.note}"</p>
-          </div>
-        )}
-
-        {/* Dimension bars */}
-        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 11, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <DimBar label={T.communication}    value={dims.communication}    />
-          <DimBar label={T.culturalFit}      value={dims.culturalFit}      />
-          <DimBar label={T.technicalSkills}  value={dims.technicalSkills}  />
-          <DimBar label={T.growthPotential}  value={dims.growthPotential}  />
+          ))}
         </div>
       </div>
     </div>
@@ -333,8 +345,25 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                    : 'advance'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
-    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
+    <style>{`
+      @keyframes hmsOrb1{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(40px,-25px) scale(1.09)}70%{transform:translate(-18px,20px) scale(0.94)}}
+      @keyframes hmsOrb2{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-30px,22px) scale(1.06)}75%{transform:translate(22px,-14px) scale(0.96)}}
+      @keyframes hmsOrb3{0%,100%{transform:translate(0,0) scale(1)}55%{transform:translate(18px,28px) scale(1.04)}}
+    `}</style>
+    {/* Animated gradient orbs */}
+    <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
+      <div style={{ position:'absolute', width:560, height:560, borderRadius:'50%', top:'-140px', left:'-80px',
+        background: isDark ? 'radial-gradient(circle,rgba(233,1,48,0.07) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(233,1,48,0.04) 0%,transparent 65%)',
+        animation:'hmsOrb1 11s ease-in-out infinite' }} />
+      <div style={{ position:'absolute', width:480, height:480, borderRadius:'50%', bottom:'-90px', right:'-60px',
+        background: isDark ? 'radial-gradient(circle,rgba(27,36,97,0.18) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(27,36,97,0.05) 0%,transparent 65%)',
+        animation:'hmsOrb2 14s ease-in-out infinite' }} />
+      <div style={{ position:'absolute', width:380, height:380, borderRadius:'50%', top:'38%', right:'18%',
+        background: isDark ? 'radial-gradient(circle,rgba(37,99,235,0.10) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(37,99,235,0.04) 0%,transparent 65%)',
+        animation:'hmsOrb3 9s ease-in-out infinite' }} />
+    </div>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
     <div style={{ flex: 1, overflow: 'auto' }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 36px 48px' }}>
 

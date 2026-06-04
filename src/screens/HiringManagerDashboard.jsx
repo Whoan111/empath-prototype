@@ -15,7 +15,7 @@
 //   onNavigate() — parent navigation handler
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
 let isDark = false
@@ -78,15 +78,28 @@ const SCREEN_T = {
     archivedSaved:     'Saved · Recruiter notified',
     archivedPill:      'Archived',
     restore:           'Restore',
+    suggestTitle:      'Suggest new candidates',
+    suggestSub:        'Share LinkedIn profiles or CV links — Valentina will review them for this position',
+    suggestPlaceholder:'Paste a LinkedIn URL or CV link…',
+    suggestAdd:        'Add',
+    suggestNotify:     (n) => `Notify Valentina · ${n} suggestion${n !== 1 ? 's' : ''}`,
+    suggestSent:       (pos) => `✓ Valentina has been notified to check these people for ${pos}`,
+    suggestSentSub:    "She'll review them and add suitable candidates to the pipeline.",
     preCall:           'Pre-Call',
     interviews:        'INTERVIEWS',
     lastActivity:      'LAST ACTIVITY',
     pendingDecision:   'Pending review',
     interviewsOf:      (d, t) => `${d} of ${t}`,
     noScoreYet:        'No score yet',
-    strongAdvance:     'Strong advance',
-    averageFit:        'Average fit',
-    notAdvancing:      'Not advancing',
+    strongAdvance:      'Strong advance',
+    averageFit:         'Average fit',
+    notAdvancing:       'Not advancing',
+    requestPosBtn:      '+ Request a position',
+    requestPosTitle:    'Request a new position',
+    requestPosSub:      'Describe the role and requirements in your own words. Valentina will set it up in the system.',
+    requestPosPlaceholder: 'e.g. We need a senior backend engineer with 5+ years Node.js experience, remote-friendly...',
+    requestPosSend:     'Send to Valentina',
+    requestPosSent:     '✓ Sent to Valentina',
   },
   it: {
     hiringManager:     'Responsabile Assunzioni',
@@ -145,15 +158,28 @@ const SCREEN_T = {
     archivedSaved:     'Salvato · Recruiter notificato',
     archivedPill:      'Archiviato',
     restore:           'Ripristina',
+    suggestTitle:      'Suggerisci nuovi candidati',
+    suggestSub:        'Condividi profili LinkedIn o CV — Valentina li esaminerà per questa posizione',
+    suggestPlaceholder:'Incolla un URL LinkedIn o link CV…',
+    suggestAdd:        'Aggiungi',
+    suggestNotify:     (n) => `Notifica Valentina · ${n} suggeriment${n !== 1 ? 'i' : 'o'}`,
+    suggestSent:       (pos) => `✓ Valentina è stata notificata per esaminare questi profili per ${pos}`,
+    suggestSentSub:    'Li esaminerà e aggiungerà i candidati idonei alla pipeline.',
     preCall:           'Pre-Colloquio',
     interviews:        'INTERVISTE',
     lastActivity:      'ULTIMA ATTIVITÀ',
     pendingDecision:   'In attesa',
     interviewsOf:      (d, t) => `${d} di ${t}`,
     noScoreYet:        'Nessun punteggio',
-    strongAdvance:     'Forte avanzamento',
-    averageFit:        'Idoneità media',
-    notAdvancing:      'Non avanza',
+    strongAdvance:      'Forte avanzamento',
+    averageFit:         'Idoneità media',
+    notAdvancing:       'Non avanza',
+    requestPosBtn:      '+ Richiedi una posizione',
+    requestPosTitle:    'Richiedi una nuova posizione',
+    requestPosSub:      'Descrivi il ruolo e i requisiti con parole tue. Valentina lo creerà nel sistema.',
+    requestPosPlaceholder: 'es. Abbiamo bisogno di un senior backend engineer con 5+ anni di Node.js...',
+    requestPosSend:     'Invia a Valentina',
+    requestPosSent:     '✓ Inviato a Valentina',
   },
 }
 
@@ -282,7 +308,11 @@ function SummaryBadge({ status }) {
 function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
-    <span style={{ background: isDark ? 'rgba(27,36,97,0.55)' : 'rgba(27,36,97,0.09)', color: isDark ? 'white' : '#1B2461', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
+    <span style={{
+      background: isDark ? 'rgba(147,197,253,0.16)' : 'rgba(27,36,97,0.09)',
+      color:      isDark ? '#93C5FD'                : '#1B2461',
+      border:     isDark ? '1px solid rgba(147,197,253,0.30)' : 'none',
+      fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ★ {T.strongAdvance}
     </span>
   )
@@ -414,7 +444,7 @@ function CVModal({ candidate, onClose }) {
 }
 
 // ── Candidate panel ───────────────────────────────────────────────────────────
-function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T }) {
+function CandidatePanel({ candidate, decision, onDecide, onSuggestHire, onClose, onNavigate, T }) {
   const [showCV, setShowCV] = useState(false)
   return (
     <>
@@ -474,12 +504,6 @@ function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T 
                 </div>
               )
             })}
-            <button
-              onClick={() => onNavigate?.('hiring-summary', { candidate })}
-              style={{ padding: '8px 0', borderRadius: 9, background: C.white, color: C.inf, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}
-            >
-              {T.openBrief}
-            </button>
           </div>
         )}
       </div>
@@ -505,8 +529,8 @@ function CandidatePanel({ candidate, decision, onDecide, onClose, onNavigate, T 
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <button onClick={() => onDecide(candidate.id, 'advancing')} style={{ padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              {T.advanceBtn}
+            <button onClick={() => onSuggestHire?.(candidate.id)} style={{ padding: '10px 0', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {T.suggestHire}
             </button>
             <button onClick={() => onDecide(candidate.id, 'request-round')} style={{ padding: '10px 0', borderRadius: 9, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               ↺ {T.requestRound}
@@ -529,13 +553,13 @@ function ArchivedSection({ candidates, onRestore, T }) {
   if (!candidates.length) return null
 
   return (
-    <div style={{ marginTop: 10, background: C.white, borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+    <div style={{ marginTop: 10, background: C.infBg, borderRadius: 11, border: `1px solid ${C.infL}`, overflow: 'hidden' }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 18px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}
       >
-        <span style={{ fontSize: 13, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', color: C.muted }}>▶</span>
-        <span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{T.archivedSection(candidates.length)}</span>
+        <span style={{ fontSize: 13, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', color: C.navy }}>▶</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: C.navy }}>{T.archivedSection(candidates.length)}</span>
         <span style={{ fontSize: 11, color: C.muted, marginLeft: 'auto' }}>{T.archivedSaved}</span>
       </button>
 
@@ -548,7 +572,7 @@ function ArchivedSection({ candidates, onRestore, T }) {
                 <div style={{ fontSize: 12, fontWeight: 500, color: C.text }}>{c.name}</div>
                 <div style={{ fontSize: 10, color: C.muted }}>{c.role} · {c.stage}</div>
               </div>
-              <span style={{ fontSize: 10, color: C.red, background: '#FEF2F2', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>{T.archivedPill}</span>
+              <span style={{ fontSize: 10, color: C.navy, background: C.infBg, border: `1px solid ${C.infL}`, padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>{T.archivedPill}</span>
               <button onClick={() => onRestore(c.id)} style={{ padding: '4px 10px', borderRadius: 7, border: `1px solid ${C.border}`, background: C.white, color: C.muted, fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
                 {T.restore}
               </button>
@@ -604,6 +628,314 @@ function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
   )
 }
 
+// ── Suggest candidates modal ──────────────────────────────────────────────────
+function SuggestModal({ position, onClose, T }) {
+  const [links,      setLinks]      = useState([])
+  const [inputValue, setInputValue] = useState('')
+  const [submitted,  setSubmitted]  = useState(false)
+  const fileInputRef = useRef(null)
+
+  const isFile     = (s) => s.startsWith('file:')
+  const isLinkedIn = (s) => !isFile(s) && s.toLowerCase().includes('linkedin')
+  const getLinkIcon    = (s) => isFile(s) ? '📎' : isLinkedIn(s) ? '💼' : '📄'
+  const getLinkDisplay = (s) => isFile(s) ? s.slice(5) : s
+
+  const addLink = () => {
+    const val = inputValue.trim()
+    if (!val) return
+    setLinks(prev => [...prev, val])
+    setInputValue('')
+  }
+
+  const removeLink = (idx) => setLinks(prev => prev.filter((_, i) => i !== idx))
+
+  // Submit: also consume whatever is currently typed in the input
+  const submit = () => {
+    const extra = inputValue.trim()
+    const all   = extra ? [...links, extra] : links
+    if (all.length === 0) return
+    setSubmitted(true)
+  }
+
+  const hasContent = links.length > 0 || inputValue.trim().length > 0
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.38)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, backdropFilter: 'blur(5px)' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: C.white, borderRadius: 14, padding: '28px 30px', width: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)', animation: 'hmModalIn 0.2s ease' }}
+      >
+        {submitted ? (
+          /* ── Thank-you state ── */
+          <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+            <div style={{ fontSize: 36, marginBottom: 14 }}>🙏</div>
+            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text, marginBottom: 10 }}>
+              Thank you, {HM.name.split(' ')[0]}!
+            </div>
+            <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: '0 0 24px' }}>
+              Valentina has been notified and will review your suggestions for{' '}
+              <strong style={{ color: C.text }}>{position?.title}</strong>.{' '}
+              Your contribution to the team is appreciated.
+            </p>
+            <button
+              onClick={onClose}
+              style={{ padding: '11px 36px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          /* ── Input state ── */
+          <>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+              {position?.title}
+            </div>
+            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text, marginBottom: 8 }}>
+              {T.suggestTitle}
+            </div>
+            <p style={{ fontSize: 12, color: C.muted, margin: '0 0 20px', lineHeight: 1.65 }}>
+              {T.suggestSub}
+            </p>
+
+            {/* Input + add */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') addLink() }}
+                placeholder={T.suggestPlaceholder}
+                autoFocus
+                style={{
+                  flex: 1, padding: '10px 12px', borderRadius: 8,
+                  border: `1.5px solid ${C.border}`, fontSize: 13,
+                  color: C.text, background: C.white, fontFamily: 'inherit', outline: 'none',
+                }}
+                onFocus={e => (e.target.style.borderColor = C.red)}
+                onBlur={e => (e.target.style.borderColor = C.border)}
+              />
+              <button
+                onClick={addLink}
+                disabled={!inputValue.trim()}
+                style={{
+                  padding: '10px 16px', borderRadius: 8,
+                  background: inputValue.trim() ? C.infBg : C.grayB,
+                  color: inputValue.trim() ? C.infT : C.muted,
+                  border: `1px solid ${inputValue.trim() ? C.infL : C.border}`,
+                  fontSize: 12, fontWeight: 600,
+                  cursor: inputValue.trim() ? 'pointer' : 'default',
+                  fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.15s',
+                }}
+              >
+                {T.suggestAdd}
+              </button>
+            </div>
+
+            {/* Upload CV PDF */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx"
+              multiple
+              style={{ display: 'none' }}
+              onChange={e => {
+                const files = Array.from(e.target.files || [])
+                if (files.length > 0) {
+                  setLinks(prev => [...prev, ...files.map(f => `file:${f.name}`)])
+                  e.target.value = ''
+                }
+              }}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                width: '100%', padding: '9px 12px', borderRadius: 8, marginBottom: 12,
+                border: `1.5px dashed ${C.border}`, background: C.gray,
+                color: C.muted, fontSize: 12, cursor: 'pointer',
+                fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 7, transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.red }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
+            >
+              <span style={{ fontSize: 14 }}>📎</span>
+              Upload CV PDF
+            </button>
+
+            {/* Queued links */}
+            {links.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
+                {links.map((link, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 11px', borderRadius: 8, background: C.gray, border: `1px solid ${C.border}` }}>
+                    <span style={{ fontSize: 13 }}>{getLinkIcon(link)}</span>
+                    <span style={{ flex: 1, fontSize: 11, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getLinkDisplay(link)}</span>
+                    <button onClick={() => removeLink(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 16, lineHeight: 1, padding: 0, flexShrink: 0 }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 9 }}>
+              <button
+                onClick={onClose}
+                style={{ flex: 1, padding: '11px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submit}
+                disabled={!hasContent}
+                style={{
+                  flex: 2, padding: '11px', borderRadius: 9, border: 'none',
+                  background: hasContent ? C.red : C.grayB,
+                  color: hasContent ? 'white' : C.muted,
+                  fontSize: 13, fontWeight: 600,
+                  cursor: hasContent ? 'pointer' : 'default',
+                  fontFamily: 'inherit', transition: 'all 0.15s',
+                }}
+              >
+                {T.suggestNotify(links.length + (inputValue.trim() ? 1 : 0))}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Request Position Modal ────────────────────────────────────────────────────
+function RequestPositionModal({ T, onClose }) {
+  const [text,      setText]      = useState('')
+  const [sent,      setSent]      = useState(false)
+  const [listening, setListening] = useState(false)
+  const recognitionRef = useRef(null)
+
+  const send = () => {
+    if (!text.trim()) return
+    recognitionRef.current?.stop()
+    setSent(true)
+    setTimeout(onClose, 1600)
+  }
+
+  const toggleDictation = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    if (listening) {
+      recognitionRef.current?.stop()
+      setListening(false)
+      return
+    }
+    const rec = new SR()
+    rec.continuous = true
+    rec.interimResults = true
+    rec.lang = 'en-US'
+    rec.onresult = (e) => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('')
+      setText(transcript)
+    }
+    rec.onerror = () => setListening(false)
+    rec.onend   = () => setListening(false)
+    recognitionRef.current = rec
+    rec.start()
+    setListening(true)
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.46)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:400, backdropFilter:'blur(7px)' }}
+    >
+      <style>{`@keyframes rpmIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: C.white, borderRadius: 16, padding: '28px 30px', width: 500, boxShadow: '0 28px 72px rgba(0,0,0,0.24)', animation: 'rpmIn 0.22s ease', position: 'relative' }}
+      >
+        {sent ? (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ fontSize: 36, marginBottom: 14 }}>✅</div>
+            <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, color: C.text, marginBottom: 6 }}>{T.requestPosSent}</div>
+            <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Valentina will review your request and create the position.</div>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+              Hiring Manager
+            </div>
+            <h2 style={{ fontFamily: 'DM Serif Display, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>
+              {T.requestPosTitle}
+            </h2>
+            <p style={{ fontSize: 12, color: C.muted, margin: '0 0 18px', lineHeight: 1.65 }}>
+              {T.requestPosSub}
+            </p>
+            <div style={{ position: 'relative' }}>
+              <textarea
+                value={text}
+                onChange={e => setText(e.target.value)}
+                placeholder={T.requestPosPlaceholder}
+                rows={5}
+                style={{ width: '100%', padding: '12px 14px', paddingBottom: 42, borderRadius: 10, border: `1.5px solid ${listening ? C.red : C.border}`, fontSize: 13, fontFamily: 'inherit', color: C.text, background: C.gray, resize: 'vertical', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box', lineHeight: 1.65 }}
+                onFocus={e => { e.target.style.borderColor = listening ? C.red : '#999' }}
+                onBlur={e => { e.target.style.borderColor = listening ? C.red : C.border }}
+              />
+              {/* Mic button inside textarea */}
+              <button
+                type="button"
+                onClick={toggleDictation}
+                title={listening ? 'Stop dictation' : 'Dictate with microphone'}
+                style={{
+                  position: 'absolute', bottom: 10, left: 12,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '5px 11px', borderRadius: 20,
+                  background: listening ? C.red : C.gray,
+                  border: `1.5px solid ${listening ? C.red : C.border}`,
+                  color: listening ? 'white' : C.muted,
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  fontFamily: 'inherit', transition: 'all 0.18s',
+                  boxShadow: listening ? `0 0 0 3px ${C.red}22` : 'none',
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{listening ? '⏹' : '🎙'}</span>
+                {listening ? 'Listening…' : 'Dictate'}
+              </button>
+              {listening && (
+                <div style={{ position: 'absolute', bottom: 12, right: 14, display: 'flex', gap: 3, alignItems: 'center' }}>
+                  {[0,1,2].map(i => (
+                    <div key={i} style={{ width: 3, borderRadius: 3, background: C.red, animation: `micBar${i} 0.6s ease-in-out ${i*0.15}s infinite alternate` }} />
+                  ))}
+                </div>
+              )}
+            </div>
+            <style>{`
+              @keyframes micBar0{from{height:4px}to{height:12px}}
+              @keyframes micBar1{from{height:8px}to{height:18px}}
+              @keyframes micBar2{from{height:4px}to{height:10px}}
+            `}</style>
+            <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+              <button
+                onClick={onClose}
+                style={{ flex: 1, padding: '11px', borderRadius: 9, border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={send}
+                disabled={!text.trim()}
+                style={{ flex: 2, padding: '11px', borderRadius: 9, border: 'none', background: text.trim() ? C.red : C.border, color: 'white', fontSize: 13, fontWeight: 700, cursor: text.trim() ? 'pointer' : 'default', fontFamily: 'inherit', letterSpacing: '0.02em', transition: 'all 0.15s' }}
+              >
+                {T.requestPosSend}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main dashboard
 // ─────────────────────────────────────────────────────────────────────────────
@@ -619,6 +951,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
   const [sortBy,             setSortBy]             = useState('score') // 'score' | 'activity' | 'name'
   const [confirmHireId,      setConfirmHireId]      = useState(null)  // candidate id pending hire confirmation
   const [hireBanner,         setHireBanner]         = useState(null)  // candidate name for navy banner
+  const [showSuggest,        setShowSuggest]        = useState(false) // suggest candidates modal
+  const [showRequestPos,     setShowRequestPos]     = useState(false) // request new position modal
 
   const pos      = POSITIONS.find(p => p.id === activePosId)
   const allCands = PRE_SELECTED[activePosId] || []
@@ -705,8 +1039,8 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
           {T.preSelected(allCands.length)} across {POSITIONS.length} open positions
         </p>
 
-        {/* Position selection cards */}
-        <div style={{ display: 'flex', gap: 12 }}>
+        {/* Position pills + request button */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {POSITIONS.map(p => {
             const isActive = p.id === activePosId
             const cands    = PRE_SELECTED[p.id] || []
@@ -716,34 +1050,41 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                 key={p.id}
                 onClick={() => { setActivePosId(p.id); setSelectedCandidate(null) }}
                 style={{
-                  flex: 1, textAlign: 'left', padding: '14px 18px', borderRadius: 12,
+                  padding: '6px 14px', borderRadius: 20,
                   background: isActive
-                    ? isDark ? 'rgba(233,1,48,0.15)' : C.redBg
-                    : isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.55)',
+                    ? isDark ? 'rgba(233,1,48,0.18)' : C.redBg
+                    : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.60)',
                   border: `1.5px solid ${isActive ? C.redL : C.border}`,
-                  borderLeft: isActive ? `4px solid ${C.red}` : `1.5px solid ${C.border}`,
                   cursor: 'pointer', fontFamily: 'inherit',
-                  boxShadow: isActive
-                    ? `0 2px 18px rgba(233,1,48,0.13), 0 1px 4px rgba(0,0,0,0.06)`
-                    : 'none',
-                  backdropFilter: isActive ? 'none' : 'blur(10px)',
-                  WebkitBackdropFilter: isActive ? 'none' : 'blur(10px)',
-                  transition: 'all 0.18s',
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  transition: 'all 0.16s',
+                  boxShadow: isActive ? `0 2px 14px rgba(233,1,48,0.12)` : 'none',
                 }}
               >
-                <div style={{ fontSize: 9, fontWeight: 700, color: isActive ? C.red : C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{p.dept}</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginBottom: 4 }}>
-                  <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 30, fontWeight: 400, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
-                    {cands.length}
+                <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 16, fontWeight: 400, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
+                  {cands.length}
+                </span>
+                <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: isActive ? C.text : C.muted }}>
+                  {p.title}
+                </span>
+                {pending > 0 && (
+                  <span style={{ fontSize: 9, fontWeight: 700, color: isActive ? C.red : C.muted, background: isActive ? `${C.red}18` : C.gray, padding: '1px 5px', borderRadius: 9, border: `1px solid ${isActive ? C.redL : C.border}` }}>
+                    {pending}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? C.text : C.muted }}>
-                    {p.title}
-                  </span>
-                </div>
-                <div style={{ fontSize: 10, color: isActive ? C.red : C.muted, opacity: isActive ? 0.75 : 1 }}>{p.recruiter} · {pending} pending</div>
+                )}
               </button>
             )
           })}
+
+          {/* Request new position */}
+          <button
+            onClick={() => setShowRequestPos(true)}
+            style={{ padding: '6px 14px', borderRadius: 20, background: 'transparent', border: `1.5px dashed ${C.border}`, color: C.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.navy; e.currentTarget.style.color = C.navy }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
+          >
+            {T.requestPosBtn}
+          </button>
         </div>
       </header>
 
@@ -753,65 +1094,83 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
 
           {/* Filter + sort bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-            <div>
-              <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 2px' }}>{T.preSelectedTitle}</h2>
-              <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>
-                {T.preSelectedSub(pos?.openSince)}
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div>
+                <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 2px' }}>{T.preSelectedTitle}</h2>
+                <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>
+                  {T.preSelectedSub(pos?.openSince)}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSuggest(true)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '6px 14px', borderRadius: 20,
+                  background: C.infBg, color: C.infT,
+                  border: `1.5px solid ${C.infL}`,
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(27,36,97,0.15)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = C.infBg }}
+              >
+                <span style={{ fontSize: 13 }}>+</span>
+                {T.suggestTitle}
+              </button>
             </div>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              style={{ padding: '5px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11, color: C.text, background: C.white, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
-              <option value="score">{T.sortScore}</option>
-              <option value="activity">{T.sortActivity}</option>
-              <option value="name">{T.sortName}</option>
-            </select>
+            <span style={{ fontSize: 10, fontWeight: 600, color: C.muted, background: C.gray, border: `1px solid ${C.border}`, padding: '4px 10px', borderRadius: 20, letterSpacing: '0.04em' }}>
+              ★ Highest fit first
+            </span>
           </div>
 
           {/* Candidate table — only rendered when there are candidates */}
           {sortedActive.length > 0 && (
-          <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
-            {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 1fr', padding: '10px 20px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
-              {[T.colCandidate, T.colInterviews, T.colActions].map(h => (
-                <span key={h} style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
-              ))}
-            </div>
-
-            {sortedActive.map((c, i) => {
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
+            {sortedActive.map((c) => {
               const dec   = decisions[c.id]
               const isSel = selectedCandidate?.id === c.id
+              const fit   = CANDIDATE_FIT[c.id]
+              const dots  = Array.from({ length: c.interviewsTotal || 3 }, (_, i) => i < (c.interviewsDone || 0))
 
               return (
                 <div
                   key={c.id}
                   onClick={() => setSelectedCandidate(isSel ? null : c)}
                   style={{
-                    display: 'grid', gridTemplateColumns: '2fr 100px 1fr',
-                    alignItems: 'center', padding: '13px 20px',
-                    borderBottom: i < sortedActive.length - 1 ? `1px solid ${C.border}` : 'none',
-                    background: isSel ? C.redBg : C.white,
-                    cursor: 'pointer', transition: 'background 0.1s',
+                    background: isSel
+                      ? (isDark ? 'rgba(233,1,48,0.12)' : C.redBg)
+                      : (isDark ? 'rgba(255,255,255,0.06)' : C.white),
+                    borderRadius: 12,
+                    border: `1px solid ${isSel ? C.redL : C.border}`,
+                    borderLeft: `3px solid ${isSel ? C.red : fit === 'strongly-advance' ? C.navy : fit === 'advance' ? '#3B82F6' : C.border}`,
+                    padding: '14px 18px',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 14,
                   }}
                 >
-                  {/* Candidate */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-                    <Av id={c.id} ini={c.ini} size={36} />
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{c.name}</div>
-                      <div style={{ fontSize: 10, color: C.muted }}>{c.role}</div>
+                  {/* Avatar */}
+                  <Av id={c.id} ini={c.ini} size={38} />
+
+                  {/* Name + role + interview dots */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{c.name}</span>
+                      <FitPill rec={fit} T={T} />
+                    </div>
+                    <div style={{ fontSize: 11, color: C.muted, marginBottom: 6 }}>{c.role}</div>
+                    {/* Interview progress dots */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {dots.map((done, i) => (
+                        <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: done ? C.navy : C.border, border: `1.5px solid ${done ? C.navy : C.border}`, transition: 'all 0.2s' }} />
+                      ))}
+                      <span style={{ fontSize: 10, color: C.muted, marginLeft: 5 }}>
+                        {c.interviewsDone || 0} {T.interviews.toLowerCase()} performed
+                      </span>
                     </div>
                   </div>
 
-                  {/* Interviews done */}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: c.interviewsDone > 0 ? C.text : C.muted }}>
-                    {c.interviewsDone}
-                  </span>
-
                   {/* Actions */}
-                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                  <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
                     {dec ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <DecisionPill dec={dec} T={T} />
@@ -821,21 +1180,21 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                       <>
                         <button
                           onClick={() => handleSuggestHire(c.id)}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: C.red, color: 'white', border: 'none', fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '6px 10px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
                           {T.suggestHire}
                         </button>
                         <button
                           onClick={() => decide(c.id, 'request-round')}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '6px 10px', borderRadius: 8, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
-                          ↺ {T.requestRound}
+                          ↺
                         </button>
                         <button
                           onClick={() => decide(c.id, 'not-moving-forward')}
-                          style={{ padding: '5px 8px', borderRadius: 7, background: C.infBg, color: C.infT, border: 'none', fontSize: 9, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                          style={{ padding: '6px 10px', borderRadius: 8, background: C.infBg, color: C.infT, border: 'none', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                         >
-                          {T.rejectBtn}
+                          ✕
                         </button>
                       </>
                     )}
@@ -877,9 +1236,19 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
           candidate={selectedCandidate}
           decision={decisions[selectedCandidate.id]}
           onDecide={decide}
+          onSuggestHire={handleSuggestHire}
           T={T}
           onClose={() => setSelectedCandidate(null)}
           onNavigate={onNavigate}
+        />
+      )}
+
+      {/* ── Suggest candidates modal ── */}
+      {showSuggest && (
+        <SuggestModal
+          position={pos}
+          onClose={() => setShowSuggest(false)}
+          T={T}
         />
       )}
 
@@ -890,6 +1259,14 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
           onConfirm={handleConfirmHire}
           onCancel={() => setConfirmHireId(null)}
           T={T}
+        />
+      )}
+
+      {/* ── Request position modal ── */}
+      {showRequestPos && (
+        <RequestPositionModal
+          T={T}
+          onClose={() => setShowRequestPos(false)}
         />
       )}
     </div>

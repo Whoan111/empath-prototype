@@ -176,7 +176,9 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
       background: th.bgPanel,
       backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
       borderLeft: `1px solid ${th.border}`,
+      boxShadow: '-6px 0 28px rgba(0,0,0,0.14)',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      animation: 'kbPanelIn 0.26s cubic-bezier(0.22,0.61,0.36,1)',
     }}>
       {/* Header */}
       <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${th.border}`, background: `${th.red}08`, flexShrink: 0 }}>
@@ -232,6 +234,7 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
 
 // ── Candidate capsule ─────────────────────────────────────────────────────────
 function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject, onSelect, isSelected, isDragging, onDragStart, onDragEnd }) {
+  const isDark = th.text.startsWith('rgba(255')
   const [hov, setHov] = useState(false)
   const [didDrag, setDidDrag] = useState(false)
   const { opacity, sat, isStale } = staleness(stage, candidate.daysAgo)
@@ -251,7 +254,11 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: isSelected ? `${th.red}0E` : (hov ? th.cardBgHov : th.cardBg),
+        background: isSelected
+          ? (isDark ? `${th.red}28` : `${th.red}0E`)
+          : hov
+            ? (isDark ? 'rgba(27,36,97,0.32)' : th.cardBgHov)
+            : (isDark ? 'rgba(27,36,97,0.20)' : th.cardBg),
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         borderRadius: '0.75rem',
         border: `1px solid ${isSelected ? th.red + '60' : isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
@@ -280,6 +287,37 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
             {candidate.role}
           </div>
         </div>
+        {stage === 'Interviews' && (() => {
+          const done = candidate.interviewsDone ?? 0
+          const next = candidate.nextInterview ?? null
+          if (next) return (
+            <span style={{ fontSize:8, fontWeight:700,
+              color:       isDark ? '#93C5FD'                   : '#1B2461',
+              background:  isDark ? 'rgba(147,197,253,0.15)'    : 'rgba(27,36,97,0.10)',
+              border:      `1px solid ${isDark ? 'rgba(147,197,253,0.32)' : 'rgba(27,36,97,0.18)'}`,
+              padding:'2px 6px', borderRadius:20, whiteSpace:'nowrap', flexShrink:0, alignSelf:'flex-start', letterSpacing:'0.01em' }}>
+              📅 {next}
+            </span>
+          )
+          if (done > 0) return (
+            <span style={{ fontSize:8, fontWeight:700,
+              color:       isDark ? '#86EFAC'                   : '#166534',
+              background:  isDark ? 'rgba(134,239,172,0.14)'    : 'rgba(21,128,61,0.10)',
+              border:      `1px solid ${isDark ? 'rgba(134,239,172,0.28)' : 'rgba(21,128,61,0.20)'}`,
+              padding:'2px 6px', borderRadius:20, whiteSpace:'nowrap', flexShrink:0, alignSelf:'flex-start' }}>
+              ✓ {done} done
+            </span>
+          )
+          return (
+            <span style={{ fontSize:8, fontWeight:700,
+              color:       isDark ? '#FCD34D'                   : '#92400E',
+              background:  isDark ? 'rgba(252,211,77,0.14)'     : 'rgba(217,119,6,0.10)',
+              border:      `1px solid ${isDark ? 'rgba(252,211,77,0.28)' : 'rgba(217,119,6,0.22)'}`,
+              padding:'2px 6px', borderRadius:20, whiteSpace:'nowrap', flexShrink:0, alignSelf:'flex-start' }}>
+              ⏳ Waiting
+            </span>
+          )
+        })()}
       </div>
 
       {/* Info pills */}
@@ -350,15 +388,11 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
 }
 
 // ── Kanban column ─────────────────────────────────────────────────────────────
-function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, onSelect, selectedId, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd, depthOffset }) {
+function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject, onSelect, selectedId, dragOver, onDragOver, onDrop, draggingId, onCapsuleDragStart, onCapsuleDragEnd }) {
   const st           = stageT[stage]
   const isDropTarget = dragOver === stage
   const label        = stageLabel(stage, T)
   const sorted       = [...candidates].sort((a, b) => b.daysAgo - a.daysAgo)
-
-  const isFocused  = depthOffset === 0
-  const opa = isFocused ? 1 : Math.max(0.18, 1 - Math.abs(depthOffset) * 0.27)
-  const tx  = isFocused ? 0 : depthOffset * 14
 
   return (
     <div
@@ -370,9 +404,7 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
         background: isDropTarget ? st.bg : 'transparent',
         border: `2px solid ${isDropTarget ? st.dot+'60' : 'transparent'}`,
         boxShadow: isDropTarget ? `0 0 0 1px ${st.dot}30, 0 4px 20px rgba(0,0,0,0.15)` : 'none',
-        opacity: opa,
-        transform: `translateX(${tx}px)`,
-        transition: 'all 0.15s ease, opacity 0.28s ease, transform 0.28s ease',
+        transition: 'all 0.15s ease',
       }}
     >
       {/* Column header */}
@@ -432,8 +464,8 @@ const INIT = {
       { id:107, name:'Carla Esposito',    ini:'CE', role:'UX Researcher',        loc:'Rome',     exp:'3 yrs', daysAgo:10, skills:['Research','Survey']     },
     ],
     Interviews: [
-      { id:108, name:'Luca Ferrari',      ini:'LF', role:'Product Designer',     loc:'Florence', exp:'5 yrs', daysAgo:5,  skills:['Figma','Agile']         },
-      { id:109, name:'Chiara Lombardi',   ini:'CL', role:'UX Researcher',        loc:'Milan',    exp:'6 yrs', daysAgo:14, skills:['Research','Analysis']   },
+      { id:108, name:'Luca Ferrari',      ini:'LF', role:'Product Designer',     loc:'Florence', exp:'5 yrs', daysAgo:5,  skills:['Figma','Agile'],        interviewsDone:2, nextInterview:'Jun 12 · 10:00' },
+      { id:109, name:'Chiara Lombardi',   ini:'CL', role:'UX Researcher',        loc:'Milan',    exp:'6 yrs', daysAgo:14, skills:['Research','Analysis'],  interviewsDone:1, nextInterview:null              },
     ],
     Decision: [
       { id:110, name:'Giulia Rossi',      ini:'GR', role:'Mid UX Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:3,  skills:['Figma','Research']      },
@@ -451,9 +483,9 @@ const INIT = {
       { id:207, name:'Erik Müller',       ini:'EM', role:'JS Engineer',          loc:'Berlin',   exp:'5 yrs', daysAgo:11, skills:['Node','React']          },
     ],
     Interviews: [
-      { id:204, name:'Maria Silva',       ini:'MS', role:'UI Engineer',          loc:'Lisbon',   exp:'6 yrs', daysAgo:9,  skills:['React','CSS']           },
-      { id:208, name:'Jana Novak',        ini:'JN', role:'Frontend Engineer',    loc:'Prague',   exp:'4 yrs', daysAgo:5,  skills:['Angular','RxJS']        },
-      { id:209, name:'Ravi Kumar',        ini:'RK', role:'React Specialist',     loc:'London',   exp:'6 yrs', daysAgo:13, skills:['React','Redux']         },
+      { id:204, name:'Maria Silva',       ini:'MS', role:'UI Engineer',          loc:'Lisbon',   exp:'6 yrs', daysAgo:9,  skills:['React','CSS'],          interviewsDone:1, nextInterview:'Jun 10 · 14:00' },
+      { id:208, name:'Jana Novak',        ini:'JN', role:'Frontend Engineer',    loc:'Prague',   exp:'4 yrs', daysAgo:5,  skills:['Angular','RxJS'],       interviewsDone:0, nextInterview:null              },
+      { id:209, name:'Ravi Kumar',        ini:'RK', role:'React Specialist',     loc:'London',   exp:'6 yrs', daysAgo:13, skills:['React','Redux'],        interviewsDone:2, nextInterview:null              },
     ],
     Decision: [
       { id:210, name:'Isabelle Blanc',    ini:'IB', role:'Senior FE',            loc:'Lyon',     exp:'8 yrs', daysAgo:4,  skills:['React','Next.js']       },
@@ -469,7 +501,7 @@ const INIT = {
       { id:305, name:'Marco Pellegrini',  ini:'MP', role:'Senior PM',            loc:'Rome',     exp:'7 yrs', daysAgo:9,  skills:['Strategy','Agile']      },
     ],
     Interviews: [
-      { id:303, name:'Clara Rossi',       ini:'CR', role:'Associate PM',         loc:'Rome',     exp:'3 yrs', daysAgo:2,  skills:['Agile','Research']      },
+      { id:303, name:'Clara Rossi',       ini:'CR', role:'Associate PM',         loc:'Rome',     exp:'3 yrs', daysAgo:2,  skills:['Agile','Research'],     interviewsDone:0, nextInterview:'Jun 11 · 11:30' },
     ],
     Decision: [
       { id:306, name:'Valentina Serra',   ini:'VS', role:'Product Lead',         loc:'Florence', exp:'6 yrs', daysAgo:5,  skills:['Vision','Roadmap']      },
@@ -481,7 +513,7 @@ const INIT = {
       { id:401, name:'Giulia Fontana',    ini:'GF', role:'Data Analyst',         loc:'Milan',    exp:'3 yrs', daysAgo:4,  skills:['SQL','Python']          },
     ],
     Interviews: [
-      { id:402, name:'Luca Battaglia',    ini:'LB', role:'Senior Analyst',       loc:'Turin',    exp:'5 yrs', daysAgo:7,  skills:['Python','Tableau']      },
+      { id:402, name:'Luca Battaglia',    ini:'LB', role:'Senior Analyst',       loc:'Turin',    exp:'5 yrs', daysAgo:7,  skills:['Python','Tableau'],     interviewsDone:1, nextInterview:null              },
     ],
     Decision: [],
     Offer: [],
@@ -491,7 +523,7 @@ const INIT = {
       { id:501, name:'Camilla Rizzo',     ini:'CR', role:'Brand Strategist',     loc:'Milan',    exp:'4 yrs', daysAgo:2,  skills:['Branding','Strategy']   },
     ],
     Interviews: [
-      { id:502, name:'Federico Gallo',    ini:'FG', role:'Creative Strategist',  loc:'Rome',     exp:'6 yrs', daysAgo:8,  skills:['Campaigns','Brand']     },
+      { id:502, name:'Federico Gallo',    ini:'FG', role:'Creative Strategist',  loc:'Rome',     exp:'6 yrs', daysAgo:8,  skills:['Campaigns','Brand'],    interviewsDone:1, nextInterview:'Jun 13 · 15:00' },
     ],
     Decision: [
       { id:503, name:'Anastasia Bruno',   ini:'AB', role:'Senior Brand Manager', loc:'Milan',    exp:'8 yrs', daysAgo:3,  skills:['Strategy','Leadership'] },
@@ -847,6 +879,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
         @keyframes fadeOut{0%{opacity:1}65%{opacity:1}100%{opacity:0}}
         @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
         @keyframes restoreIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        @keyframes kbPanelIn{from{transform:translateX(100%);opacity:0.7}to{transform:translateX(0);opacity:1}}
       `}</style>
 
       {/* Header */}
@@ -890,11 +923,8 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
           </div>
         )}
 
-        <div style={{ flex:1, overflowX:'auto', overflowY:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
-          {VIS_STAGES.map((stage, stageIdx) => {
-            const selIdx = selectedInfo ? VIS_STAGES.indexOf(selectedInfo.stage) : -1
-            const depthOffset = selectedInfo ? stageIdx - selIdx : 0
-            return (
+        <div style={{ flex:1, overflow:'hidden', padding:'16px 18px', display:'flex', gap:10 }}>
+          {VIS_STAGES.map((stage) => (
             <Column
               key={stage}
               stage={stage}
@@ -913,10 +943,8 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
               draggingId={dragState.id}
               onCapsuleDragStart={(id) => setDragState({ id, from: stage })}
               onCapsuleDragEnd={() => setDragState({ id:null, from:null })}
-              depthOffset={depthOffset}
             />
-            )
-          })}
+          ))}
         </div>
 
         {selectedInfo && (
