@@ -511,6 +511,12 @@ function CandidatePanel({ candidate, decision, onDecide, onSuggestHire, onClose,
       {/* Decision footer */}
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
+          onClick={() => onNavigate?.('hiring-manager-summary')}
+          style={{ padding: '9px 0', borderRadius: 9, background: isDark ? 'rgba(233,1,48,0.14)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(233,1,48,0.28)' : 'rgba(233,1,48,0.18)'}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          {T.openBrief}
+        </button>
+        <button
           onClick={() => setShowCV(true)}
           style={{ padding: '9px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
         >

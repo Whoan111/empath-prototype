@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // InterviewerDashboard.jsx  — Interviewer role · Alessandro S.
 //
-//  section='home'    → grid of candidates you've interviewed + outcome status
-//                      "View profile" opens a right-panel inline (no page nav)
-//  section='debrief' → pending & submitted interview-summary work
+//  Left sidebar: Dashboard | Interview Debriefs
+//  Dashboard sections: Current (pending debrief) | Upcoming | Done
+//  Clicking Current opens CV + inline debrief split view
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
@@ -18,18 +18,25 @@ const SCREEN_T = {
     interviewsDone:     (n) => `${n} interview${n !== 1 ? 's' : ''} done`,
     allDebriefsDone:    'All debriefs up to date',
     debriefPending:     (n) => `${n} debrief${n !== 1 ? 's' : ''} pending`,
-    myInterviews:       'My Interviews',
+    upcoming:           (n) => `${n} upcoming`,
+    currentSection:     'Current',
+    upcomingSection:    'Upcoming',
+    doneSection:        'Done',
+    noCurrentSub:       'Interviews waiting for debrief will appear here.',
+    noUpcomingSub:      'Scheduled interviews will appear here.',
+    noDoneSub:          'Submitted debriefs will appear here.',
+    debriefCTA:         'Complete this after your interview',
+    startDebrief:       'Start interview →',
+    reminderSet:        'Reminder set',
+    setReminder:        'Set reminder',
     debriefPageTitle:   'Interview Debriefs',
     debriefPageSub:     'Pending and submitted interview debriefs',
     pendingSection:     'Pending',
     submittedSection:   'Submitted',
     allDoneTitle:       'All debriefs submitted ✓',
     allDoneSub:         "You're up to date — no pending debriefs.",
-    pendingBannerTitle: 'Debrief needed',
-    pendingDesc:        (n) => `You haven't submitted your debrief for ${n} yet.`,
     fillDebrief:        'Fill debrief →',
-    viewSummaries:      'View debriefs →',
-    viewProfile:        'View profile',
+    viewProfile:        'View details →',
     round:              (n) => `Round ${n}`,
     debriefDone:        '✓ Submitted',
     debriefNeeded:      '📝 Pending',
@@ -40,27 +47,14 @@ const SCREEN_T = {
       pending:      '⏳ Pending decision',
       debrief:      '📝 Debrief needed',
     },
-    backToHome:         '← My Interviews',
     backToDebrief:      '← Interview Debriefs',
-    interviewHistory:   'Interview history',
-    roundCount:         (n) => `${n} round${n !== 1 ? 's' : ''}`,
     youLabel:           'You',
     noFeedbackYet:      'Debrief not submitted yet',
     noFeedbackFill:     'Fill the form to share your feedback on this candidate.',
-    contact:            'Contact',
-    currentStage:       'Current stage',
-    yourContribution:   'Your contribution',
-    advancingCount:     (n) => `${n} advancing`,
     rejectedOn:         (d) => `Closed · ${d}`,
-    yourRoundLabel:     (type, date) => `${type} · ${date}`,
-    fitLabel:           'Your fit assessment',
-    closedBanner:       (d) => `This candidate was not selected · Process closed ${d}`,
-    // Outcome notifications
     updatesTitle:       'Updates on your candidates',
     dismiss:            'Dismiss',
-    newTag:             'New',
     newOutcomeMsg:      (name, outcome) => `${name} — ${outcome}`,
-    closePanel:         '×',
   },
   it: {
     badge:              'Intervistatore',
@@ -68,18 +62,25 @@ const SCREEN_T = {
     interviewsDone:     (n) => `${n} colloquio${n !== 1 ? 'i' : ''} svolto${n !== 1 ? 'i' : ''}`,
     allDebriefsDone:    'Tutti i debrief aggiornati',
     debriefPending:     (n) => `${n} debrief in attesa`,
-    myInterviews:       'I Miei Colloqui',
+    upcoming:           (n) => `${n} in programma`,
+    currentSection:     'In corso',
+    upcomingSection:    'In programma',
+    doneSection:        'Completati',
+    noCurrentSub:       'I colloqui in attesa di debrief appariranno qui.',
+    noUpcomingSub:      'I colloqui programmati appariranno qui.',
+    noDoneSub:          'I debrief inviati appariranno qui.',
+    debriefCTA:         'Completare dopo il colloquio',
+    startDebrief:       'Inizia debrief →',
+    reminderSet:        'Promemoria impostato',
+    setReminder:        'Imposta promemoria',
     debriefPageTitle:   'Debrief Colloqui',
     debriefPageSub:     'Debrief in attesa e inviati',
     pendingSection:     'In Attesa',
     submittedSection:   'Inviati',
     allDoneTitle:       'Tutti i debrief inviati ✓',
     allDoneSub:         'Sei aggiornato — nessun debrief in sospeso.',
-    pendingBannerTitle: 'Debrief necessario',
-    pendingDesc:        (n) => `Non hai ancora inviato il tuo debrief per ${n}.`,
     fillDebrief:        'Compila debrief →',
-    viewSummaries:      'Vedi debrief →',
-    viewProfile:        'Vedi profilo',
+    viewProfile:        'Vedi dettagli →',
     round:              (n) => `Round ${n}`,
     debriefDone:        '✓ Inviato',
     debriefNeeded:      '📝 In attesa',
@@ -90,35 +91,20 @@ const SCREEN_T = {
       pending:      '⏳ Decisione in attesa',
       debrief:      '📝 Debrief necessario',
     },
-    backToHome:         '← I Miei Colloqui',
     backToDebrief:      '← Debrief Colloqui',
-    interviewHistory:   'Storico colloqui',
-    roundCount:         (n) => `${n} round`,
     youLabel:           'Tu',
     noFeedbackYet:      'Debrief non ancora inviato',
-    noFeedbackFill:     'Compila il modulo per condividere il tuo feedback su questo candidato.',
-    contact:            'Contatto',
-    currentStage:       'Fase attuale',
-    yourContribution:   'Il tuo contributo',
-    advancingCount:     (n) => `${n} avanzano`,
+    noFeedbackFill:     'Compila il modulo per condividere il tuo feedback.',
     rejectedOn:         (d) => `Chiuso · ${d}`,
-    yourRoundLabel:     (type, date) => `${type} · ${date}`,
-    fitLabel:           'La tua valutazione',
-    closedBanner:       (d) => `Candidato non selezionato · Processo chiuso ${d}`,
     updatesTitle:       'Aggiornamenti sui tuoi candidati',
     dismiss:            'Chiudi',
-    newTag:             'Nuovo',
     newOutcomeMsg:      (name, outcome) => `${name} — ${outcome}`,
-    closePanel:         '×',
   },
 }
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
-
-// ── Interviewer identity ──────────────────────────────────────────────────────
+// ── Identity & mock data ──────────────────────────────────────────────────────
 const INTERVIEWER = { name: 'Alessandro S.', ini: 'AL', role: 'Senior UX Designer' }
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
 const MY_CANDIDATES = [
   {
     id: 1, name: 'Giulia Rossi', ini: 'GR',
@@ -132,24 +118,10 @@ const MY_CANDIDATES = [
     myRound: 2, myType: 'Technical Deep-Dive', myDate: 'May 17', myFit: 'advance',
     debriefDone: true,
     outcome: 'notAdvancing',
-    newOutcome: true,        // ← new: Alessandro hasn't seen this result yet
-    currentStage: 'Closed',
-    rejectedDate: 'May 24',
+    currentStage: 'Closed', rejectedDate: 'May 24',
     allFeedback: [
-      {
-        round: 1, type: 'Portfolio Review',
-        by: 'Andrea P.', byRole: 'Hiring Manager', date: 'May 14', fit: 'strongly-advance', isMine: false,
-        txt: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps. I would be comfortable having her on the team.',
-        strengths: ['Portfolio depth', 'Communication', 'Growth mindset'],
-        concerns: ['Design systems experience'],
-      },
-      {
-        round: 2, type: 'Technical Deep-Dive',
-        by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: true,
-        txt: 'Enthusiastic and highly collaborative. Cultural fit is strong. Could sharpen complex problem-solving under pressure — gave surface-level answers on two edge cases.',
-        strengths: ['Cultural fit', 'Collaboration'],
-        concerns: ['Problem-solving under pressure'],
-      },
+      { round: 1, type: 'Portfolio Review', by: 'Andrea P.', byRole: 'Hiring Manager', date: 'May 14', fit: 'strongly-advance', isMine: false, txt: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps.', strengths: ['Portfolio depth', 'Communication', 'Growth mindset'], concerns: ['Design systems experience'] },
+      { round: 2, type: 'Technical Deep-Dive', by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: true, txt: 'Enthusiastic and highly collaborative. Cultural fit is strong. Could sharpen complex problem-solving under pressure.', strengths: ['Cultural fit', 'Collaboration'], concerns: ['Problem-solving under pressure'] },
     ],
   },
   {
@@ -164,23 +136,10 @@ const MY_CANDIDATES = [
     myRound: 1, myType: 'Research Deep-Dive', myDate: 'May 6', myFit: 'strongly-advance',
     debriefDone: true,
     outcome: 'advancing',
-    newOutcome: true,        // ← new: advancing now confirmed
     currentStage: 'Decision',
     allFeedback: [
-      {
-        round: 1, type: 'Research Deep-Dive',
-        by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: true,
-        txt: 'Outstanding. Research depth is rare at this level. She thinks in systems and articulates complexity with genuine clarity. Strong recommend.',
-        strengths: ['Research depth', 'Systems thinking', 'Communication'],
-        concerns: [],
-      },
-      {
-        round: 2, type: 'Values & Team Fit',
-        by: 'Andrea P.', byRole: 'Design Director', date: 'May 10', fit: 'strongly-advance', isMine: false,
-        txt: 'Strong recommend. She asks exactly the right questions. The team would grow with her around.',
-        strengths: ['Values alignment', 'Intellectual curiosity'],
-        concerns: [],
-      },
+      { round: 1, type: 'Research Deep-Dive', by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: true, txt: 'Outstanding. Research depth is rare at this level. She thinks in systems and articulates complexity with genuine clarity.', strengths: ['Research depth', 'Systems thinking', 'Communication'], concerns: [] },
+      { round: 2, type: 'Values & Team Fit', by: 'Andrea P.', byRole: 'Design Director', date: 'May 10', fit: 'strongly-advance', isMine: false, txt: 'Strong recommend. She asks exactly the right questions.', strengths: ['Values alignment', 'Intellectual curiosity'], concerns: [] },
     ],
   },
   {
@@ -195,9 +154,23 @@ const MY_CANDIDATES = [
     myRound: 1, myType: 'Technical Assessment', myDate: 'May 22', myFit: null,
     debriefDone: false,
     outcome: 'debrief',
-    newOutcome: false,
     currentStage: 'Interviews',
     allFeedback: [],
+  },
+]
+
+const UPCOMING_INTERVIEWS = [
+  {
+    id: 201, name: 'Lorenzo Russo', ini: 'LR',
+    role: 'UX Designer', dept: 'Product Design',
+    round: 1, type: 'Portfolio Review',
+    date: 'Jun 15', time: '10:00 AM',
+  },
+  {
+    id: 202, name: 'Emma Bianchi', ini: 'EB',
+    role: 'Product Designer', dept: 'Product Design',
+    round: 2, type: 'Values Deep-Dive',
+    date: 'Jun 19', time: '2:30 PM',
   },
 ]
 
@@ -206,6 +179,8 @@ const AV_PALETTE = [
   ['#FECDD3','#C9394A'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
+  ['#D1FAE5','#065F46'],
+  ['#DBEAFE','#1D4ED8'],
 ]
 function Av({ id, ini, size = 36, muted = false }) {
   const [bg, color] = AV_PALETTE[(id - 1) % AV_PALETTE.length]
@@ -218,18 +193,18 @@ function Av({ id, ini, size = 36, muted = false }) {
 
 function FitPill({ fit }) {
   if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
-  if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(99,102,241,0.32)' : '#1B2461', color: isDark ? '#C7D2FE' : 'white', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
-  if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(59,130,246,0.28)' : '#DBEAFE', color: isDark ? '#BAE6FD' : '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Average fit</span>
+  if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', color: isDark ? '#93C5FD' : 'white', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
+  if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(59,130,246,0.28)' : '#DBEAFE', color: isDark ? '#BAE6FD' : '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Advance</span>
   return <span style={{ background: isDark ? 'rgba(201,57,74,0.22)' : '#FEE2E2', color: isDark ? '#FCA5A5' : '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
 
 function OutcomePill({ outcome, T }) {
   const map = {
-    advancing:    { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.advancing    },
-    offer:        { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.offer        },
-    notAdvancing: { bg: C.gray,     color: C.muted, border: C.border,    label: T.outcome.notAdvancing },
-    pending:      { bg: C.gray,     color: C.muted, border: C.border,    label: T.outcome.pending      },
-    debrief:      { bg: C.redBg,    color: C.red,   border: C.redL,      label: T.outcome.debrief      },
+    advancing:    { bg: isDark ? 'rgba(22,101,52,0.18)' : '#F0FDF4', color: '#16A34A', border: 'rgba(22,101,52,0.22)', label: T.outcome.advancing },
+    offer:        { bg: isDark ? 'rgba(22,101,52,0.18)' : '#F0FDF4', color: '#16A34A', border: 'rgba(22,101,52,0.22)', label: T.outcome.offer },
+    notAdvancing: { bg: C.gray,  color: C.muted, border: C.border, label: T.outcome.notAdvancing },
+    pending:      { bg: C.gray,  color: C.muted, border: C.border, label: T.outcome.pending },
+    debrief:      { bg: isDark ? 'rgba(252,211,77,0.14)' : '#FEF3C7', color: isDark ? '#FCD34D' : '#D97706', border: isDark ? 'rgba(252,211,77,0.25)' : '#FDE68A', label: T.outcome.debrief },
   }
   const o = map[outcome] || map.pending
   return (
@@ -245,9 +220,7 @@ function CVDocumentMockup({ cv }) {
     <div style={{ width: w, height: h, background: '#E8E4E0', borderRadius: 2, marginBottom: mb }} />
   )
   const Sec = ({ children }) => (
-    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>
-      {children}
-    </div>
+    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>{children}</div>
   )
   return (
     <div style={{ fontFamily: 'Georgia, serif', color: '#1C1917' }}>
@@ -276,7 +249,7 @@ function CVDocumentMockup({ cv }) {
           <span style={{ fontSize: 11, fontWeight: 600 }}>Previous Role</span>
           <span style={{ fontSize: 9, color: '#888' }}>2020 – 2022</span>
         </div>
-        <div style={{ fontSize: 9, color: '#888', marginBottom: 7 }}>DesignStudio · {cv.loc?.split(',')[1]?.trim() || 'Europe'}</div>
+        <div style={{ fontSize: 9, color: '#888', marginBottom: 7 }}>DesignStudio</div>
         <Line w="87%" /><Line w="72%" />
       </div>
       <Sec>Education</Sec>
@@ -293,13 +266,10 @@ function CVDocumentMockup({ cv }) {
       </div>
       <Sec>Projects & Highlights</Sec>
       <Line w="94%" /><Line w="88%" /><Line w="76%" /><Line w="82%" /><Line w="68%" />
-      <div style={{ marginTop: 10 }} />
-      <Line w="90%" /><Line w="83%" />
     </div>
   )
 }
 
-// ── Document viewer ───────────────────────────────────────────────────────────
 function DocumentViewer({ cv }) {
   const [zoom, setZoom] = useState(1)
   return (
@@ -310,7 +280,7 @@ function DocumentViewer({ cv }) {
         <span style={{ fontSize: 10, color: C.muted }}>· {cv.pages} page{cv.pages !== 1 ? 's' : ''}</span>
         {cv.portfolio && (
           <a href={`https://${cv.portfolio}`} target="_blank" rel="noreferrer"
-            style={{ marginLeft: 'auto', fontSize: 10, color: C.purp, textDecoration: 'none', background: C.purpBg, border: `1px solid ${C.purpL}`, padding: '3px 10px', borderRadius: 7, fontWeight: 600 }}>
+            style={{ marginLeft: 'auto', fontSize: 10, color: '#6D28D9', textDecoration: 'none', background: '#EDE9FE', border: '1px solid #DDD6FE', padding: '3px 10px', borderRadius: 7, fontWeight: 600 }}>
             🎨 {cv.portfolio} ↗
           </a>
         )}
@@ -331,116 +301,6 @@ function DocumentViewer({ cv }) {
   )
 }
 
-// ── Interview-history timeline ────────────────────────────────────────────────
-const ROUND_COLORS = [
-  [C.infBg,  C.inf ],
-  [C.purpBg, C.purp],
-  [C.sucBg,  C.suc ],
-  [C.warBg,  C.war ],
-]
-
-function InterviewTimeline({ candidate, onFillDebrief, T }) {
-  const rounds = candidate.allFeedback
-  if (rounds.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '20px 12px', background: C.gray, borderRadius: 12, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 26, marginBottom: 8 }}>📋</div>
-        <p style={{ fontSize: 12, fontWeight: 600, color: C.text, margin: '0 0 3px' }}>{T.noFeedbackYet}</p>
-        <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, margin: '0 0 14px' }}>{T.noFeedbackFill}</p>
-        <button
-          onClick={onFillDebrief}
-          style={{ padding: '8px 20px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          {T.fillDebrief}
-        </button>
-      </div>
-    )
-  }
-  return (
-    <div style={{ position: 'relative' }}>
-      {rounds.length > 1 && (
-        <div style={{ position: 'absolute', left: 13, top: 28, width: 2, bottom: 28, background: C.border, zIndex: 0 }} />
-      )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {rounds.map((f, i) => {
-          const [rcBg, rcCol] = ROUND_COLORS[i % ROUND_COLORS.length]
-          const isMe = f.isMine
-          return (
-            <div key={i} style={{ display: 'flex', gap: 11, position: 'relative', zIndex: 1 }}>
-              <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: isMe ? C.red : rcCol, color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: isMe ? `0 0 0 3px ${C.redBg}` : `0 0 0 3px ${rcBg}` }}>
-                  {f.round}
-                </div>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ background: isMe ? C.redBg : C.gray, border: `1px solid ${isMe ? C.redL : C.border}`, borderRadius: 10, padding: '11px 13px', position: 'relative' }}>
-                  {isMe && (
-                    <span style={{ position: 'absolute', top: 9, right: 10, fontSize: 9, fontWeight: 700, color: C.red, background: C.white, border: `1px solid ${C.redL}`, padding: '2px 8px', borderRadius: 20 }}>
-                      {T.youLabel}
-                    </span>
-                  )}
-                  <div style={{ fontSize: 10, fontWeight: 700, color: isMe ? C.red : rcCol, marginBottom: 7, paddingRight: isMe ? 48 : 0 }}>
-                    {f.type} · {f.date}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: isMe ? C.redBg : rcBg, color: isMe ? C.red : rcCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, flexShrink: 0 }}>
-                      {f.by.split(' ').map(w => w[0]).join('')}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by}</div>
-                      <div style={{ fontSize: 9, color: C.muted }}>{f.byRole}</div>
-                    </div>
-                    <FitPill fit={f.fit} />
-                  </div>
-                  <p style={{ fontSize: 11, color: C.text, lineHeight: 1.65, margin: '0 0 8px' }}>{f.txt}</p>
-                  {(f.strengths?.length > 0 || f.concerns?.length > 0) && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {f.strengths?.map(s => (
-                        <span key={s} style={{ fontSize: 9, fontWeight: 600, color: '#1B2461', background: 'rgba(27,36,97,0.09)', padding: '2px 7px', borderRadius: 20 }}>{s}</span>
-                      ))}
-                      {f.concerns?.map(s => (
-                        <span key={s} style={{ fontSize: 9, fontWeight: 600, color: C.warT, background: C.warBg, padding: '2px 7px', borderRadius: 20 }}>△ {s}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-// ── Mini pipeline (reused across panels) ────────────────────────────────────
-const IL_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
-function ILStagePipeline({ stage }) {
-  const stageMap = { Closed: 'Decision', Offer: 'Offer', Decision: 'Decision', Interviews: 'Interviews', 'Pre-Call': 'Pre-Call', Screening: 'Screening' }
-  const mapped = stageMap[stage] || stage
-  const idx = IL_PIPELINE.indexOf(mapped)
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      {IL_PIPELINE.map((s, i) => {
-        const past = i <= idx
-        const curr = i === idx
-        const short = s === 'Screening' ? 'Screen' : s === 'Interviews' ? 'Interview' : s === 'Pre-Call' ? 'Pre-Call' : s
-        return (
-          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-            {i < IL_PIPELINE.length - 1 && (
-              <div style={{ position: 'absolute', top: 7, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
-            )}
-            <div style={{ width: 14, height: 14, borderRadius: 3, transform: 'rotate(45deg)', background: curr ? C.red : past ? C.redL : C.gray, border: `2px solid ${curr ? C.red : past ? C.redL : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 3px ${C.redBg}` : 'none' }} />
-            <div style={{ fontSize: 8, color: curr ? C.red : C.muted, fontWeight: curr ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>
-              {short}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 // ── CV overlay modal ──────────────────────────────────────────────────────────
 function CVModal({ candidate, onClose }) {
   if (!candidate) return null
@@ -451,21 +311,15 @@ function CVModal({ candidate, onClose }) {
     <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 10, marginTop: 18, paddingBottom: 5, borderBottom: '1px solid #E8E4E0' }}>{children}</div>
   )
   return (
-    <div
-      onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden' }}
-      >
-        <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+        <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <div style={{ fontSize: 9, fontWeight: 700, color: '#C9394A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
-            <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.loc ? ` · ${candidate.loc}` : ''}</div>
+            <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: '#888', lineHeight: 1, padding: '0 0 0 16px' }}>×</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: '#888', lineHeight: 1 }}>×</button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', background: '#FAFAF9', fontFamily: 'Georgia, serif', color: '#1C1917' }}>
           <div style={{ marginBottom: 20, paddingBottom: 14, borderBottom: '2px solid #1C1917' }}>
@@ -484,16 +338,8 @@ function CVModal({ candidate, onClose }) {
               <span style={{ fontSize: 12, fontWeight: 600 }}>{candidate.role}</span>
               <span style={{ fontSize: 10, color: '#888' }}>2022 – Present</span>
             </div>
-            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>TechCorp · {candidate.loc?.split(',')[1]?.trim() || 'Europe'}</div>
+            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>TechCorp</div>
             <Line w="91%" /><Line w="84%" /><Line w="78%" /><Line w="88%" />
-          </div>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-              <span style={{ fontSize: 12, fontWeight: 600 }}>Previous Role</span>
-              <span style={{ fontSize: 10, color: '#888' }}>2020 – 2022</span>
-            </div>
-            <div style={{ fontSize: 10, color: '#888', marginBottom: 8 }}>DesignStudio · {candidate.loc?.split(',')[1]?.trim() || 'Europe'}</div>
-            <Line w="87%" /><Line w="72%" /><Line w="80%" />
           </div>
           <Sec>Education</Sec>
           <div style={{ marginBottom: 16 }}>
@@ -511,62 +357,475 @@ function CVModal({ candidate, onClose }) {
               </div>
             </>
           )}
-          <Sec>Projects & Highlights</Sec>
-          <Line w="94%" /><Line w="88%" /><Line w="76%" /><Line w="82%" /><Line w="68%" />
-          <div style={{ marginTop: 10 }} />
-          <Line w="90%" /><Line w="83%" />
         </div>
       </div>
     </div>
   )
 }
 
-// ── Right panel — shown inline on home view ───────────────────────────────────
-function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
+// ── Stage pipeline ────────────────────────────────────────────────────────────
+const IL_PIPELINE = ['Screening', 'Pre-Call', 'Interviews', 'Decision', 'Offer']
+function ILStagePipeline({ stage }) {
+  const stageMap = { Closed: 'Decision', Offer: 'Offer', Decision: 'Decision', Interviews: 'Interviews', 'Pre-Call': 'Pre-Call', Screening: 'Screening' }
+  const mapped = stageMap[stage] || stage
+  const idx = IL_PIPELINE.indexOf(mapped)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {IL_PIPELINE.map((s, i) => {
+        const past = i <= idx, curr = i === idx
+        const short = s === 'Screening' ? 'Screen' : s === 'Interviews' ? 'Interview' : s
+        return (
+          <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            {i < IL_PIPELINE.length - 1 && (
+              <div style={{ position: 'absolute', top: 7, left: '50%', width: '100%', height: 2, background: i < idx ? C.red : C.border, zIndex: 0 }} />
+            )}
+            <div style={{ width: 14, height: 14, borderRadius: 3, transform: 'rotate(45deg)', background: curr ? C.red : past ? C.redL : C.gray, border: `2px solid ${curr ? C.red : past ? C.redL : C.border}`, zIndex: 1, marginBottom: 4, boxShadow: curr ? `0 0 0 3px ${C.redBg}` : 'none' }} />
+            <div style={{ fontSize: 8, color: curr ? C.red : C.muted, fontWeight: curr ? 600 : 400, textAlign: 'center', lineHeight: 1.2 }}>{short}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Inline debrief form panel ─────────────────────────────────────────────────
+const CRITERIA = [
+  { key: 'communication',   label: 'Communication & Collaboration' },
+  { key: 'culturalFit',     label: 'Cultural Fit' },
+  { key: 'growthPotential', label: 'Growth Potential' },
+  { key: 'technical',       label: 'Technical Skills', optional: true },
+]
+const RATING_OPTS = [
+  { val: 1, label: 'Not fit',    short: '✕', col: '#C9394A', bg: '#FEE2E2' },
+  { val: 2, label: 'Somewhat',   short: '△', col: '#D97706', bg: '#FEF3C7' },
+  { val: 3, label: 'Good fit',   short: '◎', col: '#1D4ED8', bg: '#EFF6FF' },
+  { val: 4, label: 'Strong fit', short: '★', col: '#166534', bg: '#DCFCE7' },
+]
+const FIT_OPTS = [
+  { val: 'not-advancing',    label: 'Not advancing',    col: '#C9394A', bg: '#FEE2E2', bord: 'rgba(201,57,74,0.25)' },
+  { val: 'advance',          label: 'Advance',          col: '#1D4ED8', bg: '#EFF6FF', bord: 'rgba(29,78,216,0.25)' },
+  { val: 'strongly-advance', label: 'Strongly advance', col: '#166534', bg: '#DCFCE7', bord: 'rgba(22,101,52,0.25)' },
+]
+
+function InlineDebriefPanel({ candidate, onClose, onDone }) {
+  const [step,         setStep]         = useState(1)
+  const [submitted,    setSubmitted]    = useState(false)
+  const [fit,          setFit]          = useState(null)
+  const [ratings,      setRatings]      = useState({})
+  const [strengths,    setStrengths]    = useState('')
+  const [improvements, setImprovements] = useState('')
+
+  const TOTAL = 3
+  const reqRated = CRITERIA.filter(c => !c.optional)
+  const canStep2 = reqRated.every(c => ratings[c.key] > 0)
+  const canSubmit = fit !== null && strengths.trim().length > 0
+
+  const StepDot = ({ n }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+      {[1,2,3].map(i => (
+        <div key={i} style={{ width: i === n ? 18 : 6, height: 6, borderRadius: 3, background: i === n ? C.red : i < n ? C.redL : C.border, transition: 'all 0.2s' }} />
+      ))}
+    </div>
+  )
+
+  if (submitted) {
+    const o = FIT_OPTS.find(f => f.val === fit)
+    return (
+      <aside style={{ width: 360, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 18px 14px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(22,101,52,0.10)' : '#F0FDF4', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#16A34A' }}>✓ Debrief submitted</span>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '32px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+          <div style={{ fontSize: 40 }}>✓</div>
+          <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text }}>Feedback saved</div>
+          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.7 }}>Your input for {candidate.name} has been saved and will inform the hiring decision.</div>
+          {o && <span style={{ background: o.bg, color: o.col, border: `1px solid ${o.bord}`, fontSize: 12, fontWeight: 600, padding: '5px 16px', borderRadius: 20 }}>{o.label}</span>}
+          <button onClick={onDone} style={{ marginTop: 8, padding: '9px 24px', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+            ← Back to dashboard
+          </button>
+        </div>
+      </aside>
+    )
+  }
+
+  return (
+    <aside style={{ width: 360, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ padding: '14px 18px 12px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(233,1,48,0.07)' : '#FFF5F5', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <Av id={candidate.id} ini={candidate.ini} size={34} />
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{candidate.name}</div>
+              <div style={{ fontSize: 10, color: C.muted }}>{candidate.myType} · {candidate.myDate}</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Step {step} of {TOTAL} · Debrief</span>
+          <StepDot n={step} />
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px' }}>
+        {step === 1 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>Before you begin</div>
+              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.65 }}>Filling in the debrief right after the interview leads to the sharpest, most useful feedback.</div>
+            </div>
+            <div style={{ background: C.gray, borderRadius: 10, padding: '13px 15px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {[['Candidate', candidate.name], ['Round', `Round ${candidate.myRound} · ${candidate.myType}`], ['Date', candidate.myDate]].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{k}</span>
+                    <span style={{ fontSize: 11, color: C.text, fontWeight: 500 }}>{v}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 10, color: C.infT, lineHeight: 1.65, fontStyle: 'italic', padding: '8px 12px', background: isDark ? 'rgba(37,99,235,0.08)' : '#EFF6FF', borderRadius: 8, borderLeft: '3px solid #93C5FD' }}>
+              The CV is open on the left — reference it as you fill in your feedback.
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3 }}>How did they fit?</div>
+              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6 }}>Rate only what you actually evaluated. Technical is optional.</div>
+            </div>
+            {CRITERIA.map(cr => {
+              const val = ratings[cr.key] || 0
+              return (
+                <div key={cr.key}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{cr.label}</span>
+                    {cr.optional && <span style={{ fontSize: 9, color: C.muted, background: C.gray, padding: '1px 7px', borderRadius: 20 }}>optional</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {RATING_OPTS.map(opt => {
+                      const sel = val === opt.val
+                      return (
+                        <button key={opt.val} onClick={() => setRatings(r => ({ ...r, [cr.key]: sel ? 0 : opt.val }))}
+                          style={{ flex: 1, padding: '6px 0', borderRadius: 8, border: `1.5px solid ${sel ? opt.col : C.border}`, background: sel ? opt.bg : C.gray, color: sel ? opt.col : C.muted, fontSize: 10, fontWeight: sel ? 700 : 400, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                          <span style={{ fontSize: 11 }}>{opt.short}</span>
+                          <span style={{ fontSize: 8 }}>{opt.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {step === 3 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3 }}>Your observations</div>
+              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6 }}>Specific, honest feedback helps the candidate grow regardless of the outcome.</div>
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 5 }}>What did they do well? <span style={{ color: C.red }}>*</span></label>
+              <textarea value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="A real example is worth ten adjectives" rows={3}
+                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 5 }}>What could they develop?</label>
+              <textarea value={improvements} onChange={e => setImprovements(e.target.value)} placeholder="Growth-oriented and honest" rows={3}
+                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Recommendation <span style={{ color: C.red }}>*</span></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {FIT_OPTS.map(o => (
+                  <button key={o.val} onClick={() => setFit(fit === o.val ? null : o.val)}
+                    style={{ padding: '9px 14px', borderRadius: 9, border: `1.5px solid ${fit === o.val ? o.col : C.border}`, background: fit === o.val ? o.bg : C.gray, color: fit === o.val ? o.col : C.muted, fontSize: 11, fontWeight: fit === o.val ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.13s' }}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: '12px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', gap: 8, flexShrink: 0, background: C.white }}>
+        {step > 1 && (
+          <button onClick={() => setStep(s => s - 1)}
+            style={{ padding: '9px 16px', borderRadius: 9, background: C.gray, color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+            ← Back
+          </button>
+        )}
+        {step < TOTAL && (
+          <button onClick={() => setStep(s => s + 1)} disabled={step === 2 && !canStep2}
+            style={{ flex: 1, padding: '9px 0', borderRadius: 9, background: (step === 2 && !canStep2) ? C.gray : C.red, color: (step === 2 && !canStep2) ? C.muted : 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: (step === 2 && !canStep2) ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+            Continue →
+          </button>
+        )}
+        {step === TOTAL && (
+          <button onClick={() => setSubmitted(true)} disabled={!canSubmit}
+            style={{ flex: 1, padding: '9px 0', borderRadius: 9, background: canSubmit ? C.red : C.gray, color: canSubmit ? 'white' : C.muted, border: 'none', fontSize: 11, fontWeight: 600, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+            Submit feedback ✓
+          </button>
+        )}
+      </div>
+    </aside>
+  )
+}
+
+// ── Dashboard section helpers ─────────────────────────────────────────────────
+function SectionHeader({ label, count, accentColor, dot }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+      {dot && count > 0 && <span style={{ width: 7, height: 7, borderRadius: '50%', background: accentColor, boxShadow: `0 0 6px ${accentColor}80`, flexShrink: 0 }} />}
+      <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{label}</h2>
+      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 9px', borderRadius: 20, color: count > 0 ? accentColor : C.muted, background: count > 0 ? accentColor + '18' : C.gray, border: `1px solid ${count > 0 ? accentColor + '30' : C.border}` }}>{count}</span>
+    </div>
+  )
+}
+
+function EmptyCard({ icon, sub }) {
+  return (
+    <div style={{ padding: '18px 22px', background: C.gray, borderRadius: 12, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <span style={{ fontSize: 20, flexShrink: 0 }}>{icon}</span>
+      <span style={{ fontSize: 11, color: C.muted }}>{sub}</span>
+    </div>
+  )
+}
+
+function CurrentCard({ candidate, onStart }) {
+  return (
+    <div style={{
+      background: isDark ? 'rgba(233,1,48,0.07)' : '#FFFBFB',
+      border: `1.5px solid ${C.redL}`,
+      borderRadius: 14,
+      overflow: 'hidden',
+      boxShadow: isDark ? '0 4px 24px rgba(233,1,48,0.10)' : '0 4px 24px rgba(201,57,74,0.08)',
+    }}>
+      {/* Red top stripe */}
+      <div style={{ height: 4, background: C.red }} />
+
+      {/* Candidate info */}
+      <div style={{ padding: '16px 20px 14px', display: 'flex', alignItems: 'center', gap: 14 }}>
+        <Av id={candidate.id} ini={candidate.ini} size={46} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 18, color: C.text }}>{candidate.name}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FCD34D' : '#D97706', background: isDark ? 'rgba(252,211,77,0.14)' : '#FEF3C7', border: `1px solid ${isDark ? 'rgba(252,211,77,0.25)' : '#FDE68A'}`, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Debrief pending</span>
+          </div>
+          <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.position} · {candidate.dept}</div>
+        </div>
+        {/* Interview chip — top right */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+          <span style={{ fontSize: 10, color: C.muted }}>{candidate.myDate}</span>
+          <span style={{ fontSize: 10, color: C.muted, background: C.gray, border: `1px solid ${C.border}`, padding: '2px 9px', borderRadius: 20 }}>Round {candidate.myRound} · {candidate.myType}</span>
+        </div>
+      </div>
+
+      {/* CTA footer */}
+      <div style={{ padding: '12px 20px 16px', borderTop: `1px solid ${isDark ? 'rgba(233,1,48,0.18)' : 'rgba(201,57,74,0.10)'}`, background: isDark ? 'rgba(233,1,48,0.05)' : 'rgba(201,57,74,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+        <span style={{ fontSize: 11, color: C.muted, fontStyle: 'italic', lineHeight: 1.5 }}>Open the candidate's CV and fill in your feedback after the interview.</span>
+        <button onClick={onStart} style={{ padding: '9px 22px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          Start interview →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function UpcomingCard({ interview, hasReminder, onToggleReminder }) {
+  return (
+    <div style={{ background: isDark ? 'rgba(37,99,235,0.06)' : C.white, border: `1px solid ${isDark ? 'rgba(147,197,253,0.18)' : '#DBEAFE'}`, borderTop: `3px solid ${C.infT}`, borderRadius: 12, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
+          <Av id={interview.id} ini={interview.ini} size={40} />
+          <div>
+            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 15, color: C.text, marginBottom: 1 }}>{interview.name}</div>
+            <div style={{ fontSize: 10, color: C.muted }}>{interview.role} · {interview.dept}</div>
+          </div>
+        </div>
+        <button onClick={onToggleReminder}
+          style={{ background: hasReminder ? C.infBg : 'none', border: `1px solid ${hasReminder ? C.infL : C.border}`, borderRadius: 8, padding: '5px 9px', cursor: 'pointer', fontSize: 13, color: hasReminder ? C.infT : C.muted, transition: 'all 0.15s' }}
+          title={hasReminder ? 'Remove reminder' : 'Set reminder'}>
+          🔔
+        </button>
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: C.infT, background: C.infBg, border: `1px solid ${C.infL}`, padding: '4px 12px', borderRadius: 20 }}>
+          📅 {interview.date} · {interview.time}
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, color: C.muted, background: C.gray, border: `1px solid ${C.border}`, padding: '4px 11px', borderRadius: 20 }}>
+          Round {interview.round} · {interview.type}
+        </span>
+      </div>
+      {hasReminder && (
+        <div style={{ fontSize: 10, color: C.infT, fontStyle: 'italic' }}>🔔 Reminder set for this interview</div>
+      )}
+    </div>
+  )
+}
+
+function DoneCard({ candidate, onView, T }) {
+  const isRejected = candidate.outcome === 'notAdvancing'
+  const myF = candidate.allFeedback.find(f => f.isMine)
+  const outcomeMap = {
+    advancing:    { col: '#16A34A', bg: isDark ? 'rgba(22,101,52,0.14)' : '#F0FDF4', bord: 'rgba(22,101,52,0.22)' },
+    offer:        { col: '#16A34A', bg: isDark ? 'rgba(22,101,52,0.14)' : '#F0FDF4', bord: 'rgba(22,101,52,0.22)' },
+    notAdvancing: { col: C.muted,   bg: C.gray,                                      bord: C.border              },
+    pending:      { col: C.muted,   bg: C.gray,                                      bord: C.border              },
+  }
+  const os = outcomeMap[candidate.outcome] || outcomeMap.pending
+
+  return (
+    <div style={{ background: isDark ? 'rgba(255,255,255,0.03)' : C.white, border: `1px solid ${C.border}`, borderLeft: `3px solid ${isRejected ? C.border : '#16A34A'}`, borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, opacity: isRejected ? 0.82 : 1 }}>
+      <Av id={candidate.id} ini={candidate.ini} size={38} muted={isRejected} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: isRejected ? C.muted : C.text }}>{candidate.name}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: os.col, background: os.bg, border: `1px solid ${os.bord}`, padding: '2px 9px', borderRadius: 20 }}>
+            <OutcomePill outcome={candidate.outcome} T={T} />
+          </span>
+          {!isRejected && candidate.currentStage && (
+            <span style={{ fontSize: 10, color: C.infT, background: C.infBg, padding: '2px 8px', borderRadius: 20, border: `1px solid ${C.infL}` }}>{candidate.currentStage}</span>
+          )}
+        </div>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: myF ? 5 : 0 }}>
+          {candidate.role} · Round {candidate.myRound} · {candidate.myType} · {candidate.myDate}
+        </div>
+        {myF && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FitPill fit={myF.fit} />
+            <span style={{ fontSize: 10, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>{myF.txt}</span>
+          </div>
+        )}
+      </div>
+      <button onClick={onView}
+        style={{ padding: '6px 14px', borderRadius: 8, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap', transition: 'all 0.12s' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.red }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}>
+        {T.viewProfile}
+      </button>
+    </div>
+  )
+}
+
+// ── Dashboard home view ───────────────────────────────────────────────────────
+function DashboardHome({ onOpenInterview, onViewProfile, T }) {
+  const [reminders, setReminders] = useState({})
+  const current  = MY_CANDIDATES.filter(c => !c.debriefDone)
+  const done     = MY_CANDIDATES.filter(c => c.debriefDone)
+  const upcoming = UPCOMING_INTERVIEWS
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative', background: isDark ? 'transparent' : '#F8F8F8' }}>
+      <style>{`
+        @keyframes idOrb1{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(28px,-18px) scale(1.06)}75%{transform:translate(-14px,14px) scale(0.95)}}
+        @keyframes idOrb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-22px,16px) scale(1.04)}}
+      `}</style>
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', width: 480, height: 480, borderRadius: '50%', top: '-100px', right: '-60px', background: isDark ? 'radial-gradient(circle,rgba(27,36,97,0.16) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(27,36,97,0.04) 0%,transparent 65%)', animation: 'idOrb1 13s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', width: 380, height: 380, borderRadius: '50%', bottom: '-70px', left: '-50px', background: isDark ? 'radial-gradient(circle,rgba(37,99,235,0.10) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(37,99,235,0.03) 0%,transparent 65%)', animation: 'idOrb2 11s ease-in-out infinite' }} />
+      </div>
+
+      <div style={{ flex: 1, overflow: 'auto', position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <header style={{ padding: '24px 32px 20px', background: isDark ? C.white : 'rgba(255,255,255,0.90)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', borderBottom: `1px solid ${C.border}` }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>Interviewer</p>
+          <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
+            {T.greeting(INTERVIEWER.name.split(' ')[0])}
+          </h1>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, color: C.muted, background: C.gray, border: `1px solid ${C.border}`, padding: '3px 11px', borderRadius: 20 }}>
+              {T.interviewsDone(MY_CANDIDATES.length)}
+            </span>
+            {current.length > 0 && (
+              <span style={{ fontSize: 11, color: C.red, background: C.redBg, border: `1px solid ${C.redL}`, padding: '3px 11px', borderRadius: 20, fontWeight: 600 }}>
+                {T.debriefPending(current.length)}
+              </span>
+            )}
+            {upcoming.length > 0 && (
+              <span style={{ fontSize: 11, color: C.infT, background: C.infBg, border: `1px solid ${C.infL}`, padding: '3px 11px', borderRadius: 20 }}>
+                {T.upcoming(upcoming.length)}
+              </span>
+            )}
+          </div>
+        </header>
+
+        <div style={{ padding: '28px 32px 52px', maxWidth: 860, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+          {/* Current */}
+          <section>
+            <SectionHeader label={T.currentSection} count={current.length} accentColor={C.red} dot />
+            {current.length === 0
+              ? <EmptyCard icon="✓" sub={T.noCurrentSub} />
+              : current.map(c => <CurrentCard key={c.id} candidate={c} onStart={() => onOpenInterview(c)} />)
+            }
+          </section>
+
+          {/* Upcoming */}
+          <section>
+            <SectionHeader label={T.upcomingSection} count={upcoming.length} accentColor={C.infT} />
+            {upcoming.length === 0
+              ? <EmptyCard icon="📅" sub={T.noUpcomingSub} />
+              : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+                  {upcoming.map(u => (
+                    <UpcomingCard key={u.id} interview={u} hasReminder={!!reminders[u.id]} onToggleReminder={() => setReminders(r => ({ ...r, [u.id]: !r[u.id] }))} />
+                  ))}
+                </div>
+              )
+            }
+          </section>
+
+          {/* Done */}
+          <section>
+            <SectionHeader label={T.doneSection} count={done.length} accentColor={C.muted} />
+            {done.length === 0
+              ? <EmptyCard icon="📋" sub={T.noDoneSub} />
+              : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {done.map(c => <DoneCard key={c.id} candidate={c} onView={() => onViewProfile(c)} T={T} />)}
+                </div>
+              )
+            }
+          </section>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Profile side panel (used in profile view) ─────────────────────────────────
+function CandidateProfilePanel({ candidate, onNavigate, T }) {
   const [showCV, setShowCV] = useState(false)
   const avPalette = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
-
   return (
     <>
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
-
-      {/* ── Header ── */}
-      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: C.redBg, flexShrink: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
-            <Av id={candidate.id} ini={candidate.ini} size={46} />
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{candidate.name}</div>
-              <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.exp}</div>
-              <div style={{ fontSize: 11, color: C.muted }}>{candidate.loc}</div>
-            </div>
+      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(27,36,97,0.12)' : C.redBg, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', marginBottom: 14 }}>
+          <Av id={candidate.id} ini={candidate.ini} size={44} muted={candidate.outcome === 'notAdvancing'} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 1 }}>{candidate.name}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.exp}</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{candidate.loc}</div>
           </div>
-          {onClose && (
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 20, lineHeight: 1, padding: 0, alignSelf: 'flex-start' }}>×</button>
-          )}
         </div>
-        {/* Pipeline */}
         <ILStagePipeline stage={candidate.currentStage} />
       </div>
-
-      {/* ── Feedback ── */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
-          Interview feedback {candidate.allFeedback.length > 0 && (
-            <span style={{ background: C.redL, color: C.red, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, marginLeft: 5 }}>{candidate.allFeedback.length}</span>
-          )}
-        </div>
+        <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
         {candidate.allFeedback.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '28px 0', color: C.muted }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
-            <div style={{ fontSize: 12 }}>No feedback yet</div>
-            <div style={{ fontSize: 11, marginTop: 3 }}>Debriefs will appear here after interviews</div>
-            <button
-              onClick={() => onNavigate?.('questionnaire', { candidate })}
-              style={{ marginTop: 10, padding: '6px 14px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-            >
-              Fill debrief →
-            </button>
+            <div style={{ fontSize: 12, marginBottom: 3 }}>{T.noFeedbackYet}</div>
+            <div style={{ fontSize: 11 }}>{T.noFeedbackFill}</div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -581,7 +840,7 @@ function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
                         {f.by.split(' ').map(w => w[0]).join('')}
                       </div>
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by} {isMe && <span style={{ fontSize: 9, color: C.red, fontWeight: 700 }}>· You</span>}</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{f.by} {isMe && <span style={{ fontSize: 9, color: C.red }}>· {T.youLabel}</span>}</div>
                         <div style={{ fontSize: 9, color: C.muted }}>{f.byRole} · R{f.round}</div>
                       </div>
                     </div>
@@ -594,13 +853,8 @@ function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
           </div>
         )}
       </div>
-
-      {/* ── Footer ── */}
       <div style={{ padding: '12px 18px', borderTop: `1px solid ${C.border}`, flexShrink: 0 }}>
-        <button
-          onClick={() => setShowCV(true)}
-          style={{ width: '100%', padding: '10px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
+        <button onClick={() => setShowCV(true)} style={{ width: '100%', padding: '10px 0', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
           📄 View CV
         </button>
       </div>
@@ -610,105 +864,25 @@ function CandidateProfilePanel({ candidate, onClose, onNavigate, T }) {
   )
 }
 
-// ── Candidate card (home view) — whole card is clickable ─────────────────────
-function CandidateCard({ candidate, onViewProfile, isSelected, T }) {
-  const [hov, setHov] = useState(false)
-  const isRejected = candidate.outcome === 'notAdvancing'
-
-  const topBorderColor = isRejected ? C.grayB
-    : candidate.outcome === 'advancing' ? C.suc
-    : candidate.outcome === 'debrief' ? C.red
-    : C.border
-
-  return (
-    <div
-      onClick={onViewProfile}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: isSelected ? C.redBg : isRejected ? C.gray : (hov ? C.surfaceHov : C.white),
-        border: `1.5px solid ${isSelected ? C.redL : hov && !isRejected ? C.redL : C.border}`,
-        borderTop: `3px solid ${topBorderColor}`,
-        borderRadius: '0.75rem',
-        padding: 20,
-        display: 'flex', flexDirection: 'column', gap: 14,
-        cursor: 'pointer',
-        transition: 'all 0.15s ease',
-        boxShadow: isSelected
-          ? `0 0 0 2px ${C.redL}, 0 4px 20px rgba(201,57,74,0.08)`
-          : hov && !isRejected ? '0 4px 20px rgba(0,0,0,0.07)' : '0 1px 4px rgba(0,0,0,0.04)',
-        opacity: isRejected ? 0.88 : 1,
-      }}
-    >
-      {/* Identity */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <Av id={candidate.id} ini={candidate.ini} size={44} muted={isRejected} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: isRejected ? C.muted : C.text }}>{candidate.name}</span>
-          </div>
-          <div style={{ fontSize: 11, color: C.muted }}>{candidate.role}</div>
-          <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{candidate.position} · {candidate.dept}</div>
-        </div>
-      </div>
-
-      {/* Interview info */}
-      <div style={{ padding: '9px 12px', background: isSelected ? C.white : C.gray, borderRadius: 8 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>
-          {T.round(candidate.myRound)} · {candidate.myType}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: C.muted }}>{candidate.myDate}</span>
-          <FitPill fit={candidate.myFit} />
-        </div>
-      </div>
-
-      {/* Outcome */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 5 }}>
-        <OutcomePill outcome={candidate.outcome} T={T} />
-        {isRejected && candidate.rejectedDate && (
-          <span style={{ fontSize: 10, color: '#9CA3AF' }}>{T.rejectedOn(candidate.rejectedDate)}</span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Interview Summaries section view ──────────────────────────────────────────
-function SummaryView({ onViewProfile, onNavigate, T }) {
+// ── Debriefs section (list + submitted) ───────────────────────────────────────
+function SummaryView({ onViewProfile, onFillDebrief, T }) {
   const pending   = MY_CANDIDATES.filter(c => !c.debriefDone)
   const submitted = MY_CANDIDATES.filter(c => c.debriefDone)
-
   return (
     <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
-            {T.debriefPageTitle}
-          </h1>
-          <span style={{ background: C.navyBg, color: C.navy, fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20, border: `1px solid ${C.navyB}` }}>
-            {T.badge}
-          </span>
-        </div>
+        <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>{T.debriefPageTitle}</h1>
         <p style={{ margin: 0, fontSize: 11, color: C.muted }}>{T.debriefPageSub}</p>
       </header>
 
-      <div style={{ padding: '28px 32px 52px', maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 32 }}>
+      <div style={{ padding: '28px 32px 52px', maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 28 }}>
 
-        {/* ── Pending ── */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            {pending.length > 0 && (
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)', flexShrink: 0 }} />
-            )}
+            {pending.length > 0 && <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)' }} />}
             <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{T.pendingSection}</h2>
-            {pending.length > 0 && (
-              <span style={{ background: '#FEF2F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>
-                {pending.length}
-              </span>
-            )}
+            {pending.length > 0 && <span style={{ background: '#FEF2F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>{pending.length}</span>}
           </div>
-
           {pending.length === 0 ? (
             <div style={{ padding: '16px 20px', background: C.redBg, borderRadius: 12, border: `1px solid ${C.redL}`, display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontSize: 20 }}>✓</span>
@@ -725,23 +899,11 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 2 }}>{c.name}</div>
                     <div style={{ fontSize: 11, color: C.muted }}>{c.role} · {c.position}</div>
-                    <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>
-                      {T.round(c.myRound)} · {c.myType} · {c.myDate}
-                    </div>
+                    <div style={{ fontSize: 10, color: C.muted, marginTop: 3 }}>{T.round(c.myRound)} · {c.myType} · {c.myDate}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                    <button
-                      onClick={() => onViewProfile(c)}
-                      style={{ padding: '7px 14px', borderRadius: 8, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}
-                    >
-                      {T.viewProfile}
-                    </button>
-                    <button
-                      onClick={() => onNavigate?.('questionnaire', { candidate: c })}
-                      style={{ padding: '7px 18px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
-                    >
-                      {T.fillDebrief}
-                    </button>
+                    <button onClick={() => onViewProfile(c)} style={{ padding: '7px 14px', borderRadius: 8, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>{T.viewProfile}</button>
+                    <button onClick={() => onFillDebrief?.(c)} style={{ padding: '7px 18px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{T.fillDebrief}</button>
                   </div>
                 </div>
               ))}
@@ -749,13 +911,10 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
           )}
         </div>
 
-        {/* ── Submitted ── */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{T.submittedSection}</h2>
-            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>
-              {submitted.length}
-            </span>
+            <span style={{ background: C.redBg, color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>{submitted.length}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {submitted.map(c => {
@@ -770,24 +929,20 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
                       <OutcomePill outcome={c.outcome} T={T} />
                       {isRejected && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{T.rejectedOn(c.rejectedDate)}</span>}
                     </div>
-                    <div style={{ fontSize: 11, color: C.muted, marginBottom: 6 }}>
+                    <div style={{ fontSize: 11, color: C.muted, marginBottom: myF ? 5 : 0 }}>
                       {T.round(myF?.round || c.myRound)} · {myF?.type || c.myType} · {myF?.date || c.myDate}
                     </div>
                     {myF && (
                       <>
                         <FitPill fit={myF.fit} />
-                        <p style={{ fontSize: 11, color: C.text, lineHeight: 1.6, margin: '5px 0 0', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                          {myF.txt}
-                        </p>
+                        <p style={{ fontSize: 11, color: C.text, lineHeight: 1.6, margin: '5px 0 0', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{myF.txt}</p>
                       </>
                     )}
                   </div>
-                  <button
-                    onClick={() => onViewProfile(c)}
-                    style={{ padding: '6px 14px', borderRadius: 8, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, flexShrink: 0, alignSelf: 'flex-start', transition: 'all 0.12s' }}
+                  <button onClick={() => onViewProfile(c)}
+                    style={{ padding: '6px 14px', borderRadius: 8, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, transition: 'all 0.12s' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.red }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
-                  >
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}>
                     {T.viewProfile}
                   </button>
                 </div>
@@ -801,52 +956,6 @@ function SummaryView({ onViewProfile, onNavigate, T }) {
   )
 }
 
-// ── Outcome summary bar (advanced vs not-advanced visualization) ──────────────
-function CandidateOutcomeBar({ candidates }) {
-  const adv   = candidates.filter(c => ['advancing', 'offer'].includes(c.outcome)).length
-  const noAdv = candidates.filter(c => c.outcome === 'notAdvancing').length
-  const pend  = candidates.filter(c => ['debrief', 'pending'].includes(c.outcome)).length
-  const total = candidates.length
-
-  const stats = [
-    { count: adv,   barColor: C.red,                                             numColor: C.red,                              label: 'Advancing'       },
-    { count: noAdv, barColor: isDark ? 'rgba(255,255,255,0.18)' : '#CBD5E1',     numColor: C.muted,                            label: 'Not advancing'   },
-    { count: pend,  barColor: '#F59E0B',                                         numColor: isDark ? '#FCD34D' : '#D97706',     label: 'Debrief pending' },
-  ]
-
-  return (
-    <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-      {/* Segmented proportion bar */}
-      <div style={{ display: 'flex', height: 5 }}>
-        {stats.map((s, i) => s.count > 0 && (
-          <div key={i} style={{ flex: s.count, background: s.barColor, transition: 'flex 0.4s ease' }} />
-        ))}
-      </div>
-      {/* Stats row */}
-      <div style={{ display: 'flex' }}>
-        {stats.map((s, i) => (
-          <div
-            key={i}
-            style={{
-              flex: 1, padding: '14px 20px',
-              borderLeft: i > 0 ? `1px solid ${C.border}` : 'none',
-              display: 'flex', alignItems: 'center', gap: 12,
-            }}
-          >
-            <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 34, fontWeight: 400, color: s.numColor, lineHeight: 1 }}>
-              {s.count}
-            </span>
-            <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>{s.label}</span>
-          </div>
-        ))}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px', borderLeft: `1px solid ${C.border}` }}>
-          <span style={{ fontSize: 11, color: C.muted }}>{total} total</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
@@ -855,56 +964,56 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
   isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
-
-  // Full CV profile view (used from Summary section)
   const [view,     setView]     = useState('list')
   const [selected, setSelected] = useState(null)
 
-  // Inline right-panel for home view
-  const [panelCandidate,  setPanelCandidate]  = useState(null)
-  const [notifDismissed,  setNotifDismissed]  = useState(false)
-  const [activeOpen,      setActiveOpen]      = useState(true)
-  const [pastOpen,        setPastOpen]        = useState(true)
+  const openActiveInterview = (c) => { setSelected(c); setView('active-interview') }
+  const openProfile         = (c) => { setSelected(c); setView('profile') }
+  const closeView           = ()  => { setSelected(null); setView('list') }
 
-  const openProfile  = (c) => { setSelected(c); setView('profile') }
-  const closeProfile = () => { setSelected(null); setView('list') }
+  // ── Active interview (CV + inline debrief) ─────────────────────────────────
+  if (view === 'active-interview' && selected) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        <header style={{ padding: '10px 22px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+          <button onClick={closeView} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>← Dashboard</button>
+          <div style={{ width: 1, height: 18, background: C.border }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+            <Av id={selected.id} ini={selected.ini} size={28} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{selected.name}</div>
+              <div style={{ fontSize: 10, color: C.muted }}>Round {selected.myRound} · {selected.myType} · {selected.myDate}</div>
+            </div>
+          </div>
+          <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? '#FCD34D' : '#D97706', background: isDark ? 'rgba(252,211,77,0.14)' : '#FEF3C7', border: `1px solid ${isDark ? 'rgba(252,211,77,0.25)' : '#FDE68A'}`, padding: '4px 12px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+            📋 Pending debrief
+          </span>
+        </header>
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+          <DocumentViewer cv={selected} />
+          <InlineDebriefPanel key={selected.id} candidate={selected} onClose={closeView} onDone={closeView} />
+        </div>
+      </div>
+    )
+  }
 
-  const openPanel  = (c) => setPanelCandidate(prev => prev?.id === c.id ? null : c)
-  const closePanel = () => setPanelCandidate(null)
-
-  const pendingDebriefs = MY_CANDIDATES.filter(c => !c.debriefDone)
-  const advancingCount  = MY_CANDIDATES.filter(c => c.outcome === 'advancing').length
-  const newOutcomeCandidates = MY_CANDIDATES.filter(c => c.newOutcome)
-
-  // ── FULL PROFILE VIEW (accessed from Summary section) ────────────────────
+  // ── Full profile view (for done interviews) ────────────────────────────────
   if (view === 'profile' && selected) {
-    const backLabel = section === 'debrief' ? T.backToDebrief : T.backToHome
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         <header style={{ padding: '12px 22px', background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-          <button
-            onClick={closeProfile}
-            style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-          >
-            {backLabel}
+          <button onClick={closeView} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+            {section === 'debrief' ? T.backToDebrief : '← Dashboard'}
           </button>
           <div style={{ width: 1, height: 18, background: C.border }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
             <Av id={selected.id} ini={selected.ini} size={28} muted={selected.outcome === 'notAdvancing'} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{selected.name}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{selected.name}</div>
               <div style={{ fontSize: 10, color: C.muted }}>{selected.role} · {selected.position}</div>
             </div>
           </div>
           <OutcomePill outcome={selected.outcome} T={T} />
-          {!selected.debriefDone && (
-            <button
-              onClick={() => onNavigate?.('questionnaire', { candidate: selected })}
-              style={{ padding: '7px 16px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
-            >
-              {T.fillDebrief}
-            </button>
-          )}
         </header>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <DocumentViewer cv={selected} />
@@ -914,134 +1023,15 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
     )
   }
 
-  // ── SUMMARY SECTION ──────────────────────────────────────────────────────
-  if (section === 'debrief') {
-    return <SummaryView onViewProfile={openProfile} onNavigate={onNavigate} T={T} />
-  }
-
-  // ── HOME VIEW (My Interviews) ─────────────────────────────────────────────
+  // ── Main layout (App.jsx sidebar handles nav between sections) ───────────
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
-
-      {/* Scrollable main content */}
-      <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
-
-        {/* Header */}
-        <header style={{ padding: '22px 32px 20px', paddingRight: 60, background: C.white, borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3 }}>
-                {T.myInterviews} · {INTERVIEWER.name}
-              </p>
-              <p style={{ margin: 0, fontSize: 11, color: C.muted }}>
-                {T.interviewsDone(MY_CANDIDATES.length)} ·{' '}
-                {pendingDebriefs.length > 0 ? T.debriefPending(pendingDebriefs.length) : T.allDebriefsDone}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} />
-          </div>
-        </header>
-
-        <div style={{ padding: '28px 32px 52px', maxWidth: panelCandidate ? 760 : 980, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-          {/* ── New outcome notification banner ── */}
-          {!notifDismissed && newOutcomeCandidates.length > 0 && (
-            <div style={{ padding: '14px 20px', background: C.infBg, borderRadius: 12, border: `1px solid #BFDBFE`, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.infT, marginBottom: 7 }}>{T.updatesTitle}</div>
-                {newOutcomeCandidates.map(c => (
-                  <div key={c.id} style={{ fontSize: 12, color: C.infT, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 10 }}>→</span>
-                    {T.newOutcomeMsg(c.name, T.outcome[c.outcome])}
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => setNotifDismissed(true)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.infT, fontSize: 12, fontFamily: 'inherit', fontWeight: 600, flexShrink: 0, padding: '0 0 0 8px' }}
-              >
-                {T.dismiss} ×
-              </button>
-            </div>
-          )}
-
-          {/* ── My Interviews section title ── */}
-          <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: 0, letterSpacing: '-0.01em' }}>
-            {T.myInterviews}
-          </h2>
-
-          {/* ── Outcome summary bar ── */}
-          <CandidateOutcomeBar candidates={MY_CANDIDATES} />
-
-          {/* ── Active processes ── */}
-          {(() => {
-            const active = MY_CANDIDATES.filter(c => c.outcome !== 'notAdvancing')
-            const cols = panelCandidate ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'
-            return (
-              <div>
-                <button
-                  onClick={() => setActiveOpen(o => !o)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginBottom: activeOpen ? 14 : 0 }}
-                >
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: activeOpen ? C.red : 'transparent', border: `2px solid ${activeOpen ? C.red : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
-                    <span style={{ fontSize: 10, color: activeOpen ? 'white' : C.muted, fontWeight: 700, lineHeight: 1 }}>{activeOpen ? '−' : '+'}</span>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Active processes</span>
-                  <span style={{ background: C.redBg, padding: '2px 8px', borderRadius: 20, color: C.red, fontSize: 11, fontWeight: 600 }}>{active.length}</span>
-                </button>
-                {activeOpen && (
-                  <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 16 }}>
-                    {active.map(c => (
-                      <CandidateCard key={c.id} candidate={c} onViewProfile={() => openPanel(c)} isSelected={panelCandidate?.id === c.id} T={T} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {/* ── Past processes ── */}
-          {(() => {
-            const past = MY_CANDIDATES.filter(c => c.outcome === 'notAdvancing')
-            if (!past.length) return null
-            const cols = panelCandidate ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)'
-            return (
-              <div>
-                <button
-                  onClick={() => setPastOpen(o => !o)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginBottom: pastOpen ? 14 : 0 }}
-                >
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: pastOpen ? C.muted : 'transparent', border: `2px solid ${pastOpen ? C.muted : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
-                    <span style={{ fontSize: 10, color: pastOpen ? 'white' : C.muted, fontWeight: 700, lineHeight: 1 }}>{pastOpen ? '−' : '+'}</span>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Past processes</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, background: C.gray, color: C.muted, padding: '2px 8px', borderRadius: 20 }}>{past.length}</span>
-                </button>
-                {pastOpen && (
-                  <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 16 }}>
-                    {past.map(c => (
-                      <CandidateCard key={c.id} candidate={c} onViewProfile={() => openPanel(c)} isSelected={panelCandidate?.id === c.id} T={T} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-        </div>
-      </div>
-
-      {/* ── Inline right panel ── */}
-      {panelCandidate && (
-        <CandidateProfilePanel
-          key={panelCandidate.id}
-          candidate={panelCandidate}
-          onClose={closePanel}
-          onNavigate={onNavigate}
-          T={T}
-        />
+    <div style={{ height: '100%', overflow: 'hidden' }}>
+      {section === 'home' && (
+        <DashboardHome onOpenInterview={openActiveInterview} onViewProfile={openProfile} T={T} />
       )}
-
+      {section === 'debrief' && (
+        <SummaryView onViewProfile={openProfile} onFillDebrief={openActiveInterview} T={T} />
+      )}
     </div>
   )
 }

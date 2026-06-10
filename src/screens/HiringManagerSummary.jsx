@@ -345,25 +345,8 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                    : 'advance'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
-    <style>{`
-      @keyframes hmsOrb1{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(40px,-25px) scale(1.09)}70%{transform:translate(-18px,20px) scale(0.94)}}
-      @keyframes hmsOrb2{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-30px,22px) scale(1.06)}75%{transform:translate(22px,-14px) scale(0.96)}}
-      @keyframes hmsOrb3{0%,100%{transform:translate(0,0) scale(1)}55%{transform:translate(18px,28px) scale(1.04)}}
-    `}</style>
-    {/* Animated gradient orbs */}
-    <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
-      <div style={{ position:'absolute', width:560, height:560, borderRadius:'50%', top:'-140px', left:'-80px',
-        background: isDark ? 'radial-gradient(circle,rgba(233,1,48,0.07) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(233,1,48,0.04) 0%,transparent 65%)',
-        animation:'hmsOrb1 11s ease-in-out infinite' }} />
-      <div style={{ position:'absolute', width:480, height:480, borderRadius:'50%', bottom:'-90px', right:'-60px',
-        background: isDark ? 'radial-gradient(circle,rgba(27,36,97,0.18) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(27,36,97,0.05) 0%,transparent 65%)',
-        animation:'hmsOrb2 14s ease-in-out infinite' }} />
-      <div style={{ position:'absolute', width:380, height:380, borderRadius:'50%', top:'38%', right:'18%',
-        background: isDark ? 'radial-gradient(circle,rgba(37,99,235,0.10) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(37,99,235,0.04) 0%,transparent 65%)',
-        animation:'hmsOrb3 9s ease-in-out infinite' }} />
-    </div>
-    <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: isDark ? 'transparent' : '#F8F8F8' }}>
+    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
     <div style={{ flex: 1, overflow: 'auto' }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 36px 48px' }}>
 
@@ -373,7 +356,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </button>
 
         {/* ── Report header card ── */}
-        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
           <div style={{ height: 4, background: C.grayB }} />
           <div style={{ padding: '20px 24px 18px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
             {/* Clickable avatar */}
@@ -389,15 +372,16 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                 </button>
                 <FitPill fit={overallFit} T={T} />
               </div>
-              <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
-                {candidate.role} · {T.applied} {candidate.appliedDate}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
+                <span style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', color: isDark ? '#93C5FD' : '#1D4ED8', border: `1px solid ${isDark ? 'rgba(147,197,253,0.25)' : '#BFDBFE'}`, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>{candidate.role}</span>
+                <span style={{ color: C.muted, fontSize: 12 }}>{T.applied} {candidate.appliedDate}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ── Empath AI snapshot ── */}
-        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 13, border: `1px solid ${C.border}`, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+        <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, padding: '14px 20px', marginBottom: 20, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>{T.empath}</p>
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.75, margin: 0 }}>{SYNTHESIS_RATIONALE}</p>
@@ -409,7 +393,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </div>
 
         {/* ── Decision panel ── */}
-        <div style={{ background: isDark ? C.white : 'rgba(255,255,255,0.88)', backdropFilter: isDark ? 'none' : 'blur(10px)', WebkitBackdropFilter: isDark ? 'none' : 'blur(10px)', borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
 
           {decision ? (
@@ -428,7 +412,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setDecision('advance')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: C.red, color: 'white', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: isDark ? 'rgba(233,1,48,0.18)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(233,1,48,0.30)' : 'rgba(233,1,48,0.20)'}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.suggestHire}
               </button>
