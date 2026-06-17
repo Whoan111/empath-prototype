@@ -1,16 +1,20 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // designSystem.js — Single source of truth for all theming & translations
 //
-// 3-color palette: #E90130 red · #1B2461 navy · #FAFAF8 cream
-// Plus black (#07070F) and grays.
-// NO other hues anywhere on the platform.
+// EmPath brand palette:
+//   Primary   #D86350  (terracotta)
+//   Secondary #FE9A0C  (amber)
+//   Text      #384146 / #858B8F / #A1B2BB
+//   BG        #FDF8F3  (warm cream)   gradient #FFEFE0 → #FDF8F3
+//   Navy      #1B2461  (pipeline stages only)
+//   Typography: Quincy CF (titles) · Galano Grotesque (body)
 //
 // Pipeline stages use a monochromatic progression:
 //   Screening → gray (neutral / unknown)
 //   Pre-Call  → light navy
 //   Interviews→ medium navy
 //   Decision  → deep navy
-//   Offer     → red (arrived — celebrate)
+//   Offer     → primary terracotta (arrived — celebrate)
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Stage palette — same concept, two modes ───────────────────────────────────
@@ -20,14 +24,14 @@ export const STAGE_TOKENS = {
     'Pre-Call': { dot:'#4F6BDB', bg:'rgba(79,107,219,0.16)',  header:'rgba(79,107,219,0.24)',  accent:'rgba(140,165,255,0.75)', text:'rgba(140,165,255,0.75)' },
     Interviews: { dot:'#2E46B4', bg:'rgba(46,70,180,0.24)',   header:'rgba(46,70,180,0.34)',   accent:'rgba(120,148,255,0.88)', text:'rgba(120,148,255,0.88)' },
     Decision:   { dot:'#1B2461', bg:'rgba(27,36,97,0.36)',    header:'rgba(27,36,97,0.5)',     accent:'rgba(100,128,255,0.95)', text:'rgba(100,128,255,0.95)' },
-    Offer:      { dot:'#E90130', bg:'rgba(233,1,48,0.20)',    header:'rgba(233,1,48,0.28)',    accent:'#E90130',               text:'rgba(255,80,110,0.95)' },
+    Offer:      { dot:'#D86350', bg:'rgba(216,99,80,0.20)',    header:'rgba(216,99,80,0.28)',    accent:'#D86350',               text:'rgba(255,140,120,0.95)' },
   },
   light: {
     Screening:  { dot:'#9CA3AF', bg:'rgba(156,163,175,0.1)',  header:'rgba(156,163,175,0.18)', accent:'#9CA3AF', text:'#9CA3AF' },
     'Pre-Call': { dot:'#4F6BDB', bg:'rgba(79,107,219,0.09)',  header:'rgba(79,107,219,0.16)',  accent:'#4F6BDB', text:'#4F6BDB' },
     Interviews: { dot:'#2A3590', bg:'rgba(42,53,144,0.13)',   header:'rgba(42,53,144,0.22)',   accent:'#2A3590', text:'#2A3590' },
     Decision:   { dot:'#1B2461', bg:'rgba(27,36,97,0.18)',    header:'rgba(27,36,97,0.28)',    accent:'#1B2461', text:'#1B2461' },
-    Offer:      { dot:'#E90130', bg:'rgba(233,1,48,0.09)',    header:'rgba(233,1,48,0.16)',    accent:'#E90130', text:'#E90130' },
+    Offer:      { dot:'#D86350', bg:'rgba(216,99,80,0.09)',    header:'rgba(216,99,80,0.16)',    accent:'#D86350', text:'#D86350' },
   },
 }
 
@@ -43,13 +47,14 @@ export const THEMES = {
     border:     'rgba(255,255,255,0.09)',
     borderBrt:  'rgba(255,255,255,0.18)',
     // Brand
-    red:        '#E90130',
-    redGlow:    'rgba(233,1,48,0.2)',
-    redDim:     'rgba(233,1,48,0.12)',
+    red:        '#D86350',
+    redGlow:    'rgba(216,99,80,0.2)',
+    redDim:     'rgba(216,99,80,0.12)',
+    secondary:  '#FE9A0C',
     navy:       '#1B2461',
     navyGlow:   'rgba(27,36,97,0.35)',
     navyDim:    'rgba(27,36,97,0.22)',
-    cream:      '#FAFAF8',
+    cream:      '#FDF8F3',
     // Text hierarchy
     text:       'rgba(255,255,255,0.92)',
     textMid:    'rgba(255,255,255,0.52)',
@@ -66,26 +71,27 @@ export const THEMES = {
     blur:       'blur(20px)',
   },
   light: {
-    bg:         '#FAFAF8',
-    bgPanel:    'rgba(250,250,248,0.94)',
+    bg:         '#FDF8F3',
+    bgPanel:    'rgba(253,248,243,0.94)',
     surface:    'rgba(255,255,255,0.82)',
     surfaceHov: 'rgba(255,255,255,0.96)',
     border:     'rgba(0,0,0,0.08)',
     borderBrt:  'rgba(0,0,0,0.16)',
-    red:        '#E90130',
-    redGlow:    'rgba(233,1,48,0.14)',
-    redDim:     'rgba(233,1,48,0.07)',
+    red:        '#D86350',
+    redGlow:    'rgba(216,99,80,0.14)',
+    redDim:     'rgba(216,99,80,0.07)',
+    secondary:  '#FE9A0C',
     navy:       '#1B2461',
     navyGlow:   'rgba(27,36,97,0.12)',
     navyDim:    'rgba(27,36,97,0.07)',
-    cream:      '#FAFAF8',
-    text:       '#0A0A14',
-    textMid:    '#555566',
-    textDim:    '#9999AA',
+    cream:      '#FDF8F3',
+    text:       '#384146',
+    textMid:    '#858B8F',
+    textDim:    '#A1B2BB',
     textFaint:  'rgba(0,0,0,0.06)',
     onRed:      '#FFFFFF',
     onNavy:     '#FFFFFF',
-    sidebarBg:  'rgba(255,255,255,0.92)',
+    sidebarBg:  'rgba(253,248,243,0.96)',
     cardBg:     'rgba(255,255,255,0.88)',
     cardBgHov:  'rgba(255,255,255,1)',
     blur:       'blur(20px)',
@@ -248,8 +254,9 @@ export function buildC(theme) {
   return {
     // Brand
     red:    theme.red,
-    redL:   dk ? 'rgba(233,1,48,0.22)'          : '#FECDD3',
-    redBg:  dk ? 'rgba(233,1,48,0.1)'           : '#FFF5F6',
+    redL:   dk ? 'rgba(216,99,80,0.22)'          : '#FDDDD7',
+    redBg:  dk ? 'rgba(216,99,80,0.1)'           : '#FFF5F2',
+    secondary: theme.secondary || '#FE9A0C',
     // Text
     text:   theme.text,
     muted:  theme.textMid,

@@ -1098,18 +1098,18 @@ function InlineBatchImport({ posTitle, onComplete, T }) {
 
 // ── Confetti shapes for celebration ──────────────────────────────────────────
 const CONFETTI_SHAPES = [
-  { color:'#E90130', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
+  { color:'#D86350', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
   { color:'#1B2461', x:18, delay:0.12, size:6,  circle:true,  rotate:0   },
-  { color:'#E90130', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
+  { color:'#D86350', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
   { color:'#FBBF24', x:42, delay:0.18, size:7,  circle:true,  rotate:0   },
   { color:'#1B2461', x:54, delay:0.03, size:9,  circle:false, rotate:60  },
-  { color:'#E90130', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
+  { color:'#D86350', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
   { color:'#FBBF24', x:76, delay:0.09, size:8,  circle:false, rotate:-45 },
   { color:'#1B2461', x:88, delay:0.21, size:7,  circle:true,  rotate:0   },
-  { color:'#E90130', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
+  { color:'#D86350', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
   { color:'#FBBF24', x:50, delay:0.33, size:8,  circle:true,  rotate:0   },
   { color:'#1B2461', x:72, delay:0.24, size:6,  circle:false, rotate:-60 },
-  { color:'#E90130', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
+  { color:'#D86350', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
   { color:'#FBBF24', x:92, delay:0.16, size:5,  circle:false, rotate:20  },
 ]
 
@@ -1197,7 +1197,7 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
           <div key={i} style={{ position:'absolute', left:`${s.x}%`, bottom:'38%', width:s.size, height:s.size, background:s.color, borderRadius:s.circle?'50%':'2px', transform:`rotate(${s.rotate}deg)`, animation:`triageConfettiPop 1.6s cubic-bezier(0.25,0.46,0.45,0.94) ${s.delay}s both`, zIndex:10, pointerEvents:'none' }} />
         ))}
         <div style={{ background:th.cardBg, borderRadius:'1.1rem', padding:'40px 34px 32px', border:`1px solid ${th.borderBrt}`, boxShadow:'0 36px 90px rgba(0,0,0,0.24)', animation:'triageCelebrateIn 0.4s cubic-bezier(0.22,0.61,0.36,1) both', textAlign:'center', position:'relative', overflow:'hidden' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% -10%, rgba(233,1,48,0.08) 0%, transparent 62%)', pointerEvents:'none', animation:'triageShimmer 2.5s ease-in-out infinite' }} />
+          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 50% -10%, rgba(216,99,80,0.08) 0%, transparent 62%)', pointerEvents:'none', animation:'triageShimmer 2.5s ease-in-out infinite' }} />
           <div style={{ width:72, height:72, borderRadius:'50%', background:'linear-gradient(135deg, rgba(5,150,105,0.15) 0%, rgba(5,150,105,0.06) 100%)', border:'2px solid rgba(5,150,105,0.3)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 22px', animation:'triageTrophyBounce 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both' }}>
             <span style={{ fontSize:34 }}>🏆</span>
           </div>
@@ -1237,7 +1237,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   C = buildC(theme)
   isDark = theme === THEMES.dark
 
-  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(201,57,74,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
+  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(216,99,80,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   const [positions, setPositions] = useState(() => {

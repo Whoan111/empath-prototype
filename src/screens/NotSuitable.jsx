@@ -399,7 +399,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
             display: 'flex', alignItems: 'center', gap: 5,
           }}>
             {isVeryLong && (
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.red, flexShrink: 0, boxShadow: '0 0 4px rgba(201,57,74,0.5)' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.red, flexShrink: 0, boxShadow: '0 0 4px rgba(216,99,80,0.5)' }} />
             )}
             {isLong && (
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D97706', flexShrink: 0 }} />

@@ -493,7 +493,7 @@ function ScreenStep({ config, onFinish, onBack }) {
             background: C.white, borderRadius: 16,
             border: `1px solid ${decision === 'advance' ? C.suc : decision === 'pass' ? '#FCA5A5' : C.border}`,
             overflow: 'hidden',
-            boxShadow: decision ? 'none' : '0 2px 16px rgba(201,57,74,0.06)',
+            boxShadow: decision ? 'none' : '0 2px 16px rgba(216,99,80,0.06)',
             transition: 'border-color 0.25s',
             animation: 'cvFadeIn 0.22s ease',
           }}

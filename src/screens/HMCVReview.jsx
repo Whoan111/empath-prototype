@@ -768,7 +768,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, activePosId, T })
                   <div style={{ fontSize: 8, fontWeight: 700, color: isActivePos ? C.red : C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{pos.dept}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
                     {posUnreviewed > 0 && (
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.4)', flexShrink: 0 }} />
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(216,99,80,0.4)', flexShrink: 0 }} />
                     )}
                     <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pos.title}</div>
                   </div>

@@ -779,7 +779,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <style>{`@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,57,74,0.4)}50%{box-shadow:0 0 0 5px rgba(201,57,74,0)}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(216,99,80,0.4)}50%{box-shadow:0 0 0 5px rgba(216,99,80,0)}}`}</style>
 
       {/* ── Top bar ── */}
       <div style={{

@@ -195,7 +195,7 @@ function FitPill({ fit }) {
   if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
   if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', color: isDark ? '#93C5FD' : 'white', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
   if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(59,130,246,0.28)' : '#DBEAFE', color: isDark ? '#BAE6FD' : '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Advance</span>
-  return <span style={{ background: isDark ? 'rgba(201,57,74,0.22)' : '#FEE2E2', color: isDark ? '#FCA5A5' : '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
+  return <span style={{ background: isDark ? 'rgba(216,99,80,0.22)' : '#FEE2E2', color: isDark ? '#FCA5A5' : '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
 
 function OutcomePill({ outcome, T }) {
@@ -402,7 +402,7 @@ const RATING_OPTS = [
   { val: 4, label: 'Strong fit', short: '★', col: '#166534', bg: '#DCFCE7' },
 ]
 const FIT_OPTS = [
-  { val: 'not-advancing',    label: 'Not advancing',    col: '#C9394A', bg: '#FEE2E2', bord: 'rgba(201,57,74,0.25)' },
+  { val: 'not-advancing',    label: 'Not advancing',    col: '#C9394A', bg: '#FEE2E2', bord: 'rgba(216,99,80,0.25)' },
   { val: 'advance',          label: 'Advance',          col: '#1D4ED8', bg: '#EFF6FF', bord: 'rgba(29,78,216,0.25)' },
   { val: 'strongly-advance', label: 'Strongly advance', col: '#166534', bg: '#DCFCE7', bord: 'rgba(22,101,52,0.25)' },
 ]
@@ -451,7 +451,7 @@ function InlineDebriefPanel({ candidate, onClose, onDone }) {
 
   return (
     <aside style={{ width: 360, flexShrink: 0, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <div style={{ padding: '14px 18px 12px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(233,1,48,0.07)' : '#FFF5F5', flexShrink: 0 }}>
+      <div style={{ padding: '14px 18px 12px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(216,99,80,0.07)' : '#FFF5F5', flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <Av id={candidate.id} ini={candidate.ini} size={34} />
@@ -601,11 +601,11 @@ function EmptyCard({ icon, sub }) {
 function CurrentCard({ candidate, onStart }) {
   return (
     <div style={{
-      background: isDark ? 'rgba(233,1,48,0.07)' : '#FFFBFB',
+      background: isDark ? 'rgba(216,99,80,0.07)' : '#FFFBFB',
       border: `1.5px solid ${C.redL}`,
       borderRadius: 14,
       overflow: 'hidden',
-      boxShadow: isDark ? '0 4px 24px rgba(233,1,48,0.10)' : '0 4px 24px rgba(201,57,74,0.08)',
+      boxShadow: isDark ? '0 4px 24px rgba(216,99,80,0.10)' : '0 4px 24px rgba(216,99,80,0.08)',
     }}>
       {/* Red top stripe */}
       <div style={{ height: 4, background: C.red }} />
@@ -628,7 +628,7 @@ function CurrentCard({ candidate, onStart }) {
       </div>
 
       {/* CTA footer */}
-      <div style={{ padding: '12px 20px 16px', borderTop: `1px solid ${isDark ? 'rgba(233,1,48,0.18)' : 'rgba(201,57,74,0.10)'}`, background: isDark ? 'rgba(233,1,48,0.05)' : 'rgba(201,57,74,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+      <div style={{ padding: '12px 20px 16px', borderTop: `1px solid ${isDark ? 'rgba(216,99,80,0.18)' : 'rgba(216,99,80,0.10)'}`, background: isDark ? 'rgba(216,99,80,0.05)' : 'rgba(216,99,80,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <span style={{ fontSize: 11, color: C.muted, fontStyle: 'italic', lineHeight: 1.5 }}>Open the candidate's CV and fill in your feedback after the interview.</span>
         <button onClick={onStart} style={{ padding: '9px 22px', borderRadius: 9, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
           Start interview →
@@ -879,7 +879,7 @@ function SummaryView({ onViewProfile, onFillDebrief, T }) {
 
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            {pending.length > 0 && <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(201,57,74,0.45)' }} />}
+            {pending.length > 0 && <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(216,99,80,0.45)' }} />}
             <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{T.pendingSection}</h2>
             {pending.length > 0 && <span style={{ background: '#FEF2F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>{pending.length}</span>}
           </div>

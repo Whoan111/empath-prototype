@@ -230,7 +230,7 @@ function InterviewCard({ interview, T }) {
 
         {/* Strengths + Improvements side by side */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div style={{ background: isDark ? 'rgba(201,57,74,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
+          <div style={{ background: isDark ? 'rgba(216,99,80,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
             <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FECDD3' : '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
               ✓ {T.strengths}
             </div>
@@ -356,7 +356,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </button>
 
         {/* ── Report header card ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(216,99,80,0.05)' }}>
           <div style={{ height: 4, background: C.grayB }} />
           <div style={{ padding: '20px 24px 18px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
             {/* Clickable avatar */}
@@ -393,7 +393,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
         </div>
 
         {/* ── Decision panel ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(201,57,74,0.04)' }}>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, padding: '20px 24px', marginBottom: 24, boxShadow: '0 2px 12px rgba(216,99,80,0.04)' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>{T.yourDecision}</p>
 
           {decision ? (
@@ -412,7 +412,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setDecision('advance')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: isDark ? 'rgba(233,1,48,0.18)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(233,1,48,0.30)' : 'rgba(233,1,48,0.20)'}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: isDark ? 'rgba(216,99,80,0.18)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.30)' : 'rgba(216,99,80,0.20)'}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.suggestHire}
               </button>

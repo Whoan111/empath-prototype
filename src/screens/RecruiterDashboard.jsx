@@ -17,18 +17,18 @@ const POSITIONS = [
 
 // ── Confetti shapes for celebration ──────────────────────────────────────────
 const CONFETTI_SHAPES = [
-  { color:'#E90130', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
+  { color:'#D86350', x:8,  delay:0,    size:9,  circle:false, rotate:45  },
   { color:'#1B2461', x:18, delay:0.12, size:6,  circle:true,  rotate:0   },
-  { color:'#E90130', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
+  { color:'#D86350', x:30, delay:0.06, size:10, circle:false, rotate:-30 },
   { color:'#FBBF24', x:42, delay:0.18, size:7,  circle:true,  rotate:0   },
   { color:'#1B2461', x:54, delay:0.03, size:9,  circle:false, rotate:60  },
-  { color:'#E90130', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
+  { color:'#D86350', x:65, delay:0.15, size:6,  circle:true,  rotate:0   },
   { color:'#FBBF24', x:76, delay:0.09, size:8,  circle:false, rotate:-45 },
   { color:'#1B2461', x:88, delay:0.21, size:7,  circle:true,  rotate:0   },
-  { color:'#E90130', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
+  { color:'#D86350', x:12, delay:0.28, size:5,  circle:false, rotate:30  },
   { color:'#FBBF24', x:50, delay:0.33, size:8,  circle:true,  rotate:0   },
   { color:'#1B2461', x:72, delay:0.24, size:6,  circle:false, rotate:-60 },
-  { color:'#E90130', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
+  { color:'#D86350', x:36, delay:0.38, size:7,  circle:true,  rotate:0   },
   { color:'#FBBF24', x:92, delay:0.16, size:5,  circle:false, rotate:20  },
 ]
 
@@ -197,7 +197,7 @@ function ClosePositionModal({ pos, th, onConfirm, onCancel }) {
           }}
         >
           {/* Radial glow background */}
-          <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%, rgba(233,1,48,0.08) 0%, transparent 62%)`, pointerEvents:'none', animation:'shimmerPulse 2.5s ease-in-out infinite' }} />
+          <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%, rgba(216,99,80,0.08) 0%, transparent 62%)`, pointerEvents:'none', animation:'shimmerPulse 2.5s ease-in-out infinite' }} />
 
           {/* Trophy */}
           <div
@@ -523,15 +523,15 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
           onClick={e => { e.stopPropagation(); onCloseRequest(pos) }}
           title="Close position"
           style={{
-            fontSize: 10, fontWeight: 600, color: '#E90130',
+            fontSize: 10, fontWeight: 600, color: '#D86350',
             background: 'transparent',
-            border: '1px solid #E9013030',
+            border: '1px solid #D8635030',
             borderRadius: 6, padding: '3px 10px',
             cursor: 'pointer', fontFamily: 'inherit',
             transition: 'all 0.13s', whiteSpace: 'nowrap',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F2'; e.currentTarget.style.borderColor = '#E90130' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#E9013030' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#FFF0F2'; e.currentTarget.style.borderColor = '#D86350' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#D8635030' }}
         >
           Close position
         </button>

@@ -345,7 +345,7 @@ function CVCard({ cv, decision, animKey, T }) {
           : C.border
         }`,
         overflow: 'hidden',
-        boxShadow: '0 2px 24px rgba(201,57,74,0.05)',
+        boxShadow: '0 2px 24px rgba(216,99,80,0.05)',
         transition: 'border-color 0.3s',
         animation: 'cardIn 0.22s ease',
       }}

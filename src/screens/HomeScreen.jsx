@@ -45,7 +45,7 @@ function MessagesButton({ th, onNavigate }) {
         transition: 'background 0.18s, box-shadow 0.18s',
         fontFamily: 'inherit',
       }}
-      onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if (svg) svg.style.stroke = '#E90130' }}
+      onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if (svg) svg.style.stroke = '#D86350' }}
       onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)'; const svg = e.currentTarget.querySelector('svg'); if (svg) svg.style.stroke = '' }}
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -86,7 +86,7 @@ function NotificationBubble({ role, th, onNavigate }) {
           transition: 'background 0.18s, box-shadow 0.18s',
           position: 'relative', fontFamily: 'inherit',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if(svg) svg.style.stroke = '#E90130' }}
+        onMouseEnter={e => { e.currentTarget.style.background = th.cardBgHov; e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.15)'; const svg = e.currentTarget.querySelector('svg'); if(svg) svg.style.stroke = '#D86350' }}
         onMouseLeave={e => { e.currentTarget.style.background = th.cardBg; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.10)'; const svg = e.currentTarget.querySelector('svg'); if(svg) svg.style.stroke = '' }}
       >
         {/* Bell SVG */}
@@ -101,7 +101,7 @@ function NotificationBubble({ role, th, onNavigate }) {
           width: 7, height: 7, borderRadius: '50%',
           background: '#C9394A',
           border: '1.5px solid white',
-          boxShadow: '0 0 5px rgba(201,57,74,0.55)',
+          boxShadow: '0 0 5px rgba(216,99,80,0.55)',
         }} />
       </button>
 
@@ -128,7 +128,7 @@ function NotificationBubble({ role, th, onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
           <span style={{
             width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 3,
-            background: '#C9394A', boxShadow: '0 0 6px rgba(201,57,74,0.45)',
+            background: '#C9394A', boxShadow: '0 0 6px rgba(216,99,80,0.45)',
           }} />
           <span style={{ fontSize: 12, fontWeight: 700, color: th.text, lineHeight: 1.4 }}>
             {n.headline}

@@ -984,7 +984,7 @@ export default function PostInterviewQuestionnaire({ theme, lang = 'en', candida
 
         <StepBar step={step} steps={STEPS} />
 
-        <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.border}`, padding: '30px 34px', boxShadow: '0 2px 20px rgba(201,57,74,0.04)' }}>
+        <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.border}`, padding: '30px 34px', boxShadow: '0 2px 20px rgba(216,99,80,0.04)' }}>
           {step === 0 && (
             <StepContext
               candidate={candidate}

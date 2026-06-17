@@ -267,7 +267,7 @@ export default function RecruiterSummary({ theme, lang = 'en', candidate = MOCK_
         </button>
 
         {/* ── Report header card ── */}
-        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(201,57,74,0.05)' }}>
+        <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, overflow: 'hidden', marginBottom: 16, boxShadow: '0 2px 12px rgba(216,99,80,0.05)' }}>
           <div style={{ height: 4, background: `linear-gradient(90deg, ${C.red}, #F87171)` }} />
           <div style={{ padding: '20px 24px 18px' }}>
 

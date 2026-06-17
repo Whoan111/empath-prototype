@@ -2,7 +2,7 @@
 // KanbanBoard.jsx — Trello-style pipeline · Design system applied
 //
 // Visual language:
-//   · 3-color palette only: red #E90130 · navy #1B2461 · gray
+//   · 3-color palette only: red #D86350 · navy #1B2461 · gray
 //   · Monochromatic stage progression: gray → light navy → navy → deep navy → red
 //   · Capsule staleness = DUAL FADE: opacity drops + CSS saturate() drops
 //     so a 14-day-overdue capsule is both transparent AND desaturated
@@ -44,7 +44,7 @@ function urgencyColor(stage, daysAgo, stageT) {
   const { thresh } = STALE_RULES[stage] || { thresh: 999 }
   if (daysAgo === 0)       return stageT[stage].accent
   if (daysAgo <= thresh)   return stageT[stage].accent
-  return '#E90130'
+  return '#D86350'
 }
 
 function stageLabel(s, T) {
@@ -53,7 +53,7 @@ function stageLabel(s, T) {
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
 const AV_TINTS = [
-  ['rgba(201,57,74,0.22)',  '#FF8098'],
+  ['rgba(216,99,80,0.22)',  '#FF8098'],
   ['rgba(217,119,6,0.25)',  '#FCD34D'],
   ['rgba(109,40,217,0.22)', '#C084FC'],
 ]
@@ -83,7 +83,7 @@ function Celebration({ msg, onDone }) {
         @keyframes fadeOut{0%{opacity:1}65%{opacity:1}100%{opacity:0}}
       `}</style>
       <div style={{ position:'relative', textAlign:'center', animation:'fadeOut 2.4s ease forwards' }}>
-        <div style={{ background:'rgba(233,1,48,0.15)', border:'1.5px solid rgba(233,1,48,0.5)', backdropFilter:'blur(16px)', borderRadius:30, padding:'12px 26px', fontSize:14, fontWeight:700, color:'#FF4060', boxShadow:'0 6px 32px rgba(233,1,48,0.25)', animation:'popIn 0.35s ease forwards', whiteSpace:'nowrap', letterSpacing:'0.01em' }}>
+        <div style={{ background:'rgba(216,99,80,0.15)', border:'1.5px solid rgba(216,99,80,0.5)', backdropFilter:'blur(16px)', borderRadius:30, padding:'12px 26px', fontSize:14, fontWeight:700, color:'#D86350', boxShadow:'0 6px 32px rgba(216,99,80,0.25)', animation:'popIn 0.35s ease forwards', whiteSpace:'nowrap', letterSpacing:'0.01em' }}>
           {msg}
         </div>
         {particles.map((e, i) => (
@@ -261,8 +261,8 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
             : (isDark ? 'rgba(27,36,97,0.20)' : th.cardBg),
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         borderRadius: '0.75rem',
-        border: `1px solid ${isSelected ? th.red + '60' : isStale ? 'rgba(233,1,48,0.22)' : th.border}`,
-        borderLeft: `3px solid ${isSelected ? th.red : isStale ? '#E90130' : st.dot}`,
+        border: `1px solid ${isSelected ? th.red + '60' : isStale ? 'rgba(216,99,80,0.22)' : th.border}`,
+        borderLeft: `3px solid ${isSelected ? th.red : isStale ? '#D86350' : st.dot}`,
         padding: '11px 12px',
         marginBottom: 8,
         cursor: isDragging ? 'grabbing' : 'pointer',
@@ -365,9 +365,9 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
           <button
             onClick={e => { e.stopPropagation(); onReject(candidate) }}
             title="Reject candidate"
-            style={{ height:24, padding:'0 8px', borderRadius:20, border:'1px solid rgba(233,1,48,0.25)', background:'rgba(233,1,48,0.07)', cursor:'pointer', color:'#E90130', fontSize:9, fontWeight:700, fontFamily:'inherit', transition:'all 0.15s', letterSpacing:'0.02em' }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(233,1,48,0.14)'; e.currentTarget.style.borderColor='#E90130' }}
-            onMouseLeave={e => { e.currentTarget.style.background='rgba(233,1,48,0.07)'; e.currentTarget.style.borderColor='rgba(233,1,48,0.25)' }}
+            style={{ height:24, padding:'0 8px', borderRadius:20, border:'1px solid rgba(216,99,80,0.25)', background:'rgba(216,99,80,0.07)', cursor:'pointer', color:'#D86350', fontSize:9, fontWeight:700, fontFamily:'inherit', transition:'all 0.15s', letterSpacing:'0.02em' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(216,99,80,0.14)'; e.currentTarget.style.borderColor='#D86350' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(216,99,80,0.07)'; e.currentTarget.style.borderColor='rgba(216,99,80,0.25)' }}
           >
             ✕ Reject
           </button>
@@ -633,7 +633,7 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
         }}
       >
         {/* Badge + title */}
-        <div style={{ fontSize: 10, fontWeight: 700, color: '#E90130', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
           {L.badge}
         </div>
         <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: th.text, margin: '0 0 24px', lineHeight: 1.2 }}>
@@ -652,7 +652,7 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
               textAlign: 'center', cursor: 'pointer',
               background: th.surface, transition: 'border-color 0.2s, background 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#E90130'; e.currentTarget.style.background = 'rgba(233,1,48,0.09)' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#D86350'; e.currentTarget.style.background = 'rgba(216,99,80,0.09)' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = th.border;  e.currentTarget.style.background = th.surface }}
           >
             <div style={{ fontSize: 44, marginBottom: 14 }}>📂</div>
@@ -669,12 +669,12 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: th.textDim, marginBottom: 8 }}>
               <span>{L.analysing(loaded, total)}</span>
-              <span style={{ fontWeight: 700, color: '#E90130' }}>{progress}%</span>
+              <span style={{ fontWeight: 700, color: '#D86350' }}>{progress}%</span>
             </div>
 
             {/* Progress bar */}
             <div style={{ background: th.surface, borderRadius: 6, height: 6, marginBottom: 22, overflow: 'hidden', border: `1px solid ${th.border}` }}>
-              <div style={{ height: '100%', background: '#E90130', borderRadius: 6, width: `${progress}%`, transition: 'width 0.08s linear' }} />
+              <div style={{ height: '100%', background: '#D86350', borderRadius: 6, width: `${progress}%`, transition: 'width 0.08s linear' }} />
             </div>
 
             {/* File rows */}
@@ -730,7 +730,7 @@ function CVModal({ candidate, onClose }) {
         {/* Modal toolbar */}
         <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
           <div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#E90130', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
             <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.loc ? ` · ${candidate.loc}` : ''}</div>
           </div>
@@ -895,9 +895,9 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
           </div>
           <button
             onClick={() => setShowImport(true)}
-            style={{ fontSize:10, fontWeight:700, color:'white', background:'#E90130', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s', flexShrink:0 }}
+            style={{ fontSize:10, fontWeight:700, color:'white', background:'#D86350', border:'none', borderRadius:20, padding:'5px 14px', cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em', whiteSpace:'nowrap', transition:'all 0.13s', flexShrink:0 }}
             onMouseEnter={e => { e.currentTarget.style.background='#C8012A' }}
-            onMouseLeave={e => { e.currentTarget.style.background='#E90130' }}
+            onMouseLeave={e => { e.currentTarget.style.background='#D86350' }}
           >
             + Add candidates
           </button>

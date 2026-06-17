@@ -512,7 +512,7 @@ function CandidatePanel({ candidate, decision, onDecide, onSuggestHire, onClose,
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
           onClick={() => onNavigate?.('hiring-manager-summary')}
-          style={{ padding: '9px 0', borderRadius: 9, background: isDark ? 'rgba(233,1,48,0.14)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(233,1,48,0.28)' : 'rgba(233,1,48,0.18)'}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '9px 0', borderRadius: 9, background: isDark ? 'rgba(216,99,80,0.14)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.18)'}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           {T.openBrief}
         </button>
@@ -1058,13 +1058,13 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                 style={{
                   padding: '6px 14px', borderRadius: 20,
                   background: isActive
-                    ? isDark ? 'rgba(233,1,48,0.18)' : C.redBg
+                    ? isDark ? 'rgba(216,99,80,0.18)' : C.redBg
                     : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.60)',
                   border: `1.5px solid ${isActive ? C.redL : C.border}`,
                   cursor: 'pointer', fontFamily: 'inherit',
                   display: 'flex', alignItems: 'center', gap: 7,
                   transition: 'all 0.16s',
-                  boxShadow: isActive ? `0 2px 14px rgba(233,1,48,0.12)` : 'none',
+                  boxShadow: isActive ? `0 2px 14px rgba(216,99,80,0.12)` : 'none',
                 }}
               >
                 <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 16, fontWeight: 400, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
@@ -1144,7 +1144,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                   onClick={() => setSelectedCandidate(isSel ? null : c)}
                   style={{
                     background: isSel
-                      ? (isDark ? 'rgba(233,1,48,0.12)' : C.redBg)
+                      ? (isDark ? 'rgba(216,99,80,0.12)' : C.redBg)
                       : (isDark ? 'rgba(255,255,255,0.06)' : C.white),
                     borderRadius: 12,
                     border: `1px solid ${isSel ? C.redL : C.border}`,

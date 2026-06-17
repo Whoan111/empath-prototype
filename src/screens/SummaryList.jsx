@@ -349,7 +349,7 @@ function DecisionCard({ c, onOpen, onSelect, isSelected, T }) {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: isSelected ? `0 6px 24px rgba(201,57,74,0.14)` : hovered ? '0 6px 24px rgba(201,57,74,0.10)' : '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: isSelected ? `0 6px 24px rgba(216,99,80,0.14)` : hovered ? '0 6px 24px rgba(216,99,80,0.10)' : '0 2px 8px rgba(0,0,0,0.04)',
         transition: 'all 0.18s',
         cursor: 'default',
       }}
@@ -488,7 +488,7 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
 
         {/* Pre-call: table layout */}
         {isPreCall && (
-          <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 16px rgba(201,57,74,0.04)' }}>
+          <div style={{ background: C.white, borderRadius: 13, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 16px rgba(216,99,80,0.04)' }}>
             {/* Column headers */}
             <div style={{ display: 'grid', gridTemplateColumns: cols, padding: '10px 22px', background: C.gray, borderBottom: `1px solid ${C.border}` }}>
               {headers.map((h, i) => (

@@ -96,7 +96,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
       overflow: 'hidden',
     }}>
       <style>{`
-        .sb-nav-btn:hover   { background: rgba(233,1,48,0.06) !important; color: #E90130 !important; }
+        .sb-nav-btn:hover   { background: rgba(216,99,80,0.06) !important; color: #D86350 !important; }
         .sb-role-opt:hover  { background: rgba(27,36,97,0.05) !important; }
         .sb-logo:hover      { opacity: 0.75; }
         .sb-set-item:hover  { background: rgba(27,36,97,0.04) !important; }
@@ -136,7 +136,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
               fontSize: 16, color: th.textDim, fontFamily: 'inherit',
               transition: 'all 0.18s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(233,1,48,0.12)'; e.currentTarget.style.color = '#E90130' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(216,99,80,0.12)'; e.currentTarget.style.color = '#D86350' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent';          e.currentTarget.style.color = th.textDim }}
           >›</button>
         </div>
@@ -157,7 +157,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <div style={{ width: 32, height: 32, background: th.red, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: `0 0 14px ${th.redGlow}` }}>♥</div>
-              <span style={{ color: th.text, fontSize: 17, fontFamily: 'DM Serif Display, Georgia, serif', letterSpacing: '-0.01em' }}>empath</span>
+              <span style={{ color: th.text, fontSize: 17, fontFamily: 'Quincy CF, Georgia, serif', letterSpacing: '-0.01em' }}>empath</span>
             </div>
             <div style={{ fontSize: 9, color: th.textDim, letterSpacing: '0.1em', fontWeight: 700 }}>PUBLICIS SAPIENT</div>
           </div>
@@ -188,7 +188,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
                 style={{
                   display: 'flex', alignItems: 'center', gap: 9, padding: '8px 11px',
                   borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: active ? 'rgba(233,1,48,0.08)' : 'transparent',
+                  background: active ? 'rgba(216,99,80,0.08)' : 'transparent',
                   color: active ? th.red : th.textDim,
                   fontSize: 12, fontWeight: active ? 600 : 400,
                   textAlign: 'left', width: '100%', fontFamily: 'inherit',
@@ -236,7 +236,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
             {Object.values(ROLES).map(r => (
               <button key={r.id} className="sb-role-opt"
                 onClick={() => { onSwitchRole(r.id); closeAll() }}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '9px 12px', border: 'none', cursor: 'pointer', background: role === r.id ? 'rgba(233,1,48,0.07)' : 'transparent', fontFamily: 'inherit' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '9px 12px', border: 'none', cursor: 'pointer', background: role === r.id ? 'rgba(216,99,80,0.07)' : 'transparent', fontFamily: 'inherit' }}
               >
                 <div style={{ width: 26, height: 26, borderRadius: '50%', background: th.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0 }}>{r.ini}</div>
                 <div style={{ textAlign: 'left' }}>
@@ -389,7 +389,7 @@ export default function App() {
   const handleMouseMove = (e) => {
     if (!spotlightRef.current) return
     const dark = themeMode === 'dark'
-    const c = dark ? 'rgba(100,160,255,0.07)' : 'rgba(233,1,48,0.15)'
+    const c = dark ? 'rgba(100,160,255,0.07)' : 'rgba(216,99,80,0.15)'
     const r = dark ? 260 : 210
     spotlightRef.current.style.background =
       `radial-gradient(circle ${r}px at ${e.clientX}px ${e.clientY}px, ${c} 0%, transparent 70%)`
@@ -400,7 +400,7 @@ export default function App() {
   const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'debrief-list': true, 'interviewer-debrief': true }
 
   return (
-    <div onMouseMove={handleMouseMove} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, sans-serif', background: theme.bg, position: 'relative' }}>
+    <div onMouseMove={handleMouseMove} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'Galano Grotesque, DM Sans, system-ui, sans-serif', background: theme.bg, position: 'relative' }}>
 
       {/* ── Animated orb background (dark + light) ── */}
       <style>{`
@@ -431,7 +431,7 @@ export default function App() {
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '42%', left: '56%', width: 900, height: 900,
             borderRadius: '50%', filter: 'blur(68px)',
-            background: 'radial-gradient(circle at center, rgba(80,40,200,0.58) 0%, rgba(27,36,97,0.40) 36%, rgba(233,1,48,0.12) 58%, transparent 72%)',
+            background: 'radial-gradient(circle at center, rgba(80,40,200,0.58) 0%, rgba(27,36,97,0.40) 36%, rgba(216,99,80,0.12) 58%, transparent 72%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrb 8s ease-in-out infinite',
           }} />
@@ -440,7 +440,7 @@ export default function App() {
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '62%', left: '38%', width: 600, height: 600,
             borderRadius: '50%', filter: 'blur(80px)',
-            background: 'radial-gradient(circle at center, rgba(233,1,48,0.24) 0%, rgba(140,20,100,0.18) 42%, transparent 68%)',
+            background: 'radial-gradient(circle at center, rgba(216,99,80,0.24) 0%, rgba(254,154,12,0.14) 42%, transparent 68%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrb2 11s ease-in-out infinite',
           }} />
@@ -453,21 +453,21 @@ export default function App() {
         </>
       ) : (
         <>
-          {/* Light — primary orb: vibrant coral-red */}
+          {/* Light — primary orb: terracotta brand primary */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '38%', left: '58%', width: 900, height: 900,
             borderRadius: '50%', filter: 'blur(70px)',
-            background: 'radial-gradient(circle at center, rgba(233,1,48,0.28) 0%, rgba(233,1,48,0.12) 38%, rgba(27,36,97,0.06) 60%, transparent 75%)',
+            background: 'radial-gradient(circle at center, rgba(216,99,80,0.22) 0%, rgba(216,99,80,0.10) 40%, rgba(254,154,12,0.05) 62%, transparent 76%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrbL 9s ease-in-out infinite',
           }} />
-          {/* Light — secondary orb: rich navy-blue (more saturated) */}
+          {/* Light — secondary orb: amber brand secondary */}
           <div style={{
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '65%', left: '36%', width: 660, height: 660,
             borderRadius: '50%', filter: 'blur(72px)',
-            background: 'radial-gradient(circle at center, rgba(27,36,97,0.42) 0%, rgba(27,36,97,0.22) 45%, rgba(37,99,235,0.10) 65%, transparent 78%)',
+            background: 'radial-gradient(circle at center, rgba(254,154,12,0.18) 0%, rgba(254,154,12,0.08) 45%, rgba(216,99,80,0.05) 65%, transparent 78%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrbL2 12s ease-in-out infinite',
           }} />
