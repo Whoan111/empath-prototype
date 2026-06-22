@@ -294,11 +294,26 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
       }}>
 
         {/* Welcome copy */}
-        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+        <div style={{ textAlign: 'center', marginBottom: 56, overflow: 'hidden' }}>
+          <style>{`
+            @keyframes brandPeek {
+              0%   { opacity: 0; transform: translateY(14px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes helloFade {
+              0%   { opacity: 0; }
+              100% { opacity: 1; }
+            }
+            @keyframes subFade {
+              0%   { opacity: 0; }
+              100% { opacity: 1; }
+            }
+          `}</style>
           <p style={{
             fontSize: 11, fontWeight: 700, color: th.red,
             textTransform: 'uppercase', letterSpacing: '0.14em',
             margin: '0 0 16px',
+            animation: 'brandPeek 0.65s cubic-bezier(0.22,1,0.36,1) both',
           }}>
             Publicis Sapient · empath
           </p>
@@ -307,12 +322,16 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
             fontSize: 44, fontWeight: 400,
             color: th.text, margin: '0 0 14px',
             letterSpacing: '-0.025em', lineHeight: 1.12,
+            animation: 'helloFade 0.8s ease both',
+            animationDelay: '0.3s',
           }}>
             Hello, {firstName}.
           </h1>
           <p style={{
             fontSize: 16, color: th.textMid, margin: 0,
             letterSpacing: '-0.01em', fontWeight: 300,
+            animation: 'subFade 0.6s ease both',
+            animationDelay: '0.65s',
           }}>
             {question}
           </p>
