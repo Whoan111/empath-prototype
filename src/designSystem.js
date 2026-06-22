@@ -276,27 +276,27 @@ export function buildC(theme) {
     warBg:  dk ? 'rgba(217,119,6,0.15)'         : '#FEF3C7',
     warT:   dk ? '#FCD34D'                      : '#92400E',
     warBorder: dk ? 'rgba(217,119,6,0.3)'       : '#FDE68A',
-    // Info
-    inf:    '#2563EB',
-    infBg:  dk ? 'rgba(37,99,235,0.15)'         : '#DBEAFE',
-    infT:   dk ? '#93C5FD'                      : '#1E40AF',
-    infL:   dk ? 'rgba(37,99,235,0.3)'          : '#BFDBFE',
+    // Info (amber — no blue in EmPath palette)
+    inf:    '#D97706',
+    infBg:  dk ? 'rgba(254,154,12,0.15)'        : '#FEF3C7',
+    infT:   dk ? '#FE9A0C'                      : '#B45309',
+    infL:   dk ? 'rgba(254,154,12,0.3)'         : '#FDE68A',
     // Purple
     purp:   '#6D28D9',
     purpBg: dk ? 'rgba(109,40,217,0.15)'        : '#EDE9FE',
     purpL:  dk ? 'rgba(109,40,217,0.28)'        : '#DDD8F9',
-    // Navy aliases
+    // Navy aliases (pipeline stages only)
     navy:   theme.navy,
     navyBg: dk ? 'rgba(27,36,97,0.22)'          : 'rgba(27,36,97,0.06)',
     navyB:  dk ? 'rgba(27,36,97,0.4)'           : 'rgba(27,36,97,0.13)',
-    // Navy semantic (advance / accept — replaces green in brand palette)
-    nav:    dk ? '#8BA8FF'                      : '#1B2461',
-    navBg:  dk ? 'rgba(27,36,97,0.18)'          : 'rgba(27,36,97,0.09)',
-    navT:   dk ? '#8BA8FF'                      : '#1B2461',
-    navL:   dk ? 'rgba(27,36,97,0.35)'          : 'rgba(27,36,97,0.22)',
-    // HM accent
-    hmBg:     dk ? 'rgba(79,107,219,0.1)'       : '#F5F7FF',
-    hmBorder: dk ? 'rgba(79,107,219,0.22)'      : '#D4D9F0',
+    // Advance semantic (terracotta — primary action)
+    nav:    dk ? 'rgba(255,140,120,0.95)'        : '#D86350',
+    navBg:  dk ? 'rgba(216,99,80,0.18)'          : 'rgba(216,99,80,0.09)',
+    navT:   dk ? 'rgba(255,140,120,0.95)'        : '#C05340',
+    navL:   dk ? 'rgba(216,99,80,0.35)'          : 'rgba(216,99,80,0.22)',
+    // HM accent (amber — no blue in EmPath palette)
+    hmBg:     dk ? 'rgba(254,154,12,0.10)'      : '#FFFBF0',
+    hmBorder: dk ? 'rgba(254,154,12,0.22)'      : '#FDE68A',
     // Hover surface (slightly brighter than white/gray)
     surfaceHov: dk ? 'rgba(255,255,255,0.08)'      : 'rgba(0,0,0,0.04)',
     // Document text (stays dark — it's on a white paper mockup)

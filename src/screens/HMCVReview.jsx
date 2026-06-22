@@ -230,7 +230,7 @@ const ASSIGNED_CANDIDATES = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -388,7 +388,7 @@ function PortfolioLinkView({ cv }) {
           background: C.infBg, color: C.inf,
           border: `1.5px solid ${C.infL}`,
           fontSize: 14, fontWeight: 600, textDecoration: 'none',
-          boxShadow: '0 2px 14px rgba(37,99,235,0.13)',
+          boxShadow: '0 2px 14px rgba(254,154,12,0.13)',
           transition: 'opacity 0.15s',
         }}
         onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
@@ -660,12 +660,12 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
         {decision ? (
           <div style={{
             padding: '12px 14px', borderRadius: 9,
-            background: decision === 'accept' ? C.redBg : 'rgba(37,99,235,0.08)',
-            border: `1px solid ${decision === 'accept' ? C.redL : '#BFDBFE'}`,
+            background: decision === 'accept' ? C.redBg : 'rgba(254,154,12,0.08)',
+            border: `1px solid ${decision === 'accept' ? C.redL : '#FDE68A'}`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.red : '#1E40AF' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: decision === 'accept' ? C.red : '#B45309' }}>
                   {decision === 'accept' ? T.acceptedLabel : T.rejectedLabel}
                 </div>
                 {decision === 'accept' && (
@@ -684,7 +684,7 @@ function HMCandidatePanel({ candidate, decision, notes, onDecide, onSaveNotes, o
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => onDecide(candidate.id, 'reject')}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: 'rgba(37,99,235,0.08)', color: '#1E40AF', border: '2px solid #BFDBFE', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 9, background: 'rgba(254,154,12,0.08)', color: '#B45309', border: '2px solid #FDE68A', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {T.reject}
             </button>
@@ -722,9 +722,9 @@ function CandidateListPanel({ selectedId, decisions, onSelect, activePosId, T })
             <div style={{ fontSize: 17, fontWeight: 700, color: C.muted, lineHeight: 1 }}>{toReview}</div>
             <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>{T.toReview}</div>
           </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(37,99,235,0.08)', borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: '#1E40AF', lineHeight: 1 }}>{rejected}</div>
-            <div style={{ fontSize: 8, color: '#1E40AF', fontWeight: 600, marginTop: 2 }}>{T.rejected}</div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(254,154,12,0.08)', borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#B45309', lineHeight: 1 }}>{rejected}</div>
+            <div style={{ fontSize: 8, color: '#B45309', fontWeight: 600, marginTop: 2 }}>{T.rejected}</div>
           </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{accepted}</div>
@@ -806,7 +806,7 @@ function CandidateListPanel({ selectedId, decisions, onSelect, activePosId, T })
                     <div style={{ flexShrink: 0 }}>
                       <div style={{
                         width: 8, height: 8, borderRadius: '50%',
-                        background: dec === 'accept' ? C.red : dec === 'reject' ? '#2563EB' : C.grayB,
+                        background: dec === 'accept' ? C.red : dec === 'reject' ? '#D97706' : C.grayB,
                       }} />
                     </div>
                   </button>

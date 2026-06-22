@@ -5,7 +5,7 @@
 //  Dashboard sections: Current (pending debrief) | Upcoming | Done
 //  Clicking Current opens CV + inline debrief split view
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
 let isDark = false
@@ -176,11 +176,11 @@ const UPCOMING_INTERVIEWS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
   ['#D1FAE5','#065F46'],
-  ['#DBEAFE','#1D4ED8'],
+  ['#FEF3C7','#B45309'],
 ]
 function Av({ id, ini, size = 36, muted = false }) {
   const [bg, color] = AV_PALETTE[(id - 1) % AV_PALETTE.length]
@@ -193,9 +193,9 @@ function Av({ id, ini, size = 36, muted = false }) {
 
 function FitPill({ fit }) {
   if (!fit) return <span style={{ fontSize: 10, color: C.muted }}>—</span>
-  if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', color: isDark ? '#93C5FD' : 'white', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
-  if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(59,130,246,0.28)' : '#DBEAFE', color: isDark ? '#BAE6FD' : '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Advance</span>
-  return <span style={{ background: isDark ? 'rgba(216,99,80,0.22)' : '#FEE2E2', color: isDark ? '#FCA5A5' : '#C9394A', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
+  if (fit === 'strongly-advance') return <span style={{ background: isDark ? 'rgba(216,99,80,0.24)' : '#D86350', color: isDark ? 'rgba(255,140,120,0.95)' : '#FFFFFF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>★ Strong advance</span>
+  if (fit === 'advance') return <span style={{ background: isDark ? 'rgba(254,154,12,0.28)' : '#FEF3C7', color: isDark ? '#FE9A0C' : '#B45309', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>◎ Advance</span>
+  return <span style={{ background: isDark ? 'rgba(216,99,80,0.22)' : '#FFF5F2', color: isDark ? '#FF9070' : '#D86350', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>✕ Not advancing</span>
 }
 
 function OutcomePill({ outcome, T }) {
@@ -315,7 +315,7 @@ function CVModal({ candidate, onClose }) {
       <div onClick={e => e.stopPropagation()} style={{ background: 'white', borderRadius: 14, width: '90%', maxWidth: 640, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 80px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
         <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#C9394A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
             <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}</div>
           </div>
@@ -396,16 +396,69 @@ const CRITERIA = [
   { key: 'technical',       label: 'Technical Skills', optional: true },
 ]
 const RATING_OPTS = [
-  { val: 1, label: 'Not fit',    short: '✕', col: '#C9394A', bg: '#FEE2E2' },
+  { val: 1, label: 'Not fit',    short: '✕', col: '#D86350', bg: '#FFF5F2' },
   { val: 2, label: 'Somewhat',   short: '△', col: '#D97706', bg: '#FEF3C7' },
-  { val: 3, label: 'Good fit',   short: '◎', col: '#1D4ED8', bg: '#EFF6FF' },
+  { val: 3, label: 'Good fit',   short: '◎', col: '#B45309', bg: '#FEF3C7' },
   { val: 4, label: 'Strong fit', short: '★', col: '#166534', bg: '#DCFCE7' },
 ]
 const FIT_OPTS = [
-  { val: 'not-advancing',    label: 'Not advancing',    col: '#C9394A', bg: '#FEE2E2', bord: 'rgba(216,99,80,0.25)' },
-  { val: 'advance',          label: 'Advance',          col: '#1D4ED8', bg: '#EFF6FF', bord: 'rgba(29,78,216,0.25)' },
+  { val: 'not-advancing',    label: 'Not advancing',    col: '#D86350', bg: '#FFF5F2', bord: 'rgba(216,99,80,0.25)' },
+  { val: 'advance',          label: 'Advance',          col: '#B45309', bg: '#FEF3C7', bord: 'rgba(254,154,12,0.25)' },
   { val: 'strongly-advance', label: 'Strongly advance', col: '#166534', bg: '#DCFCE7', bord: 'rgba(22,101,52,0.25)' },
 ]
+
+function useDictation(onResult) {
+  const [active,    setActive]    = useState(false)
+  const [supported, setSupported] = useState(false)
+  const [interim,   setInterim]   = useState('')
+  const recRef = useRef(null)
+  useEffect(() => {
+    setSupported(!!(window.SpeechRecognition || window.webkitSpeechRecognition))
+    return () => { recRef.current?.stop() }
+  }, [])
+  const start = useCallback(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    const rec = new SR()
+    rec.continuous = true; rec.interimResults = true; rec.lang = 'en-US'
+    rec.onresult = (e) => {
+      let fin = '', int = ''
+      for (const r of e.results) { if (r.isFinal) fin += r[0].transcript + ' '; else int += r[0].transcript }
+      if (fin) onResult(fin.trim())
+      setInterim(int)
+    }
+    rec.onend = () => { setActive(false); setInterim('') }
+    rec.onerror = () => { setActive(false); setInterim('') }
+    rec.start(); recRef.current = rec; setActive(true)
+  }, [onResult])
+  const stop = useCallback(() => { recRef.current?.stop(); setActive(false); setInterim('') }, [])
+  const toggle = useCallback(() => { active ? stop() : start() }, [active, start, stop])
+  return { active, toggle, supported, interim }
+}
+
+function DictateBtn({ active, toggle, supported }) {
+  if (!supported) return null
+  return (
+    <button onClick={toggle} style={{
+      display: 'flex', alignItems: 'center', gap: 5,
+      padding: '4px 11px', borderRadius: 20, border: 'none',
+      background: active ? C.red : C.gray,
+      color: active ? 'white' : C.muted,
+      fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+      boxShadow: active ? `0 0 0 3px ${C.redL}` : 'none',
+      transition: 'all 0.2s', flexShrink: 0,
+    }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="9" y1="22" x2="15" y2="22"/>
+      </svg>
+      {active ? 'Stop' : 'Dictate'}
+      {active && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', animation: 'pulse 1s infinite', display: 'inline-block' }} />}
+    </button>
+  )
+}
 
 function InlineDebriefPanel({ candidate, onClose, onDone }) {
   const [step,         setStep]         = useState(1)
@@ -414,6 +467,9 @@ function InlineDebriefPanel({ candidate, onClose, onDone }) {
   const [ratings,      setRatings]      = useState({})
   const [strengths,    setStrengths]    = useState('')
   const [improvements, setImprovements] = useState('')
+
+  const strDictation = useDictation(useCallback(t => setStrengths(p => p ? p + ' ' + t : t), []))
+  const impDictation = useDictation(useCallback(t => setImprovements(p => p ? p + ' ' + t : t), []))
 
   const TOTAL = 3
   const reqRated = CRITERIA.filter(c => !c.optional)
@@ -485,7 +541,7 @@ function InlineDebriefPanel({ candidate, onClose, onDone }) {
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: 10, color: C.infT, lineHeight: 1.65, fontStyle: 'italic', padding: '8px 12px', background: isDark ? 'rgba(37,99,235,0.08)' : '#EFF6FF', borderRadius: 8, borderLeft: '3px solid #93C5FD' }}>
+            <div style={{ fontSize: 10, color: C.infT, lineHeight: 1.65, fontStyle: 'italic', padding: '8px 12px', background: isDark ? 'rgba(254,154,12,0.08)' : '#FEF3C7', borderRadius: 8, borderLeft: '3px solid #FE9A0C' }}>
               The CV is open on the left — reference it as you fill in your feedback.
             </div>
           </div>
@@ -530,14 +586,32 @@ function InlineDebriefPanel({ candidate, onClose, onDone }) {
               <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6 }}>Specific, honest feedback helps the candidate grow regardless of the outcome.</div>
             </div>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 5 }}>What did they do well? <span style={{ color: C.red }}>*</span></label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>What did they do well? <span style={{ color: C.red }}>*</span></label>
+                <DictateBtn {...strDictation} />
+              </div>
+              {strDictation.active && strDictation.interim && (
+                <div style={{ marginBottom: 5, padding: '5px 9px', background: C.redBg, borderRadius: 6, border: `1px solid ${C.redL}`, fontSize: 10, color: C.muted, fontStyle: 'italic' }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: C.red, display: 'block', marginBottom: 1 }}>🎤 Transcribing…</span>
+                  {strDictation.interim}
+                </div>
+              )}
               <textarea value={strengths} onChange={e => setStrengths(e.target.value)} placeholder="A real example is worth ten adjectives" rows={3}
-                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }} />
+                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${strDictation.active ? C.red : C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }} />
             </div>
             <div>
-              <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 5 }}>What could they develop?</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>What could they develop?</label>
+                <DictateBtn {...impDictation} />
+              </div>
+              {impDictation.active && impDictation.interim && (
+                <div style={{ marginBottom: 5, padding: '5px 9px', background: C.redBg, borderRadius: 6, border: `1px solid ${C.redL}`, fontSize: 10, color: C.muted, fontStyle: 'italic' }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: C.red, display: 'block', marginBottom: 1 }}>🎤 Transcribing…</span>
+                  {impDictation.interim}
+                </div>
+              )}
               <textarea value={improvements} onChange={e => setImprovements(e.target.value)} placeholder="Growth-oriented and honest" rows={3}
-                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none' }} />
+                style={{ width: '100%', padding: '9px 11px', borderRadius: 8, border: `1px solid ${impDictation.active ? C.red : C.border}`, background: C.gray, color: C.text, fontSize: 11, fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }} />
             </div>
             <div>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Recommendation <span style={{ color: C.red }}>*</span></div>
@@ -640,7 +714,7 @@ function CurrentCard({ candidate, onStart }) {
 
 function UpcomingCard({ interview, hasReminder, onToggleReminder }) {
   return (
-    <div style={{ background: isDark ? 'rgba(37,99,235,0.06)' : C.white, border: `1px solid ${isDark ? 'rgba(147,197,253,0.18)' : '#DBEAFE'}`, borderTop: `3px solid ${C.infT}`, borderRadius: 12, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ background: isDark ? 'rgba(254,154,12,0.06)' : C.white, border: `1px solid ${isDark ? 'rgba(254,154,12,0.18)' : '#FEF3C7'}`, borderTop: `3px solid ${C.infT}`, borderRadius: 12, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
           <Av id={interview.id} ini={interview.ini} size={40} />
@@ -728,8 +802,8 @@ function DashboardHome({ onOpenInterview, onViewProfile, T }) {
         @keyframes idOrb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-22px,16px) scale(1.04)}}
       `}</style>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', width: 480, height: 480, borderRadius: '50%', top: '-100px', right: '-60px', background: isDark ? 'radial-gradient(circle,rgba(27,36,97,0.16) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(27,36,97,0.04) 0%,transparent 65%)', animation: 'idOrb1 13s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', width: 380, height: 380, borderRadius: '50%', bottom: '-70px', left: '-50px', background: isDark ? 'radial-gradient(circle,rgba(37,99,235,0.10) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(37,99,235,0.03) 0%,transparent 65%)', animation: 'idOrb2 11s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', width: 480, height: 480, borderRadius: '50%', top: '-100px', right: '-60px', background: isDark ? 'radial-gradient(circle,rgba(216,99,80,0.12) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(216,99,80,0.04) 0%,transparent 65%)', animation: 'idOrb1 13s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', width: 380, height: 380, borderRadius: '50%', bottom: '-70px', left: '-50px', background: isDark ? 'radial-gradient(circle,rgba(254,154,12,0.10) 0%,transparent 65%)' : 'radial-gradient(circle,rgba(254,154,12,0.03) 0%,transparent 65%)', animation: 'idOrb2 11s ease-in-out infinite' }} />
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', position: 'relative', zIndex: 1 }}>
@@ -804,11 +878,11 @@ function DashboardHome({ onOpenInterview, onViewProfile, T }) {
 // ── Profile side panel (used in profile view) ─────────────────────────────────
 function CandidateProfilePanel({ candidate, onNavigate, T }) {
   const [showCV, setShowCV] = useState(false)
-  const avPalette = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
+  const avPalette = [['#FDDDD7', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
   return (
     <>
     <aside style={{ width: 340, background: C.white, borderLeft: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
-      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(27,36,97,0.12)' : C.redBg, flexShrink: 0 }}>
+      <div style={{ padding: '18px 18px 14px', borderBottom: `1px solid ${C.border}`, background: isDark ? 'rgba(216,99,80,0.08)' : C.redBg, flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', marginBottom: 14 }}>
           <Av id={candidate.id} ini={candidate.ini} size={44} muted={candidate.outcome === 'notAdvancing'} />
           <div style={{ flex: 1 }}>
@@ -881,7 +955,7 @@ function SummaryView({ onViewProfile, onFillDebrief, T }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             {pending.length > 0 && <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.red, boxShadow: '0 0 6px rgba(216,99,80,0.45)' }} />}
             <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{T.pendingSection}</h2>
-            {pending.length > 0 && <span style={{ background: '#FEF2F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>{pending.length}</span>}
+            {pending.length > 0 && <span style={{ background: '#FFF5F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, border: `1px solid ${C.redL}` }}>{pending.length}</span>}
           </div>
           {pending.length === 0 ? (
             <div style={{ padding: '16px 20px', background: C.redBg, borderRadius: 12, border: `1px solid ${C.redL}`, display: 'flex', alignItems: 'center', gap: 12 }}>

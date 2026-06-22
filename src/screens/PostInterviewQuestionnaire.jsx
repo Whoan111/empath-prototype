@@ -221,22 +221,22 @@ const CRITERIA = [
 
 // Fit levels: null = not yet answered, -1 = did not evaluate, 'strong' | 'fit' | 'not-fit'
 const FIT_CONFIG = {
-  strong:   { label: 'Strong fit', color: '#9F1239', bg: '#FFF1F2',              border: '#FECDD3' },
-  fit:      { label: 'Fit',        color: '#C9394A', bg: '#FFF1F2',              border: '#FECACA' },
-  'not-fit':{ label: 'Not fit',    color: '#1E40AF', bg: 'white',               border: '#BFDBFE' },
+  strong:   { label: 'Strong fit', color: '#C05340', bg: '#FFF5F2',              border: '#FDDDD7' },
+  fit:      { label: 'Fit',        color: '#D86350', bg: '#FFF5F2',              border: '#FECACA' },
+  'not-fit':{ label: 'Not fit',    color: '#B45309', bg: 'white',               border: '#FDE68A' },
 }
 
 // ── Recommendation options ────────────────────────────────────────────────────
 const RECOMMENDATIONS = [
-  { id: 'strongly-advance', label: 'Strong advance',             emoji: '⭐', color: '#1B2461', bg: 'rgba(27,36,97,0.09)',  border: '#C7D2FE' },
-  { id: 'advance',          label: 'Average fit',                emoji: '◎',  color: '#1E40AF', bg: 'rgba(37,99,235,0.10)', border: '#BFDBFE' },
-  { id: 'reservations',     label: 'Fit with reservations',      emoji: '△',  color: '#374DB0', bg: 'rgba(55,77,176,0.08)', border: '#C7D2FE' },
-  { id: 'not-moving',       label: 'Not advancing',              emoji: '✕',  color: C.red,     bg: '#FEF2F2',             border: '#FECACA' },
+  { id: 'strongly-advance', label: 'Strong advance',             emoji: '⭐', color: '#D86350', bg: 'rgba(216,99,80,0.09)', border: '#FDDDD7' },
+  { id: 'advance',          label: 'Average fit',                emoji: '◎',  color: '#B45309', bg: 'rgba(254,154,12,0.10)', border: '#FDE68A' },
+  { id: 'reservations',     label: 'Fit with reservations',      emoji: '△',  color: '#D86350', bg: 'rgba(254,154,12,0.08)', border: '#FDE68A' },
+  { id: 'not-moving',       label: 'Not advancing',              emoji: '✕',  color: C.red,     bg: '#FFF5F2',             border: '#FECACA' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -655,7 +655,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
             <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.fitSoFar}</div>
             <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
               {strongCount > 0 && <span style={{ color: '#1B2461', fontWeight: 600, marginRight: 8 }}>★ {T.strongFitCount(strongCount)}</span>}
-              {fitCount > 0 && <span style={{ color: '#1E40AF', fontWeight: 600 }}>◎ {T.fitCount(fitCount)}</span>}
+              {fitCount > 0 && <span style={{ color: '#B45309', fontWeight: 600 }}>◎ {T.fitCount(fitCount)}</span>}
             </div>
           </div>
         </div>
@@ -674,7 +674,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
       </div>
 
       {!requiredAnswered && (
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, padding: '9px 13px', background: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, padding: '9px 13px', background: '#FFF5F2', borderRadius: 8, border: '1px solid #FECACA' }}>
           <span style={{ fontSize: 13 }}>⚠</span>
           <span style={{ fontSize: 12, color: C.red }}>
             {T.fitRequired(CRITERIA.filter(c => !c.optional && (!ratings[c.id])).map(c => c.label).join(' · '))}
@@ -869,8 +869,8 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T }) {
   return (
     <div style={{ textAlign: 'center', padding: '40px 32px', animation: 'stepIn 0.3s ease' }}>
-      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(37,99,235,0.08)', border: '2px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(254,154,12,0.08)', border: '2px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
@@ -898,7 +898,7 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
           </p>
         </div>
       ) : (
-        <div style={{ background: C.infBg, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: `1px solid #BFDBFE`, textAlign: 'left' }}>
+        <div style={{ background: C.infBg, borderRadius: 11, padding: '14px 18px', maxWidth: 400, margin: '0 auto 22px', border: `1px solid #FDE68A`, textAlign: 'left' }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: C.infT, marginBottom: 4 }}>
             {T.notifyTitle}
           </p>

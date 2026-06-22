@@ -111,7 +111,7 @@ const REJECTED_BY_POSITION = [
 const RESTORE_STAGES = ['Pre-Call', 'Interviews', 'Decision']
 
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -129,7 +129,7 @@ function Av({ id, ini, size = 36 }) {
 }
 
 function urgencyColor(daysAgo) {
-  if (daysAgo >= 14) return '#C9394A'
+  if (daysAgo >= 14) return '#D86350'
   if (daysAgo >= 7)  return '#D97706'
   return '#78716C'
 }
@@ -165,11 +165,11 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
         }}
       >
         {/* Position badge */}
-        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:C.infBg, border:`1px solid ${C.infL}`, borderRadius:20, padding:'3px 12px', marginBottom:18, fontSize:10, fontWeight:700, color:C.infT, letterSpacing:'0.06em' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background: isDark ? 'rgba(254,154,12,0.12)' : '#FEF3C7', border:`1px solid ${isDark ? 'rgba(254,154,12,0.3)' : '#FDE68A'}`, borderRadius:20, padding:'3px 12px', marginBottom:18, fontSize:10, fontWeight:700, color: isDark ? '#FE9A0C' : '#B45309', letterSpacing:'0.06em' }}>
           {group.positionTitle} · {group.dept}
         </div>
 
-        <div style={{ fontFamily:'DM Serif Display, Georgia, serif', fontSize:20, color:C.text, marginBottom:18 }}>
+        <div style={{ fontFamily:'Quincy CF, Georgia, serif', fontSize:20, color:C.text, marginBottom:18 }}>
           {T.restoreTitle}
         </div>
 
@@ -196,8 +196,8 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
                   onClick={() => setStage(s)}
                   style={{
                     flex:1, padding:'9px 6px', borderRadius:9,
-                    border: sel ? `2px solid ${C.navy}` : `1px solid ${C.border}`,
-                    background: sel ? C.navy : C.white,
+                    border: sel ? `2px solid ${C.red}` : `1px solid ${C.border}`,
+                    background: sel ? C.red : C.white,
                     color: sel ? C.white : C.muted,
                     fontSize:11, fontWeight: sel ? 700 : 400,
                     cursor:'pointer', fontFamily:'inherit',
@@ -221,7 +221,7 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
           </button>
           <button
             onClick={() => onConfirm(stage)}
-            style={{ flex:1.4, padding:'10px', borderRadius:9, border:'none', background:C.navy, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em' }}
+            style={{ flex:1.4, padding:'10px', borderRadius:9, border:'none', background:C.red, color:'white', fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.02em' }}
           >
             {T.restoreConfirm}
           </button>
@@ -308,7 +308,7 @@ function CandidateProfilePanel({ candidate, group, messageSent, onWriteMessage, 
 
         {/* Message status */}
         {messageSent
-          ? <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.infT, background: C.infBg, padding: '7px 10px', borderRadius: 8 }}>
+          ? <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.sucT, background: C.sucBg, padding: '7px 10px', borderRadius: 8 }}>
               <span>✓</span> Message sent
             </div>
           : <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.red, background: C.redBg, padding: '7px 10px', borderRadius: 8 }}>
@@ -330,7 +330,7 @@ function CandidateProfilePanel({ candidate, group, messageSent, onWriteMessage, 
         </button>
         <button
           onClick={() => onBackToPipeline(candidate, group)}
-          style={{ padding: '10px', borderRadius: 9, background: C.infBg, color: C.infT, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
+          style={{ padding: '10px', borderRadius: 9, background: C.redBg, color: C.red, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.13s' }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
@@ -387,7 +387,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
         </div>
         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{candidate.role}</div>
         {messageSent && (
-          <span style={{ display: 'inline-block', marginTop: 4, fontSize: 10, fontWeight: 500, color: C.infT, background: C.infBg, padding: '2px 8px', borderRadius: 20 }}>
+          <span style={{ display: 'inline-block', marginTop: 4, fontSize: 10, fontWeight: 500, color: C.sucT, background: C.sucBg, padding: '2px 8px', borderRadius: 20 }}>
             {T.messageSent}
           </span>
         )}
@@ -419,7 +419,7 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           fontFamily: 'inherit', whiteSpace: 'nowrap',
           transition: 'all 0.13s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = C.navy; e.currentTarget.style.color = C.navy }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.red }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
         title="Move back to active pipeline"
       >
@@ -431,8 +431,8 @@ function CandidateRow({ candidate, onWriteMessage, messageSent, onMarkSent, onBa
           onClick={() => onMarkSent(candidate.id, false)}
           style={{
             padding: '7px 16px', borderRadius: 8,
-            background: C.infBg, border: 'none',
-            color: C.infT, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+            background: C.gray, border: `1px solid ${C.grayB}`,
+            color: C.muted, fontSize: 11, fontWeight: 600, cursor: 'pointer',
             fontFamily: 'inherit', whiteSpace: 'nowrap',
           }}
         >
@@ -469,7 +469,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
         style={{
           width: '100%', padding: '14px 20px',
           display: 'flex', alignItems: 'center', gap: 12,
-          background: C.infBg, border: 'none', cursor: 'pointer',
+          background: isDark ? 'rgba(216,99,80,0.06)' : '#FFF8F6', border: 'none', cursor: 'pointer',
           fontFamily: 'inherit',
         }}
       >
@@ -479,9 +479,9 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {pendingCount > 0 && (
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.infT, boxShadow: '0 0 6px rgba(37,99,235,0.35)', flexShrink: 0 }} />
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: isDark ? '#FE9A0C' : '#D97706', boxShadow: '0 0 6px rgba(254,154,12,0.4)', flexShrink: 0 }} />
             )}
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text }}>
+            <div style={{ fontFamily: 'Quincy CF, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text }}>
               {group.positionTitle}
             </div>
           </div>
@@ -491,7 +491,7 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
             {group.candidates.length} candidate{group.candidates.length !== 1 ? 's' : ''}
           </span>
           {pendingCount > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.infT, background: C.infBg, border: `1px solid ${C.infL}`, padding: '2px 9px', borderRadius: 20 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? '#FE9A0C' : '#B45309', background: isDark ? 'rgba(254,154,12,0.12)' : '#FEF3C7', border: `1px solid ${isDark ? 'rgba(254,154,12,0.3)' : '#FDE68A'}`, padding: '2px 9px', borderRadius: 20 }}>
               {pendingCount} pending
             </span>
           )}
@@ -519,10 +519,10 @@ function PositionGroup({ group, onWriteMessage, sentMap, onMarkSent, defaultOpen
           {pendingCount === 0 && group.candidates.length > 0 && (
             <div style={{
               padding: '11px 20px',
-              background: 'rgba(27,36,97,0.04)',
-              borderTop: `1px solid rgba(27,36,97,0.12)`,
+              background: isDark ? 'rgba(216,99,80,0.06)' : 'rgba(216,99,80,0.04)',
+              borderTop: `1px solid rgba(216,99,80,0.12)`,
               display: 'flex', alignItems: 'center', gap: 9,
-              fontSize: 11, color: '#1B2461', fontWeight: 500,
+              fontSize: 11, color: C.red, fontWeight: 500,
             }}>
               <span style={{ fontSize: 13 }}>✓</span>
               {T.allSentInGroup(group.positionTitle)}
@@ -645,7 +645,7 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
             {T.badge}
           </div>
           <h1 style={{
-            fontFamily: 'DM Serif Display, Georgia, serif',
+            fontFamily: 'Quincy CF, Georgia, serif',
             fontSize: 20, fontWeight: 400, color: C.text, margin: 0,
           }}>
             {T.title}
@@ -682,12 +682,12 @@ export default function NotSuitable({ lang = 'en', theme, onBack, onNavigate }) 
               position: 'sticky', top: 0, zIndex: 20,
               marginBottom: 18,
               padding: '13px 18px',
-              background: 'rgba(27,36,97,0.07)',
-              border: '1.5px solid rgba(27,36,97,0.20)',
+              background: isDark ? 'rgba(216,99,80,0.10)' : 'rgba(216,99,80,0.06)',
+              border: `1.5px solid rgba(216,99,80,0.22)`,
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               borderRadius: 10,
-              color: '#1B2461',
+              color: C.red,
               fontSize: 13, fontWeight: 500, lineHeight: 1.55,
               display: 'flex', alignItems: 'center', gap: 10,
             }}>

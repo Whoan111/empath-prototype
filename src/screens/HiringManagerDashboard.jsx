@@ -309,27 +309,27 @@ function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
     <span style={{
-      background: isDark ? 'rgba(147,197,253,0.16)' : 'rgba(27,36,97,0.09)',
-      color:      isDark ? '#93C5FD'                : '#1B2461',
-      border:     isDark ? '1px solid rgba(147,197,253,0.30)' : 'none',
+      background: isDark ? 'rgba(254,154,12,0.16)' : 'rgba(27,36,97,0.09)',
+      color:      isDark ? '#FE9A0C'                : '#1B2461',
+      border:     isDark ? '1px solid rgba(254,154,12,0.30)' : 'none',
       fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ★ {T.strongAdvance}
     </span>
   )
   if (rec === 'advance') return (
-    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
+    <span style={{ background: 'rgba(254,154,12,0.10)', color: '#B45309', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ◎ {T.averageFit}
     </span>
   )
   return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
+    <span style={{ background: '#FFF5F2', color: C.red, fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 20, whiteSpace: 'nowrap', display: 'inline-block' }}>
       ✕ {T.notAdvancing}
     </span>
   )
 }
 
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -349,7 +349,7 @@ function DecisionPill({ dec, T }) {
   if (!dec) return <span style={{ fontSize: 11, color: C.muted, background: C.gray, padding: '3px 9px', borderRadius: 20, fontWeight: 500 }}>{T.pendingDecision}</span>
   if (dec === 'advancing') return <span style={{ fontSize: 11, color: C.red, background: C.redBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.advancingPill}</span>
   if (dec === 'request-round') return <span style={{ fontSize: 11, color: C.warT, background: C.warBg, padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>↺ {T.requestRound}</span>
-  return <span style={{ fontSize: 11, color: C.red, background: '#FEE2E2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.notMovingPill}</span>
+  return <span style={{ fontSize: 11, color: C.red, background: '#FFF5F2', padding: '3px 9px', borderRadius: 20, fontWeight: 600 }}>{T.notMovingPill}</span>
 }
 
 function StagePipeline({ stage }) {
@@ -395,7 +395,7 @@ function CVModal({ candidate, onClose }) {
       >
         <div style={{ padding: '14px 22px', borderBottom: '1px solid #E8E4E0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'white' }}>
           <div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#C9394A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>CV</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1917' }}>{candidate.name}</div>
             <div style={{ fontSize: 11, color: '#888' }}>{candidate.role}{candidate.email ? ` · ${candidate.email}` : ''}</div>
           </div>
@@ -484,7 +484,7 @@ function CandidatePanel({ candidate, decision, onDecide, onSuggestHire, onClose,
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {candidate.fb.map((f, i) => {
-              const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
+              const avColors = [['#FDDDD7', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
               const [bg, col] = avColors[i % 3]
               return (
                 <div key={i} style={{ background: C.gray, borderRadius: 10, padding: '11px 13px', borderLeft: `3px solid ${col}` }}>
@@ -512,7 +512,7 @@ function CandidatePanel({ candidate, decision, onDecide, onSuggestHire, onClose,
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
         <button
           onClick={() => onNavigate?.('hiring-manager-summary')}
-          style={{ padding: '9px 0', borderRadius: 9, background: isDark ? 'rgba(216,99,80,0.14)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.18)'}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '9px 0', borderRadius: 9, background: isDark ? 'rgba(216,99,80,0.14)' : '#FFF5F2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.18)'}`, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           {T.openBrief}
         </button>
@@ -1148,7 +1148,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                       : (isDark ? 'rgba(255,255,255,0.06)' : C.white),
                     borderRadius: 12,
                     border: `1px solid ${isSel ? C.redL : C.border}`,
-                    borderLeft: `3px solid ${isSel ? C.red : fit === 'strongly-advance' ? C.navy : fit === 'advance' ? '#3B82F6' : C.border}`,
+                    borderLeft: `3px solid ${isSel ? C.red : fit === 'strongly-advance' ? C.navy : fit === 'advance' ? '#D97706' : C.border}`,
                     padding: '14px 18px',
                     cursor: 'pointer', transition: 'all 0.15s',
                     display: 'flex', alignItems: 'center', gap: 14,

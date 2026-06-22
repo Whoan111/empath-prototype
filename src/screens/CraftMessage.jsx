@@ -136,7 +136,7 @@ const MSG_TYPES = [
     label: 'Not moving forward',
     emoji: '💌',
     desc: 'Warm, growth-oriented closure',
-    color: C.red, bg: '#FEF2F2',
+    color: C.red, bg: '#FFF5F2',
     contextLabel: 'Specific contextual information',
     contextPlaceholder: 'e.g. Showed real potential — encourage them to reapply in 6 months once they build more system design experience…',
     subject: (name) => `Your application to Publicis Sapient — ${name}`,
@@ -206,7 +206,7 @@ const MSG_TYPES = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -322,6 +322,121 @@ function generateMessage({ candidate, typeId, context, tone }) {
   }
 }
 
+// ── Message split view — AI vs. user-input zones ─────────────────────────────
+function splitByContext(message, context) {
+  if (!context?.trim()) return { before: message, user: null, after: '' }
+  const idx = message.indexOf(context.trim())
+  if (idx === -1) return { before: message, user: null, after: '' }
+  return {
+    before: message.slice(0, idx),
+    user:   context.trim(),
+    after:  message.slice(idx + context.trim().length),
+  }
+}
+
+function MessageSplitView({ message, context, onEditRequest }) {
+  const { before, user, after } = splitByContext(message, context)
+  const amber   = isDark ? '#FE9A0C' : '#B45309'
+  const amberBg = isDark ? 'rgba(254,154,12,0.10)' : '#FFFBEB'
+  const amberBd = isDark ? 'rgba(254,154,12,0.30)' : '#FDE68A'
+  const aiBd    = isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.20)'
+  const bg      = isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF'
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 0, background: bg }}>
+
+      {/* Legend + edit link */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 7 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.red, background: isDark ? 'rgba(216,99,80,0.15)' : '#FFF5F2', border: `1px solid ${aiBd}`, padding: '2px 9px', borderRadius: 10 }}>✦ Empath AI</span>
+          {user && <span style={{ fontSize: 10, fontWeight: 700, color: amber, background: amberBg, border: `1px solid ${amberBd}`, padding: '2px 9px', borderRadius: 10 }}>✎ Your input</span>}
+        </div>
+        <button onClick={onEditRequest} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Edit freely →</button>
+      </div>
+
+      {/* AI — before context */}
+      <div style={{ borderLeft: `2px solid ${aiBd}`, paddingLeft: 14, paddingBottom: user ? 12 : 0 }}>
+        <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{before.replace(/^\n+/, '')}</div>
+      </div>
+
+      {/* User input zone */}
+      {user && (
+        <div style={{ borderLeft: `2px solid ${amber}`, background: amberBg, padding: '10px 14px', borderRadius: '0 6px 6px 0', marginBottom: 12 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: amber, letterSpacing: '0.07em', marginBottom: 5, textTransform: 'uppercase' }}>✎ Your input</div>
+          <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{user}</div>
+        </div>
+      )}
+
+      {/* AI — after context */}
+      {after && (
+        <div style={{ borderLeft: `2px solid ${aiBd}`, paddingLeft: 14 }}>
+          <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{after.replace(/^\n\n/, '')}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Feedback chip picker ───────────────────────────────────────────────────────
+const FEEDBACK_CHIPS = [
+  { id: 'portfolio',     label: 'Strong portfolio presentation',  paragraph: (n) => `We were genuinely impressed by the quality and depth of ${n}'s portfolio presentation. The work showed a clear and considered approach, with a strong narrative connecting craft to real-world impact.` },
+  { id: 'communication', label: 'Excellent communication',         paragraph: (n) => `Throughout the process, ${n}'s communication stood out for its clarity and thoughtfulness. Every interaction — from the initial screening to the final stages — felt considered and professional.` },
+  { id: 'curiosity',     label: 'Genuine curiosity and engagement',paragraph: (n) => `${n} brought a genuine curiosity that was refreshing to see. The questions asked and ideas shared across the process reflected a deep interest in the work, not just the role.` },
+  { id: 'systems',       label: 'Impressive systems thinking',      paragraph: (n) => `${n} showed a real ability to think at the systems level — connecting individual decisions to broader product and business outcomes in a way that is not always easy to articulate.` },
+  { id: 'prepared',      label: 'Well-prepared at every stage',     paragraph: (n) => `${n} came to every stage of the process genuinely prepared. That level of care and attention did not go unnoticed, and speaks well of how ${n} would approach the day-to-day of this role.` },
+  { id: 'culture',       label: 'Great cultural alignment',         paragraph: (n) => `It was clear that ${n}'s values are well-aligned with how we work here — the emphasis on collaboration, openness to feedback, and care for people all came through naturally in conversation.` },
+  { id: 'technical',     label: 'Technical depth stood out',        paragraph: (n) => `${n}'s technical depth was a clear highlight. The ability to speak to implementation detail alongside design intent is something we look for and do not often find in quite the same way.` },
+  { id: 'leadership',    label: 'Leadership potential visible',      paragraph: (n) => `Even in an individual contributor context, ${n} showed real leadership potential — a quiet confidence, a way of bringing others along in the thinking, and the kind of presence that tends to elevate the teams around it.` },
+]
+
+function FeedbackChipPicker({ candidate, onInsert }) {
+  const [selected, setSelected] = useState(new Set())
+
+  const toggle = (id) => setSelected(s => {
+    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  })
+
+  const handleInsert = () => {
+    const name  = candidate?.name?.split(' ')[0] || 'the candidate'
+    const paras = FEEDBACK_CHIPS.filter(c => selected.has(c.id)).map(c => c.paragraph(name)).join('\n\n')
+    onInsert('\n\n' + paras)
+    setSelected(new Set())
+  }
+
+  return (
+    <div style={{ marginTop: 8, padding: '12px', borderRadius: 9, background: isDark ? 'rgba(255,255,255,0.04)' : '#FAFAF8', border: `1px solid ${C.border}` }}>
+      <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>What stood out</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+        {FEEDBACK_CHIPS.map(chip => {
+          const sel = selected.has(chip.id)
+          return (
+            <button
+              key={chip.id}
+              onClick={() => toggle(chip.id)}
+              style={{
+                padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+                border: `1.5px solid ${sel ? C.red : C.border}`,
+                background: sel ? C.redBg : 'transparent',
+                color: sel ? C.red : C.muted,
+                fontSize: 10, fontFamily: 'inherit', fontWeight: sel ? 700 : 400,
+                transition: 'all 0.12s',
+              }}
+            >{chip.label}</button>
+          )
+        })}
+      </div>
+      {selected.size > 0 && (
+        <button
+          onClick={handleInsert}
+          style={{ width: '100%', padding: '7px', borderRadius: 8, background: C.red, color: 'white', border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          Insert {selected.size === 1 ? '1 feedback point' : `${selected.size} feedback points`} →
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Shared atoms ──────────────────────────────────────────────────────────────
 function Av({ id, ini, size = 36 }) {
   const [bg, color] = avColor(id)
@@ -381,7 +496,7 @@ function DictateButton({ onDictate }) {
       title={recording ? 'Stop dictation' : 'Dictate context'}
       style={{
         width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-        background: recording ? '#FEE2E2' : C.gray,
+        background: recording ? '#FFF5F2' : C.gray,
         border: `1.5px solid ${recording ? C.red : C.border}`,
         color: recording ? C.red : C.muted,
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -435,7 +550,7 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
       </button>
 
       {/* Title */}
-      <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h1 style={{ fontFamily: 'Quincy CF, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
         {T.title}
       </h1>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 32px', lineHeight: 1.6 }}>
@@ -712,7 +827,7 @@ function CandidateInboxView({ candidate, subject, message }) {
         <div style={{ marginTop: 28, paddingTop: 16, borderTop: '1px solid #E8EAED', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
             <div style={{ width: 22, height: 22, background: C.red, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>♥</div>
-            <span style={{ fontSize: 13, fontFamily: 'DM Serif Display, Georgia, serif', color: '#1C1917' }}>Publicis Sapient</span>
+            <span style={{ fontSize: 13, fontFamily: 'Quincy CF, Georgia, serif', color: '#1C1917' }}>Publicis Sapient</span>
           </div>
           <p style={{ fontSize: 10, color: '#999', margin: 0, lineHeight: 1.6 }}>
             You received this message because you applied for a position at Publicis Sapient.<br />
@@ -727,12 +842,14 @@ function CandidateInboxView({ candidate, subject, message }) {
 function EditStep({ candidate, typeId, context: initContext, tone: initTone, onBack, onNavigate, T }) {
   const msgType = MSG_TYPES.find(t => t.id === typeId) || MSG_TYPES[0]
 
-  const [tone,       setTone]       = useState(initTone)
-  const [context,    setContext]    = useState(initContext)
-  const [inboxView,  setInboxView]  = useState(false)
-  const [copied,     setCopied]     = useState(false)
-  const [sent,       setSent]       = useState(false)
-  const [activeQuick,setActiveQuick]= useState(null)
+  const [tone,              setTone]             = useState(initTone)
+  const [context,           setContext]          = useState(initContext)
+  const [inboxView,         setInboxView]        = useState(false)
+  const [copied,            setCopied]           = useState(false)
+  const [sent,              setSent]             = useState(false)
+  const [activeQuick,       setActiveQuick]      = useState(null)
+  const [viewMode,          setViewMode]         = useState('preview')
+  const [showFeedbackPicker,setShowFeedbackPicker] = useState(false)
 
   // Regenerate message whenever tone or context changes
   const generatedBody = useMemo(() => generateMessage({
@@ -748,12 +865,9 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
   const subject = msgType.subject(candidate?.name || '')
 
   const QUICK_FIXES = [
-    { id: 'shorter',   label: 'Make it shorter',       action: (msg) => msg.split('\n\n').filter((_, i) => i !== 2).join('\n\n') },
-    { id: 'feedback',  label: 'Add specific feedback',  action: (msg) => msg + '\n\nDuring the process, we particularly appreciated your [specific quality]. This is something that will serve you well in future roles.' },
-    { id: 'warmth',    label: 'More warmth',            action: () => { setTone(t => Math.min(100, t + 20)); return null } },
-    { id: 'formal',    label: 'More formal',            action: () => { setTone(t => Math.max(0, t - 20)); return null } },
-    { id: 'reapply',   label: 'Encourage to reapply',   action: (msg) => msg.replace(closing => closing, (closing) => `\n\nWe would genuinely love to see your application again in the future — please do keep an eye on our openings.` + closing) },
-    { id: 'timeline',  label: 'Add timeline hint',      action: (msg) => msg + '\n\n[Add timeline details here — e.g. decision by end of next week]' },
+    { id: 'friendly', label: 'More friendly', action: () => { setTone(t => Math.min(100, t + 20)); return null } },
+    { id: 'formal',   label: 'More formal',   action: () => { setTone(t => Math.max(0,   t - 20)); return null } },
+    { id: 'feedback', label: 'Add specific feedback →', action: null },
   ]
 
   const applyQuickFix = (fix) => {
@@ -840,10 +954,10 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
               message={currentBody}
             />
           ) : (
-            /* Compose / edit view */
+            /* Compose / split-preview view */
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF', borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Email meta header */}
-              <div style={{ padding: '12px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ padding: '12px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.toLabel}</span>
                   <span style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>
@@ -858,24 +972,32 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                 </div>
               </div>
 
-              {/* Editable body */}
-              <textarea
-                value={currentBody}
-                onChange={e => { setEditedBody(e.target.value); setUserEdited(true) }}
-                style={{
-                  flex: 1, padding: '20px', border: 'none', outline: 'none',
-                  fontSize: 13, fontFamily: 'inherit', color: C.text,
-                  lineHeight: 1.85, resize: 'none',
-                  background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF',
-                }}
-              />
+              {/* Body — split preview or free-edit textarea */}
+              {viewMode === 'preview' && !userEdited ? (
+                <MessageSplitView
+                  message={currentBody}
+                  context={context}
+                  onEditRequest={() => setViewMode('edit')}
+                />
+              ) : (
+                <textarea
+                  value={currentBody}
+                  onChange={e => { setEditedBody(e.target.value); setUserEdited(true) }}
+                  style={{
+                    flex: 1, padding: '20px', border: 'none', outline: 'none',
+                    fontSize: 13, fontFamily: 'inherit', color: C.text,
+                    lineHeight: 1.85, resize: 'none',
+                    background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF',
+                  }}
+                />
+              )}
 
               {/* Word count */}
-              <div style={{ padding: '8px 20px', borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted }}>
+              <div style={{ padding: '8px 20px', borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, flexShrink: 0 }}>
                 <span>{T.words(currentBody.split(/\s+/).filter(Boolean).length)}</span>
-                {userEdited && (
+                {(userEdited || viewMode === 'edit') && (
                   <button
-                    onClick={() => { setUserEdited(false); setEditedBody(generatedBody) }}
+                    onClick={() => { setUserEdited(false); setEditedBody(generatedBody); setViewMode('preview') }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 10, fontFamily: 'inherit' }}
                   >
                     {T.resetGenerated}
@@ -894,27 +1016,47 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
         }}>
           <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px 12px' }}>
 
-            {/* Quick fixes */}
+            {/* Quick adjustments */}
             <div style={{ marginBottom: 22 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: C.text, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
                 {T.quickAdjLabel}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {QUICK_FIXES.map(fix => (
-                  <button
-                    key={fix.id}
-                    onClick={() => applyQuickFix(fix)}
-                    style={{
-                      padding: '8px 11px', borderRadius: 8, cursor: 'pointer',
-                      border: `1px solid ${activeQuick === fix.id ? C.red : C.border}`,
-                      background: activeQuick === fix.id ? C.redBg : C.white,
-                      color: activeQuick === fix.id ? C.red : C.text,
-                      fontSize: 12, textAlign: 'left', fontFamily: 'inherit',
-                      transition: 'all 0.15s',
-                    }}
-                  >
-                    {activeQuick === fix.id ? '✓ ' : '+ '}{fix.label}
-                  </button>
+                  <div key={fix.id}>
+                    <button
+                      onClick={() => {
+                        if (fix.id === 'feedback') {
+                          setShowFeedbackPicker(v => !v)
+                        } else {
+                          applyQuickFix(fix)
+                        }
+                      }}
+                      style={{
+                        width: '100%', padding: '8px 11px', borderRadius: 8, cursor: 'pointer',
+                        border: `1px solid ${(fix.id === 'feedback' ? showFeedbackPicker : activeQuick === fix.id) ? C.red : C.border}`,
+                        background: (fix.id === 'feedback' ? showFeedbackPicker : activeQuick === fix.id) ? C.redBg : C.white,
+                        color: (fix.id === 'feedback' ? showFeedbackPicker : activeQuick === fix.id) ? C.red : C.text,
+                        fontSize: 12, textAlign: 'left', fontFamily: 'inherit',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {fix.id === 'feedback'
+                        ? (showFeedbackPicker ? '✕ Close feedback picker' : fix.label)
+                        : (activeQuick === fix.id ? '✓ ' : '+ ') + fix.label}
+                    </button>
+                    {fix.id === 'feedback' && showFeedbackPicker && (
+                      <FeedbackChipPicker
+                        candidate={candidate}
+                        onInsert={(text) => {
+                          setEditedBody((userEdited ? editedBody : generatedBody) + text)
+                          setUserEdited(true)
+                          setViewMode('edit')
+                          setShowFeedbackPicker(false)
+                        }}
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -945,8 +1087,8 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             {sent ? (
               <div style={{
                 padding: '11px 0', borderRadius: 9,
-                background: 'rgba(37,99,235,0.08)', border: `1px solid #BFDBFE`,
-                textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#1E40AF',
+                background: isDark ? 'rgba(216,99,80,0.14)' : '#FFF5F2', border: `1px solid ${C.redL}`,
+                textAlign: 'center', fontSize: 13, fontWeight: 600, color: C.red,
               }}>
                 {T.sentMsg(candidate?.name?.split(' ')[0] || 'candidate')}
               </div>
@@ -967,9 +1109,9 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
               onClick={handleCopy}
               style={{
                 padding: '11px 0', borderRadius: 9,
-                background: copied ? 'rgba(37,99,235,0.08)' : C.gray,
-                color: copied ? '#1E40AF' : C.muted,
-                border: `1px solid ${copied ? '#BFDBFE' : C.grayB}`,
+                background: copied ? (isDark ? 'rgba(216,99,80,0.14)' : '#FFF5F2') : C.gray,
+                color: copied ? C.red : C.muted,
+                border: `1px solid ${copied ? C.redL : C.grayB}`,
                 fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                 transition: 'all 0.2s',
               }}

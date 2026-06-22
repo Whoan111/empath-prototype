@@ -512,7 +512,7 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {active > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: stageT.Interviews.accent, background: stageT.Interviews.bg, padding: '2px 9px', borderRadius: 20 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? '#FE9A0C' : '#6B8290', background: isDark ? 'rgba(254,154,12,0.15)' : 'rgba(107,130,144,0.12)', padding: '2px 9px', borderRadius: 20 }}>
               {active} active
             </span>
           )}
@@ -549,7 +549,7 @@ function SpontaneousCard({ th, stageT, T, onOpen }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: isDark ? (hov ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.24)') : (hov ? th.cardBgHov : th.cardBg),
+        background: hov ? th.cardBgHov : th.cardBg,
         backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
         border: `1px dashed ${hov ? th.navy+'99' : th.border}`,
         borderRadius: '0.75rem',
@@ -561,12 +561,12 @@ function SpontaneousCard({ th, stageT, T, onOpen }) {
     >
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
         <div>
-          <div style={{ fontSize:9, fontWeight:700, color:stageT.Decision.accent, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:5 }}>{T.unsolicited}</div>
+          <div style={{ fontSize:9, fontWeight:700, color:isDark ? '#FE9A0C' : '#6B8290', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:5 }}>{T.unsolicited}</div>
           <h2 style={{ fontFamily:'DM Serif Display, serif', fontSize:19, fontWeight:400, color:th.text, margin:0 }}>{T.spontaneousLine1}</h2>
           <h2 style={{ fontFamily:'DM Serif Display, serif', fontSize:19, fontWeight:400, color:th.textMid, margin:0 }}>{T.spontaneousLine2}</h2>
         </div>
         <div style={{ textAlign:'right' }}>
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:30, fontWeight:400, color:stageT.Decision.dot, lineHeight:1 }}>3</div>
+          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:30, fontWeight:400, color:isDark ? '#FE9A0C' : '#6B8290', lineHeight:1 }}>3</div>
           <div style={{ fontSize:8, fontWeight:700, color:th.textDim, marginTop:2, letterSpacing:'0.08em' }}>{T.pendingLabel}</div>
         </div>
       </div>
@@ -574,7 +574,7 @@ function SpontaneousCard({ th, stageT, T, onOpen }) {
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div style={{ display:'flex', gap:5 }}>
           {T.deptTags.map(t => (
-            <span key={t} style={{ fontSize:9, color:stageT.Decision.accent, background:stageT.Decision.bg, padding:'2px 7px', borderRadius:20 }}>{t}</span>
+            <span key={t} style={{ fontSize:9, color:isDark ? '#FE9A0C' : '#6B8290', background:isDark ? 'rgba(254,154,12,0.15)' : 'rgba(107,130,144,0.12)', padding:'2px 7px', borderRadius:20 }}>{t}</span>
           ))}
         </div>
         <span style={{ fontSize:11, fontWeight:600, color:hov ? th.navy : th.textDim, transition:'color 0.15s' }}>{T.reviewBtn}</span>
@@ -587,6 +587,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
   const T      = TRANSLATIONS[lang]
   const th     = theme
   const stageT = STAGE_TOKENS[themeMode]
+  const isDarkDash = th.text.startsWith('rgba(255')
   const hour   = new Date().getHours()
   const total  = POSITIONS.reduce((s,p) => s + p.total, 0)
 
@@ -607,9 +608,9 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
 
   const stats = [
     { label: T.totalCandidates, value: total,                                                            color: th.text              },
-    { label: T.inInterviews,    value: POSITIONS.reduce((s,p) => s+(p.stages.Interviews||0), 0),         color: stageT.Interviews.accent },
+    { label: T.inInterviews,    value: POSITIONS.reduce((s,p) => s+(p.stages.Interviews||0), 0),         color: isDarkDash ? '#FE9A0C' : '#3A4244' },
     { label: T.offerStage,      value: POSITIONS.reduce((s,p) => s+(p.stages.Offer||0), 0),              color: stageT.Offer.accent      },
-    { label: T.avgDaysOpen,     value: Math.round(POSITIONS.reduce((s,p) => s+p.openDays, 0)/POSITIONS.length)+'d', color: stageT['Pre-Call'].accent },
+    { label: T.avgDaysOpen,     value: Math.round(POSITIONS.reduce((s,p) => s+p.openDays, 0)/POSITIONS.length)+'d', color: isDarkDash ? '#FE9A0C' : '#6A8E9E' },
   ]
 
   const openPositions   = POSITIONS.filter(p => !closedPositions[p.id])

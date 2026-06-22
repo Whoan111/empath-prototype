@@ -441,7 +441,7 @@ function ScreenStep({ config, onFinish, onBack }) {
           <span style={{ background: C.sucBg,   color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
             ✓ {advanced} advancing
           </span>
-          <span style={{ background: '#FEE2E2', color: C.red,  fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
+          <span style={{ background: '#FFF5F2', color: C.red,  fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
             ✕ {passed} not moving forward
           </span>
         </div>
@@ -469,7 +469,7 @@ function ScreenStep({ config, onFinish, onBack }) {
                   background: d === 'advance'
                     ? C.suc
                     : d === 'pass'
-                    ? '#FCA5A5'
+                    ? '#FF9070'
                     : isCurr
                     ? C.red
                     : C.border,
@@ -491,7 +491,7 @@ function ScreenStep({ config, onFinish, onBack }) {
           style={{
             width: '100%', maxWidth: 620,
             background: C.white, borderRadius: 16,
-            border: `1px solid ${decision === 'advance' ? C.suc : decision === 'pass' ? '#FCA5A5' : C.border}`,
+            border: `1px solid ${decision === 'advance' ? C.suc : decision === 'pass' ? '#FF9070' : C.border}`,
             overflow: 'hidden',
             boxShadow: decision ? 'none' : '0 2px 16px rgba(216,99,80,0.06)',
             transition: 'border-color 0.25s',
@@ -503,7 +503,7 @@ function ScreenStep({ config, onFinish, onBack }) {
             <div style={{
               padding: '10px 24px', textAlign: 'center',
               fontSize: 12, fontWeight: 600,
-              background: decision === 'advance' ? C.sucBg : '#FEE2E2',
+              background: decision === 'advance' ? C.sucBg : '#FFF5F2',
               color: decision === 'advance' ? C.sucT : C.red,
               borderBottom: `1px solid ${decision === 'advance' ? '#BBF7D0' : '#FECACA'}`,
             }}>
@@ -594,7 +594,7 @@ function ScreenStep({ config, onFinish, onBack }) {
               onClick={() => decide('pass')}
               style={{
                 flex: 1, padding: '14px 0', borderRadius: 11,
-                background: decision === 'pass' ? '#FEE2E2' : C.gray,
+                background: decision === 'pass' ? '#FFF5F2' : C.gray,
                 color: decision === 'pass' ? C.red : C.muted,
                 border: `2px solid ${decision === 'pass' ? '#FECACA' : C.grayB}`,
                 fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
@@ -713,7 +713,7 @@ function SummaryStep({ decisions, config, onConfirm, onBack }) {
           </div>
           <div style={{ fontSize: 11, color: C.sucT }}>candidates</div>
         </div>
-        <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '16px 20px', border: '1px solid #FECACA' }}>
+        <div style={{ background: '#FFF5F2', borderRadius: 12, padding: '16px 20px', border: '1px solid #FECACA' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 3 }}>Not moving forward</div>
           <div style={{ fontSize: 30, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>
             {passing.length}
@@ -773,7 +773,7 @@ function SummaryStep({ decisions, config, onConfirm, onBack }) {
                   <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{c.name}</div>
                   <div style={{ fontSize: 11, color: C.muted }}>{c.role} · {c.exp}</div>
                 </div>
-                <span style={{ background: '#FEF2F2', color: C.red, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
+                <span style={{ background: '#FFF5F2', color: C.red, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600 }}>
                   Not moving forward
                 </span>
                 <button

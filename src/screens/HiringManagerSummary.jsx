@@ -127,7 +127,7 @@ const SYNTHESIS_RATIONALE = "All three interviewers recommend advancing Giulia. 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -144,20 +144,20 @@ function Av({ id, ini, size = 40 }) {
 
 function FitPill({ fit, T }) {
   if (fit === 'strongly-advance') return (
-    <span style={{ background: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', color: isDark ? '#93C5FD' : 'white', border: isDark ? '1px solid rgba(147,197,253,0.30)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+    <span style={{ background: isDark ? 'rgba(216,99,80,0.24)' : '#D86350', color: isDark ? 'rgba(255,140,120,0.95)' : '#FFFFFF', border: isDark ? '1px solid rgba(216,99,80,0.40)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
   )
   if (fit === 'advance') return (
-    <span style={{ background: isDark ? 'rgba(37,99,235,0.20)' : '#DBEAFE', color: isDark ? '#93C5FD' : '#1E40AF', border: isDark ? '1px solid rgba(147,197,253,0.25)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+    <span style={{ background: isDark ? 'rgba(254,154,12,0.20)' : '#FEF3C7', color: isDark ? '#FE9A0C' : '#B45309', border: isDark ? '1px solid rgba(254,154,12,0.25)' : 'none', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
   )
   return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
+    <span style={{ background: '#FFF5F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
   )
 }
 
 const valueToFit = (v) =>
-  v >= 80 ? { label: 'Strong fit', color: isDark ? '#93C5FD' : 'white', bg: isDark ? 'rgba(147,197,253,0.16)' : '#1B2461', border: isDark ? '1px solid rgba(147,197,253,0.30)' : 'none' }
-: v >= 60 ? { label: 'Fit',        color: isDark ? '#93C5FD' : '#1E40AF', bg: isDark ? 'rgba(37,99,235,0.20)' : '#DBEAFE', border: isDark ? '1px solid rgba(147,197,253,0.25)' : 'none' }
-:           { label: 'Not fit',    color: '#C9394A', bg: '#FEF2F2', border: 'none' }
+  v >= 80 ? { label: 'Strong fit', color: isDark ? 'rgba(255,140,120,0.95)' : '#FFFFFF', bg: isDark ? 'rgba(216,99,80,0.24)' : '#D86350', border: isDark ? '1px solid rgba(216,99,80,0.40)' : 'none' }
+: v >= 60 ? { label: 'Fit',        color: isDark ? '#FE9A0C' : '#B45309', bg: isDark ? 'rgba(254,154,12,0.20)' : '#FEF3C7', border: isDark ? '1px solid rgba(254,154,12,0.25)' : 'none' }
+:           { label: 'Not fit',    color: '#D86350', bg: '#FFF5F2', border: 'none' }
 
 function DimBar({ label, value }) {
   const fit = valueToFit(value)
@@ -175,14 +175,12 @@ function DimBar({ label, value }) {
 // ── Interview report card ─────────────────────────────────────────────────────
 function InterviewCard({ interview, T }) {
   const borderColor = interview.fit === 'strongly-advance' ? '#1B2461'
-                    : interview.fit === 'advance'          ? '#1E40AF'
+                    : interview.fit === 'advance'          ? '#B45309'
                     : C.red
   const dimColor    = borderColor
-  const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
+  const avColors = [['#FDDDD7', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
   const [avBg, avCol] = avColors[(interview.id - 1) % 3]
   const dims = interview.dimensions
-
-  const stars = Array.from({ length: 5 }, (_, i) => i < interview.score)
 
   return (
     <div style={{
@@ -195,27 +193,28 @@ function InterviewCard({ interview, T }) {
       <div style={{ height: 3, background: borderColor }} />
 
       {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: avBg, color: avCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>
-          {interview.avatarIni}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>
-            {interview.interviewer}
-            <span style={{ fontWeight: 400, color: C.muted, marginLeft: 6, fontSize: 11 }}>· {interview.interviewerRole}</span>
+      <div style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}` }}>
+        {/* Top line: avatar + name + score + pill */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 6 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: avBg, color: avCol, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, flexShrink: 0 }}>
+            {interview.avatarIni}
           </div>
-          <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>
-            Round {interview.round} · {interview.type} · {interview.date}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {interview.interviewer}
+              <span style={{ fontWeight: 400, color: C.muted, marginLeft: 5, fontSize: 10 }}>· {interview.interviewerRole}</span>
+            </div>
           </div>
+          <FitPill fit={interview.fit} T={T} />
         </div>
-        {/* Score */}
-        <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, fontWeight: 400, color: borderColor, lineHeight: 1 }}>{interview.score}<span style={{ fontSize: 11, color: C.muted }}>/5</span></div>
-          <div style={{ display: 'flex', gap: 2, justifyContent: 'center', marginTop: 2 }}>
-            {stars.map((f, i) => <span key={i} style={{ fontSize: 9, color: f ? borderColor : C.border }}>★</span>)}
-          </div>
+        {/* Bottom line: round · type · date */}
+        <div style={{ fontSize: 10, color: C.muted, paddingLeft: 37, display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'nowrap', overflow: 'hidden' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>Round {interview.round}</span>
+          <span style={{ color: C.border }}>·</span>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{interview.type}</span>
+          <span style={{ color: C.border, flexShrink: 0 }}>·</span>
+          <span style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{interview.date}</span>
         </div>
-        <FitPill fit={interview.fit} T={T} />
       </div>
 
       {/* Body */}
@@ -230,25 +229,25 @@ function InterviewCard({ interview, T }) {
 
         {/* Strengths + Improvements side by side */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div style={{ background: isDark ? 'rgba(216,99,80,0.14)' : '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FECDD3' : '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+          <div style={{ background: isDark ? 'rgba(216,99,80,0.14)' : '#FFF5F2', borderRadius: 9, padding: '10px 13px' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FDDDD7' : '#C05340', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
               ✓ {T.strengths}
             </div>
             {interview.positives.map((p, i) => (
               <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: 4 }}>
-                <span style={{ color: '#C9394A', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
+                <span style={{ color: '#D86350', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
                 <span style={{ fontSize: 11, color: isDark ? C.text : '#374151', lineHeight: 1.5 }}>{p}</span>
               </div>
             ))}
           </div>
           {interview.improvements.length > 0 && (
-            <div style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', borderRadius: 9, padding: '10px 13px' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#BFDBFE' : '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+            <div style={{ background: isDark ? 'rgba(254,154,12,0.18)' : '#FEF3C7', borderRadius: 9, padding: '10px 13px' }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FDE68A' : '#B45309', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
                 ⚠ {T.improvements}
               </div>
               {interview.improvements.map((p, i) => (
                 <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: 4 }}>
-                  <span style={{ color: '#2563EB', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
+                  <span style={{ color: '#D97706', fontSize: 10, marginTop: 2, flexShrink: 0 }}>•</span>
                   <span style={{ fontSize: 11, color: isDark ? C.text : '#374151', lineHeight: 1.5 }}>{p}</span>
                 </div>
               ))}
@@ -373,7 +372,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
                 <FitPill fit={overallFit} T={T} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
-                <span style={{ background: isDark ? 'rgba(37,99,235,0.18)' : '#EFF6FF', color: isDark ? '#93C5FD' : '#1D4ED8', border: `1px solid ${isDark ? 'rgba(147,197,253,0.25)' : '#BFDBFE'}`, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>{candidate.role}</span>
+                <span style={{ background: isDark ? 'rgba(27,36,97,0.22)' : 'rgba(27,36,97,0.08)', color: isDark ? '#8BA8FF' : '#1B2461', border: `1px solid ${isDark ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.18)'}`, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>{candidate.role}</span>
                 <span style={{ color: C.muted, fontSize: 12 }}>{T.applied} {candidate.appliedDate}</span>
               </div>
             </div>
@@ -412,7 +411,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setDecision('advance')}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: isDark ? 'rgba(216,99,80,0.18)' : '#FEE2E2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.30)' : 'rgba(216,99,80,0.20)'}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: isDark ? 'rgba(216,99,80,0.18)' : '#FFF5F2', color: C.red, border: `1px solid ${isDark ? 'rgba(216,99,80,0.30)' : 'rgba(216,99,80,0.20)'}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 {T.suggestHire}
               </button>

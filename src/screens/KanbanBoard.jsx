@@ -287,14 +287,27 @@ function Capsule({ candidate, stage, th, stageT, T, onMove, onContact, onReject,
             {candidate.role}
           </div>
         </div>
+        {stage === 'Decision' && candidate.fit && (() => {
+          const fitCfg = {
+            strong:  { label:'★ Strong fit',   color: isDark ? 'rgba(255,140,120,0.95)' : '#FFFFFF', bg: isDark ? 'rgba(216,99,80,0.28)' : '#D86350',          border: isDark ? '1px solid rgba(216,99,80,0.45)' : 'none' },
+            average: { label:'◎ Average fit',  color: isDark ? '#FCD34D' : '#92400E',               bg: isDark ? 'rgba(252,211,77,0.14)' : 'rgba(254,154,12,0.14)', border: `1px solid ${isDark ? 'rgba(252,211,77,0.30)' : 'rgba(217,119,6,0.28)'}` },
+            'not-fit':{ label:'✗ Not a fit',   color: isDark ? '#94A3B8' : '#6B7280',               bg: isDark ? 'rgba(148,163,184,0.12)' : 'rgba(107,114,128,0.10)', border: `1px solid ${isDark ? 'rgba(148,163,184,0.22)' : 'rgba(107,114,128,0.20)'}` },
+          }[candidate.fit]
+          if (!fitCfg) return null
+          return (
+            <span style={{ fontSize:8, fontWeight:700, color:fitCfg.color, background:fitCfg.bg, border:fitCfg.border, padding:'2px 7px', borderRadius:20, whiteSpace:'nowrap', flexShrink:0, alignSelf:'flex-start', letterSpacing:'0.01em' }}>
+              {fitCfg.label}
+            </span>
+          )
+        })()}
         {stage === 'Interviews' && (() => {
           const done = candidate.interviewsDone ?? 0
           const next = candidate.nextInterview ?? null
           if (next) return (
             <span style={{ fontSize:8, fontWeight:700,
-              color:       isDark ? '#93C5FD'                   : '#1B2461',
-              background:  isDark ? 'rgba(147,197,253,0.15)'    : 'rgba(27,36,97,0.10)',
-              border:      `1px solid ${isDark ? 'rgba(147,197,253,0.32)' : 'rgba(27,36,97,0.18)'}`,
+              color:       isDark ? '#FE9A0C'                   : '#1B2461',
+              background:  isDark ? 'rgba(254,154,12,0.15)'    : 'rgba(27,36,97,0.10)',
+              border:      `1px solid ${isDark ? 'rgba(254,154,12,0.32)' : 'rgba(27,36,97,0.18)'}`,
               padding:'2px 6px', borderRadius:20, whiteSpace:'nowrap', flexShrink:0, alignSelf:'flex-start', letterSpacing:'0.01em' }}>
               📅 {next}
             </span>
@@ -468,8 +481,8 @@ const INIT = {
       { id:109, name:'Chiara Lombardi',   ini:'CL', role:'UX Researcher',        loc:'Milan',    exp:'6 yrs', daysAgo:14, skills:['Research','Analysis'],  interviewsDone:1, nextInterview:null              },
     ],
     Decision: [
-      { id:110, name:'Giulia Rossi',      ini:'GR', role:'Mid UX Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:3,  skills:['Figma','Research']      },
-      { id:118, name:'Serena Costa',      ini:'SC', role:'Lead Designer',        loc:'Milan',    exp:'7 yrs', daysAgo:7,  skills:['Leadership','Figma']    },
+      { id:110, name:'Giulia Rossi',      ini:'GR', role:'Mid UX Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:3,  skills:['Figma','Research'],     fit:'strong'  },
+      { id:118, name:'Serena Costa',      ini:'SC', role:'Lead Designer',        loc:'Milan',    exp:'7 yrs', daysAgo:7,  skills:['Leadership','Figma'],   fit:'average' },
     ],
     Offer: [
       { id:111, name:'Valentina Greco',   ini:'VG', role:'UX Designer',          loc:'Milan',    exp:'8 yrs', daysAgo:8,  skills:['Strategy','Systems']    },
@@ -488,7 +501,7 @@ const INIT = {
       { id:209, name:'Ravi Kumar',        ini:'RK', role:'React Specialist',     loc:'London',   exp:'6 yrs', daysAgo:13, skills:['React','Redux'],        interviewsDone:2, nextInterview:null              },
     ],
     Decision: [
-      { id:210, name:'Isabelle Blanc',    ini:'IB', role:'Senior FE',            loc:'Lyon',     exp:'8 yrs', daysAgo:4,  skills:['React','Next.js']       },
+      { id:210, name:'Isabelle Blanc',    ini:'IB', role:'Senior FE',            loc:'Lyon',     exp:'8 yrs', daysAgo:4,  skills:['React','Next.js'],      fit:'strong'  },
     ],
     Offer: [
       { id:211, name:"James O'Brien",     ini:'JO', role:'Lead Frontend',        loc:'Dublin',   exp:'9 yrs', daysAgo:6,  skills:['React','TypeScript']    },
@@ -504,7 +517,7 @@ const INIT = {
       { id:303, name:'Clara Rossi',       ini:'CR', role:'Associate PM',         loc:'Rome',     exp:'3 yrs', daysAgo:2,  skills:['Agile','Research'],     interviewsDone:0, nextInterview:'Jun 11 · 11:30' },
     ],
     Decision: [
-      { id:306, name:'Valentina Serra',   ini:'VS', role:'Product Lead',         loc:'Florence', exp:'6 yrs', daysAgo:5,  skills:['Vision','Roadmap']      },
+      { id:306, name:'Valentina Serra',   ini:'VS', role:'Product Lead',         loc:'Florence', exp:'6 yrs', daysAgo:5,  skills:['Vision','Roadmap'],     fit:'average' },
     ],
     Offer: [],
   },
@@ -526,7 +539,7 @@ const INIT = {
       { id:502, name:'Federico Gallo',    ini:'FG', role:'Creative Strategist',  loc:'Rome',     exp:'6 yrs', daysAgo:8,  skills:['Campaigns','Brand'],    interviewsDone:1, nextInterview:'Jun 13 · 15:00' },
     ],
     Decision: [
-      { id:503, name:'Anastasia Bruno',   ini:'AB', role:'Senior Brand Manager', loc:'Milan',    exp:'8 yrs', daysAgo:3,  skills:['Strategy','Leadership'] },
+      { id:503, name:'Anastasia Bruno',   ini:'AB', role:'Senior Brand Manager', loc:'Milan',    exp:'8 yrs', daysAgo:3,  skills:['Strategy','Leadership'], fit:'strong' },
     ],
     Offer: [],
   },

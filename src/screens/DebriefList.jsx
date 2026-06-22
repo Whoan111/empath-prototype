@@ -138,7 +138,7 @@ const COMPLETED = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -182,10 +182,10 @@ function MiniPipeline({ stage }) {
 
 // ── Right profile panel ───────────────────────────────────────────────────────
 const REC_COLORS = {
-  'strongly-advance': { bg: 'rgba(27,36,97,0.07)', text: '#1B2461', border: 'rgba(27,36,97,0.2)' },
+  'strongly-advance': { bg: '#D86350', text: '#FFFFFF', border: '#D86350' },
   'advance':          { bg: 'rgba(5,150,105,0.07)', text: '#065F46', border: 'rgba(5,150,105,0.25)' },
   'reservations':     { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' },
-  'not-moving':       { bg: '#FEF2F2', text: '#C9394A', border: '#FECDD3' },
+  'not-moving':       { bg: '#FFF5F2', text: '#D86350', border: '#FDDDD7' },
 }
 
 function DebriefProfilePanel({ item, isPending, onFill, onEdit, onClose, T }) {
@@ -230,7 +230,7 @@ function DebriefProfilePanel({ item, isPending, onFill, onEdit, onClose, T }) {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {/* Round & type */}
-            <div style={{ background: C.gray, borderRadius: 8, padding: '9px 11px', border: `1px solid ${C.border}` }}>
+            <div style={{ background: isDark ? 'rgba(255,255,255,0.09)' : C.gray, borderRadius: 8, padding: '9px 11px', border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.red}` }}>
               <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>Round {item.round} · {item.interviewType}</div>
               <div style={{ fontSize: 11, color: C.text, fontWeight: 500 }}>{item.completedDate}</div>
             </div>
@@ -398,9 +398,9 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
 
           {/* Count chips */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
-            <div style={{ background: 'rgba(37,99,235,0.08)', borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #BFDBFE' }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: '#1E40AF', fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
-              <div style={{ fontSize: 9, color: '#1E40AF', fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
+            <div style={{ background: 'rgba(254,154,12,0.08)', borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #FDE68A' }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: '#B45309', fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
+              <div style={{ fontSize: 9, color: '#B45309', fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
             <div style={{ background: C.redBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.redL}` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
@@ -415,10 +415,10 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
             onClick={() => setPendingOpen(o => !o)}
             style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: pendingOpen ? 12 : 0, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0', width: '100%', textAlign: 'left' }}
           >
-            <span style={{ fontSize: 11, color: '#1E40AF', transition: 'transform 0.2s', display: 'inline-block', transform: pendingOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', boxShadow: '0 0 6px rgba(37,99,235,0.45)', flexShrink: 0, display: 'inline-block' }} />
+            <span style={{ fontSize: 11, color: '#B45309', transition: 'transform 0.2s', display: 'inline-block', transform: pendingOpen ? 'rotate(90deg)' : 'none' }}>▶</span>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#D97706', boxShadow: '0 0 6px rgba(254,154,12,0.45)', flexShrink: 0, display: 'inline-block' }} />
             <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: 0 }}>{T.pendingTitle}</h2>
-            <span style={{ background: 'rgba(37,99,235,0.08)', color: '#1E40AF', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
+            <span style={{ background: 'rgba(254,154,12,0.08)', color: '#B45309', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{PENDING.length}</span>
           </button>
 
           {pendingOpen && (

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 // ── Per-role notification content (all share the same navy palette) ───────────
-const NAVY = '#1B2461'
-const NAVY_BG     = 'rgba(27,36,97,0.10)'
-const NAVY_BORDER = 'rgba(27,36,97,0.26)'
+const NAVY = '#D86350'
+const NAVY_BG     = 'rgba(216,99,80,0.08)'
+const NAVY_BORDER = 'rgba(216,99,80,0.20)'
 
 const ROLE_NOTIFICATIONS = {
   recruiter: {
@@ -99,7 +99,7 @@ function NotificationBubble({ role, th, onNavigate }) {
         <span style={{
           position: 'absolute', top: 8, right: 8,
           width: 7, height: 7, borderRadius: '50%',
-          background: '#C9394A',
+          background: '#D86350',
           border: '1.5px solid white',
           boxShadow: '0 0 5px rgba(216,99,80,0.55)',
         }} />
@@ -128,7 +128,7 @@ function NotificationBubble({ role, th, onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
           <span style={{
             width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 3,
-            background: '#C9394A', boxShadow: '0 0 6px rgba(216,99,80,0.45)',
+            background: '#D86350', boxShadow: '0 0 6px rgba(216,99,80,0.45)',
           }} />
           <span style={{ fontSize: 12, fontWeight: 700, color: th.text, lineHeight: 1.4 }}>
             {n.headline}

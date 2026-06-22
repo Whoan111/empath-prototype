@@ -275,7 +275,7 @@ const TRIAGE_DATA = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -808,9 +808,9 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
             <div style={{ fontSize: 17, fontWeight: 700, color: C.muted, lineHeight: 1 }}>{remaining}</div>
             <div style={{ fontSize: 8, color: C.muted, fontWeight: 600, marginTop: 2 }}>{T.remaining}</div>
           </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(37,99,235,0.08)', borderRadius: 8 }}>
-            <div style={{ fontSize: 17, fontWeight: 700, color: '#1E40AF', lineHeight: 1 }}>{passing}</div>
-            <div style={{ fontSize: 8, color: '#1E40AF', fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: 'rgba(254,154,12,0.08)', borderRadius: 8 }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#B45309', lineHeight: 1 }}>{passing}</div>
+            <div style={{ fontSize: 8, color: '#B45309', fontWeight: 600, marginTop: 2 }}>{T.notFwd}</div>
           </div>
           <div style={{ flex: 1, textAlign: 'center', padding: '7px 4px', background: C.redBg, borderRadius: 8 }}>
             <div style={{ fontSize: 17, fontWeight: 700, color: C.red, lineHeight: 1 }}>{advancing}</div>
@@ -844,7 +844,7 @@ function CandidateListPanel({ cvList, currentIdx, decisions, onSelect, advancing
               </div>
               <div style={{
                 width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                background: dec === 'advance' ? C.red : dec === 'pass' ? '#2563EB' : C.grayB,
+                background: dec === 'advance' ? C.red : dec === 'pass' ? '#D97706' : C.grayB,
               }} />
             </button>
           )
@@ -1237,7 +1237,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   C = buildC(theme)
   isDark = theme === THEMES.dark
 
-  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#C9394A', redGlow:'rgba(216,99,80,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
+  const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#D86350', redGlow:'rgba(216,99,80,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 
   const [positions, setPositions] = useState(() => {
@@ -1445,6 +1445,15 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           <span style={{ fontSize: 12, color: C.muted }}>{total > 0 ? `${idx + 1} / ${total}` : '0 CVs'}</span>
           <button onClick={() => goTo(idx - 1)} disabled={idx === 0}           style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === 0 ? C.gray : C.border}`, background: C.white, cursor: idx === 0 ? 'default' : 'pointer', fontSize: 13, color: idx === 0 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
           <button onClick={() => goTo(idx + 1)} disabled={idx === total - 1}   style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${idx === total - 1 ? C.gray : C.border}`, background: C.white, cursor: idx === total - 1 ? 'default' : 'pointer', fontSize: 13, color: idx === total - 1 ? C.grayB : C.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+          <span style={{ width: 1, height: 18, background: C.border }} />
+          <button
+            onClick={() => { setDecisions({}); setIdx(0) }}
+            style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.white, color: C.muted, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.red; e.currentTarget.style.color = C.red }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted }}
+          >
+            Clear screening
+          </button>
         </div>
       </div>
 
@@ -1465,7 +1474,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
                   title={c.name}
                   style={{
                     flex: 1, height: 4, borderRadius: 2, border: 'none', cursor: 'pointer', padding: 0,
-                    background: dec === 'advance' ? C.nav : dec === 'pass' ? '#FCA5A5' : curr ? C.red : C.border,
+                    background: dec === 'advance' ? C.nav : dec === 'pass' ? '#FF9070' : curr ? C.red : C.border,
                     transform: curr ? 'scaleY(2)' : 'scaleY(1)', transition: 'all 0.15s',
                   }}
                 />

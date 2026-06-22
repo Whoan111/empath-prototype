@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 const SCREEN_T = {
   en: {
@@ -108,7 +109,7 @@ const MOCK_INTERVIEWS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -125,13 +126,13 @@ function Av({ id, ini, size = 40 }) {
 
 function FitPill({ fit, T }) {
   if (fit === 'strongly-advance') return (
-    <span style={{ background: '#EFF6FF', color: '#2563EB', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
+    <span style={{ background: '#FEF3C7', color: '#D97706', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>★ {T.strongAdvance}</span>
   )
   if (fit === 'advance') return (
-    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
+    <span style={{ background: 'rgba(254,154,12,0.10)', color: '#B45309', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>◎ {T.averageFit}</span>
   )
   return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
+    <span style={{ background: '#FFF5F2', color: C.red, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>✕ {T.notAdvancing}</span>
   )
 }
 
@@ -150,13 +151,13 @@ function DimBar({ label, value, color }) {
 
 // ── Interview report card ─────────────────────────────────────────────────────
 function InterviewCard({ interview, T }) {
-  const borderColor = interview.fit === 'strongly-advance' ? '#2563EB'
-                    : interview.fit === 'advance'          ? '#3B82F6'
+  const borderColor = interview.fit === 'strongly-advance' ? '#D97706'
+                    : interview.fit === 'advance'          ? '#D97706'
                     : C.red
-  const dimColor    = interview.fit === 'strongly-advance' ? '#2563EB'
-                    : interview.fit === 'advance'          ? '#3B82F6'
+  const dimColor    = interview.fit === 'strongly-advance' ? '#D97706'
+                    : interview.fit === 'advance'          ? '#D97706'
                     : C.red
-  const avColors = [['#FECDD3', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
+  const avColors = [['#FDDDD7', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
   const [avBg, avCol] = avColors[(interview.id - 1) % 3]
   const dims = interview.dimensions
 
@@ -189,14 +190,14 @@ function InterviewCard({ interview, T }) {
       <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
         {/* Strengths — red tone */}
-        <div style={{ background: '#FFF1F2', borderRadius: 9, padding: '10px 13px' }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: '#9F1239', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+        <div style={{ background: isDark ? 'rgba(216,99,80,0.10)' : '#FFF5F2', borderRadius: 9, padding: '10px 13px' }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#C05340', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
             ✓ {T.strengths}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {interview.positives.map((p, i) => (
               <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                <span style={{ color: '#C9394A', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                <span style={{ color: '#D86350', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
                 <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
               </div>
             ))}
@@ -204,14 +205,14 @@ function InterviewCard({ interview, T }) {
         </div>
 
         {/* Improvements — blue tone */}
-        <div style={{ background: '#EFF6FF', borderRadius: 9, padding: '10px 13px' }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
+        <div style={{ background: isDark ? 'rgba(254,154,12,0.12)' : '#FEF3C7', borderRadius: 9, padding: '10px 13px' }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 7 }}>
             ⚠ {T.improvements}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {interview.improvements.map((p, i) => (
               <div key={i} style={{ display: 'flex', gap: 7, alignItems: 'flex-start' }}>
-                <span style={{ color: '#2563EB', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
+                <span style={{ color: '#D97706', fontSize: 11, marginTop: 1, flexShrink: 0 }}>•</span>
                 <span style={{ fontSize: 12, color: C.text, lineHeight: 1.55 }}>{p}</span>
               </div>
             ))}
@@ -219,7 +220,7 @@ function InterviewCard({ interview, T }) {
         </div>
 
         {/* Note */}
-        <div style={{ background: C.gray, borderRadius: 9, padding: '10px 13px', borderLeft: `3px solid ${C.grayB}` }}>
+        <div style={{ background: isDark ? 'rgba(255,255,255,0.09)' : C.gray, borderRadius: 9, padding: '10px 13px', borderLeft: `3px solid ${C.red}` }}>
           <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>
             ℹ {T.interviewerNote}
           </div>
@@ -241,6 +242,7 @@ function InterviewCard({ interview, T }) {
 // ── Root ──────────────────────────────────────────────────────────────────────
 export default function RecruiterSummary({ theme, lang = 'en', candidate = MOCK_CANDIDATE, onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme?.text?.startsWith('rgba(255')
 
   const T = SCREEN_T[lang] || SCREEN_T.en
   const [copiedEmail, setCopiedEmail] = useState(false)
@@ -312,7 +314,7 @@ export default function RecruiterSummary({ theme, lang = 'en', candidate = MOCK_
               </a>
 
               <a href={`https://${candidate.linkedin}`} target="_blank" rel="noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: C.infBg, border: '1px solid #BFDBFE', textDecoration: 'none' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, background: C.infBg, border: '1px solid #FDE68A', textDecoration: 'none' }}
               >
                 <span style={{ fontSize: 12 }}>💼</span>
                 <div>
@@ -346,7 +348,7 @@ export default function RecruiterSummary({ theme, lang = 'en', candidate = MOCK_
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
             {T.feedback} · {T.rounds(interviews.length)}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: interviews.length > 1 ? '1fr 1fr' : '1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
             {interviews.map(iv => (
               <InterviewCard key={iv.id} interview={iv} T={T} />
             ))}

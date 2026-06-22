@@ -431,7 +431,7 @@ export default function App() {
             position: 'fixed', zIndex: 0, pointerEvents: 'none',
             top: '42%', left: '56%', width: 900, height: 900,
             borderRadius: '50%', filter: 'blur(68px)',
-            background: 'radial-gradient(circle at center, rgba(80,40,200,0.58) 0%, rgba(27,36,97,0.40) 36%, rgba(216,99,80,0.12) 58%, transparent 72%)',
+            background: 'radial-gradient(circle at center, rgba(150,45,25,0.55) 0%, rgba(90,30,15,0.32) 36%, rgba(216,99,80,0.12) 58%, transparent 72%)',
             transform: 'translate(-50%,-50%)',
             animation: 'empathOrb 8s ease-in-out infinite',
           }} />

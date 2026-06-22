@@ -16,6 +16,7 @@
 import { useState } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
+let isDark = false
 
 
 // ── Translations ──────────────────────────────────────────────────────────────
@@ -149,7 +150,7 @@ const DECISION_CANDIDATES = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AV_PALETTE = [
-  ['#FECDD3','#C9394A'],
+  ['#FDDDD7','#D86350'],
   ['#FEF3C7','#D97706'],
   ['#EDE9FE','#6D28D9'],
 ]
@@ -215,7 +216,7 @@ function SummaryProfilePanel({ candidate, onOpen, onClose, T }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
         <div style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
         {candidate.note ? (
-          <div style={{ background: C.gray, borderRadius: 9, padding: '10px 12px', borderLeft: `3px solid ${C.border}`, marginBottom: 10 }}>
+          <div style={{ background: isDark ? 'rgba(255,255,255,0.09)' : C.gray, borderRadius: 9, padding: '10px 12px', borderLeft: `3px solid ${C.red}`, marginBottom: 10 }}>
             <p style={{ fontSize: 11, color: C.text, lineHeight: 1.65, margin: 0, fontStyle: 'italic' }}>"{candidate.note}"</p>
           </div>
         ) : (
@@ -226,7 +227,7 @@ function SummaryProfilePanel({ candidate, onOpen, onClose, T }) {
           </div>
         )}
         {candidate.interviewsDone > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: C.gray, borderRadius: 8, border: `1px solid ${C.border}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: isDark ? 'rgba(255,255,255,0.09)' : C.gray, borderRadius: 8, border: `1px solid ${C.border}` }}>
             <span style={{ fontSize: 20, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{candidate.interviewsDone}</span>
             <span style={{ fontSize: 10, color: C.muted }}>interview{candidate.interviewsDone !== 1 ? 's' : ''} completed</span>
           </div>
@@ -249,7 +250,7 @@ function SummaryProfilePanel({ candidate, onOpen, onClose, T }) {
 }
 
 function UrgencyPill({ days, T }) {
-  const bg    = days >= 7 ? '#FEE2E2' : days >= 3 ? C.warBg : C.sucBg
+  const bg    = days >= 7 ? '#FFF5F2' : days >= 3 ? C.warBg : C.sucBg
   const color = days >= 7 ? C.red     : days >= 3 ? C.war   : C.suc
   const label = days === 0 ? T.today : T.daysAgo(days)
   return (
@@ -275,12 +276,12 @@ function FitPill({ rec, T }) {
     </span>
   )
   if (rec === 'advance') return (
-    <span style={{ background: 'rgba(37,99,235,0.10)', color: '#1E40AF', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+    <span style={{ background: 'rgba(254,154,12,0.10)', color: '#B45309', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
       ◎ {T.averageFit}
     </span>
   )
   return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+    <span style={{ background: '#FFF5F2', color: C.red, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
       ✕ {T.notAdvancing}
     </span>
   )
@@ -403,6 +404,7 @@ function DecisionCard({ c, onOpen, onSelect, isSelected, T }) {
 // ── Root ──────────────────────────────────────────────────────────────────────
 export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onBack, onNavigate }) {
   C = buildC(theme)
+  isDark = theme?.text?.startsWith('rgba(255')
 
   const T         = TEXT[lang] || TEXT.en
   const isPreCall = mode === 'pre-call'

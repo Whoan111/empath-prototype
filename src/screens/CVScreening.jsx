@@ -196,7 +196,7 @@ const MOCK_CVS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AVATAR_PALETTE = [
-  ['#FECDD3','#C9394A'], ['#DBEAFE','#2563EB'], ['#D1FAE5','#059669'],
+  ['#FDDDD7','#D86350'], ['#FEF3C7','#D97706'], ['#D1FAE5','#059669'],
   ['#FEF3C7','#D97706'], ['#EDE9FE','#6D28D9'], ['#FCE7F3','#BE185D'],
   ['#FEF9C3','#CA8A04'], ['#DCFCE7','#16A34A'],
 ]
@@ -222,7 +222,7 @@ function DecisionBadge({ dec, T }) {
     <span style={{ background: C.sucBg, color: C.sucT, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{T.advancingBadge}</span>
   )
   if (dec === 'pass') return (
-    <span style={{ background: '#FEE2E2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{T.notFwdBadge}</span>
+    <span style={{ background: '#FFF5F2', color: C.red, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{T.notFwdBadge}</span>
   )
   return null
 }
@@ -260,7 +260,7 @@ function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect, T }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
           {[
             { n: advancing, label: T.advancing, bg: C.sucBg,   color: C.sucT },
-            { n: passing,   label: T.notFwd,    bg: '#FEE2E2', color: C.red  },
+            { n: passing,   label: T.notFwd,    bg: '#FFF5F2', color: C.red  },
             { n: remaining, label: T.remaining, bg: C.gray,    color: C.muted },
           ].map(s => (
             <div key={s.label} style={{ background: s.bg, borderRadius: 7, padding: '7px 6px', textAlign: 'center' }}>
@@ -341,7 +341,7 @@ function CVCard({ cv, decision, animKey, T }) {
         background: C.white, borderRadius: 16,
         border: `1.5px solid ${
           decision === 'advance' ? '#86EFAC'
-          : decision === 'pass'  ? '#FCA5A5'
+          : decision === 'pass'  ? '#FF9070'
           : C.border
         }`,
         overflow: 'hidden',
@@ -355,7 +355,7 @@ function CVCard({ cv, decision, animKey, T }) {
         <div style={{
           padding: '9px 28px', textAlign: 'center',
           fontSize: 12, fontWeight: 600,
-          background: decision === 'advance' ? C.sucBg : '#FEE2E2',
+          background: decision === 'advance' ? C.sucBg : '#FFF5F2',
           color:      decision === 'advance' ? C.sucT  : C.red,
           borderBottom: `1px solid ${decision === 'advance' ? '#BBF7D0' : '#FECACA'}`,
         }}>
@@ -449,7 +449,7 @@ function DecisionButtons({ decision, onDecide, T }) {
         onClick={() => onDecide('pass')}
         style={{
           flex: 1, padding: '15px 0', borderRadius: 11,
-          background: decision === 'pass' ? '#FEE2E2' : C.gray,
+          background: decision === 'pass' ? '#FFF5F2' : C.gray,
           color:      decision === 'pass' ? C.red     : C.muted,
           border: `2px solid ${decision === 'pass' ? '#FECACA' : C.grayB}`,
           fontSize: 15, fontWeight: 600, cursor: 'pointer',
@@ -538,7 +538,7 @@ function ScreeningView({ cvs, position, manager, decisions, notes, onDecide, onN
           <span style={{ background: C.sucBg, color: C.sucT, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
             {T.advancingCount(advancing)}
           </span>
-          <span style={{ background: '#FEE2E2', color: C.red, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
+          <span style={{ background: '#FFF5F2', color: C.red, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20 }}>
             {T.notFwdCount(passing)}
           </span>
         </div>
@@ -682,7 +682,7 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
           </div>
           <div style={{ fontSize: 11, color: C.sucT }}>{T.candidates}</div>
         </div>
-        <div style={{ background: '#FEF2F2', borderRadius: 13, padding: '18px 22px', border: '1px solid #FECACA' }}>
+        <div style={{ background: '#FFF5F2', borderRadius: 13, padding: '18px 22px', border: '1px solid #FECACA' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 4 }}>{T.notMovingFwd}</div>
           <div style={{ fontSize: 34, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>
             {passing.length}
