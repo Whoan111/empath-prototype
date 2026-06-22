@@ -228,7 +228,7 @@ function SummaryProfilePanel({ candidate, onOpen, onClose, T }) {
         )}
         {candidate.interviewsDone > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: isDark ? 'rgba(255,255,255,0.09)' : C.gray, borderRadius: 8, border: `1px solid ${C.border}` }}>
-            <span style={{ fontSize: 20, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{candidate.interviewsDone}</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: C.text, fontFamily: 'quincy-cf, serif', lineHeight: 1 }}>{candidate.interviewsDone}</span>
             <span style={{ fontSize: 10, color: C.muted }}>interview{candidate.interviewsDone !== 1 ? 's' : ''} completed</span>
           </div>
         )}
@@ -458,7 +458,7 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
             <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>
               {isPreCall ? T.recruiterBadge : T.hmBadge}
             </p>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 6px' }}>
+            <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 6px' }}>
               {isPreCall ? T.preCallTitle : T.decisionTitle}
             </h1>
             <p style={{ color: C.muted, fontSize: 13, margin: 0, maxWidth: 540, lineHeight: 1.6 }}>
@@ -469,7 +469,7 @@ export default function SummaryList({ theme, mode = 'pre-call', lang = 'en', onB
           {/* Stats */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
             <div style={{ background: C.white, borderRadius: 11, padding: '12px 16px', textAlign: 'center', border: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: C.text, fontFamily: 'DM Serif Display, serif' }}>{candidates.length}</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: C.text, fontFamily: 'quincy-cf, serif' }}>{candidates.length}</div>
               <div style={{ fontSize: 10, color: C.muted, fontWeight: 600 }}>{T.total}</div>
             </div>
           </div>

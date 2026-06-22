@@ -426,7 +426,7 @@ function DetailPanel({ card, onClose, T }) {
               <span style={{ fontSize: 10, fontWeight: 600, color: card.accent, textTransform: 'uppercase', letterSpacing: '0.08em', background: isDark ? card.accent + '22' : card.border + '60', padding: '2px 8px', borderRadius: 20 }}>
                 {card.category}
               </span>
-              <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '6px 0 2px' }}>{card.title}</h2>
+              <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: C.text, margin: '6px 0 2px' }}>{card.title}</h2>
               <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>{card.sub}</p>
             </div>
             <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: '50%', background: C.white, border: `1px solid ${C.border}`, cursor: 'pointer', fontSize: 16, color: C.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>×</button>
@@ -434,7 +434,7 @@ function DetailPanel({ card, onClose, T }) {
 
           {/* Big value */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 14 }}>
-            <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 48, fontWeight: 400, color: card.accent, lineHeight: 1 }}>{card.value}</span>
+            <span style={{ fontFamily: 'quincy-cf, serif', fontSize: 48, fontWeight: 700, color: card.accent, lineHeight: 1 }}>{card.value}</span>
             {card.unit && <span style={{ fontSize: 20, color: card.accent, opacity: 0.6 }}>{card.unit}</span>}
           </div>
 
@@ -515,7 +515,7 @@ function MetricCard({ card, onClick, delay }) {
 
       {/* Big metric */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 6 }}>
-        <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 42, fontWeight: 400, color: isDark ? C.text : card.accent, lineHeight: 1, letterSpacing: '-0.5px' }}>
+        <span style={{ fontFamily: 'quincy-cf, serif', fontSize: 42, fontWeight: 700, color: isDark ? C.text : card.accent, lineHeight: 1, letterSpacing: '-0.5px' }}>
           {card.value}
         </span>
         {card.unit && (
@@ -552,7 +552,7 @@ export default function AIInsights({ theme, lang = 'en', onBack }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 26 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+            <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
               {T.title}
             </h1>
             <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>{T.subtitle}</p>

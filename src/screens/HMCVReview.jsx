@@ -905,7 +905,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
         <div style={{ width: 1, height: 20, background: C.border }} />
         <div>
           <div style={{ fontSize: 9, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>{T.badge}</div>
-          <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 18, fontWeight: 400, color: C.text, margin: 0 }}>{T.title}</h1>
+          <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 18, fontWeight: 700, color: C.text, margin: 0 }}>{T.title}</h1>
         </div>
 
         {/* Progress counter */}
@@ -939,7 +939,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
               <polyline points="27,44 37,54 61,30" stroke="#1B2461" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <div style={{ textAlign: 'center' }}>
-              <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>{T.allDoneTitle}</h2>
+              <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>{T.allDoneTitle}</h2>
               <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>{T.allDoneSub(acceptedCount, rejectedCount)}</p>
             </div>
             <button

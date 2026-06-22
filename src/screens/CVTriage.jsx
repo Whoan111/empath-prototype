@@ -757,7 +757,7 @@ function AddPositionModal({ onAdd, onClose, T }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(28,25,23,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: C.white, borderRadius: 14, padding: '28px 32px', width: 400, boxShadow: '0 8px 40px rgba(0,0,0,0.14)' }}>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 20px' }}>{T.addNewPos}</h2>
+        <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, margin: '0 0 20px' }}>{T.addNewPos}</h2>
 
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 6 }}>{T.posTitle}</label>
@@ -867,7 +867,7 @@ function CompletionScreen({ advancing, passing, onBackToPicker, T }) {
       </svg>
 
       <div style={{ textAlign: 'center', maxWidth: 400 }}>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 28, fontWeight: 400, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
+        <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 28, fontWeight: 700, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
           {T.allCaughtUp}
         </h2>
         <p style={{ fontSize: 14, color: C.muted, margin: '0 0 18px', lineHeight: 1.8 }}>
@@ -931,11 +931,11 @@ function TriagePositionCard({ pos, th, pending, closed, onOpen, onOpenCloseModal
             )}
           </div>
           <h2
-            style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 21, fontWeight: 400, color: th.text, margin: 0, lineHeight: 1.2 }}
+            style={{ fontFamily: 'quincy-cf, serif', fontSize: 21, fontWeight: 700, color: th.text, margin: 0, lineHeight: 1.2 }}
           >{pos.title}</h2>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 32, fontWeight: 400, color: (isEmpty || isClosed) ? th.textDim : th.text, lineHeight: 1 }}>{pending}</div>
+          <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 32, fontWeight: 700, color: (isEmpty || isClosed) ? th.textDim : th.text, lineHeight: 1 }}>{pending}</div>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.textDim, marginTop: 2, letterSpacing: '0.08em' }}>
             {isEmpty ? T.noCVs : T.pending}
           </div>
@@ -1018,7 +1018,7 @@ function InlineBatchImport({ posTitle, onComplete, T }) {
           <div style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
             {T.badge}
           </div>
-          <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: 0 }}>
+          <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: C.text, margin: 0 }}>
             {T.importFor(posTitle)}
           </h2>
         </div>
@@ -1134,7 +1134,7 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
           style={{ background: th.cardBg, borderRadius:'0.875rem', padding:'28px 30px', width:450, border:`1px solid ${th.borderBrt}`, boxShadow:'0 28px 72px rgba(0,0,0,0.2)', animation:'triageModalIn 0.22s ease' }}
         >
           <div style={{ fontSize:26, marginBottom:10 }}>🔒</div>
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:21, color:th.text, marginBottom:8 }}>
+          <div style={{ fontFamily:'quincy-cf, serif', fontSize:21, color:th.text, marginBottom:8 }}>
             Close this position?
           </div>
           <p style={{ fontSize:13, color:th.textDim, lineHeight:1.65, margin:'0 0 22px' }}>
@@ -1201,7 +1201,7 @@ function TriageCloseModal({ pos, th, onConfirm, onCancel }) {
           <div style={{ width:72, height:72, borderRadius:'50%', background:'linear-gradient(135deg, rgba(5,150,105,0.15) 0%, rgba(5,150,105,0.06) 100%)', border:'2px solid rgba(5,150,105,0.3)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 22px', animation:'triageTrophyBounce 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both' }}>
             <span style={{ fontSize:34 }}>🏆</span>
           </div>
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
+          <div style={{ fontFamily:'quincy-cf, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
             Position filled!
           </div>
           <p style={{ fontSize:14, color:th.textMid, lineHeight:1.75, margin:'0 0 6px' }}>
@@ -1357,7 +1357,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
               <p style={{ fontSize: 11, fontWeight: 700, color: th.red, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px' }}>
                 {T.badge}
               </p>
-              <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 30, fontWeight: 400, color: th.text, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
+              <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 30, fontWeight: 700, color: th.text, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
                 {T.selectPos}
               </h1>
               <p style={{ fontSize: 13, color: th.textDim, margin: 0 }}>
@@ -1432,7 +1432,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
           <span style={{ width: 1, height: 18, background: C.border }} />
           <div>
             <div style={{ fontSize: 9, color: C.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{activePos?.dept}</div>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 17, fontWeight: 400, color: C.text, margin: 0, lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 17, fontWeight: 700, color: C.text, margin: 0, lineHeight: 1.2 }}>
               {activePos?.title || 'CV Triage'}
             </h1>
           </div>
@@ -1566,7 +1566,7 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
             </svg>
 
             <div style={{ textAlign: 'center', maxWidth: 400 }}>
-              <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 28, fontWeight: 400, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
+              <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 28, fontWeight: 700, color: C.text, margin: '0 0 12px', lineHeight: 1.2 }}>
                 {T.noWaiting}
               </h2>
               <p style={{ fontSize: 14, color: C.muted, margin: 0, lineHeight: 1.8 }}>

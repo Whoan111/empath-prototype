@@ -602,7 +602,7 @@ function ConfirmHireModal({ candidate, onConfirm, onCancel, T }) {
         onClick={e => e.stopPropagation()}
         style={{ background: C.white, borderRadius: 14, padding: '26px 28px', width: 400, boxShadow: '0 8px 40px rgba(0,0,0,0.2)', animation: 'hmModalIn 0.2s ease' }}
       >
-        <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, marginBottom: 14 }}>
+        <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 14 }}>
           {T.confirmHireTitle}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '12px 14px', background: C.redBg, borderRadius: 10, border: `1px solid ${C.redL}` }}>
@@ -678,7 +678,7 @@ function SuggestModal({ position, onClose, T }) {
           /* ── Thank-you state ── */
           <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
             <div style={{ fontSize: 36, marginBottom: 14 }}>🙏</div>
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text, marginBottom: 10 }}>
+            <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, color: C.text, marginBottom: 10 }}>
               Thank you, {HM.name.split(' ')[0]}!
             </div>
             <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.75, margin: '0 0 24px' }}>
@@ -699,7 +699,7 @@ function SuggestModal({ position, onClose, T }) {
             <div style={{ fontSize: 9, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
               {position?.title}
             </div>
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text, marginBottom: 8 }}>
+            <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, color: C.text, marginBottom: 8 }}>
               {T.suggestTitle}
             </div>
             <p style={{ fontSize: 12, color: C.muted, margin: '0 0 20px', lineHeight: 1.65 }}>
@@ -863,7 +863,7 @@ function RequestPositionModal({ T, onClose }) {
         {sent ? (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{ fontSize: 36, marginBottom: 14 }}>✅</div>
-            <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, color: C.text, marginBottom: 6 }}>{T.requestPosSent}</div>
+            <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, color: C.text, marginBottom: 6 }}>{T.requestPosSent}</div>
             <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Valentina will review your request and create the position.</div>
           </div>
         ) : (
@@ -871,7 +871,7 @@ function RequestPositionModal({ T, onClose }) {
             <div style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
               Hiring Manager
             </div>
-            <h2 style={{ fontFamily: 'DM Serif Display, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>
+            <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>
               {T.requestPosTitle}
             </h2>
             <p style={{ fontSize: 12, color: C.muted, margin: '0 0 18px', lineHeight: 1.65 }}>
@@ -1038,7 +1038,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
         <p style={{ fontSize: 10, fontWeight: 700, color: C.red, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 5px' }}>
           {T.hiringManager}
         </p>
-        <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 3px', letterSpacing: '-0.01em' }}>
+        <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 3px', letterSpacing: '-0.01em' }}>
           Good morning, {HM.name.split(' ')[0]}.
         </h1>
         <p style={{ fontSize: 12, color: C.muted, margin: '0 0 20px' }}>
@@ -1067,7 +1067,7 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
                   boxShadow: isActive ? `0 2px 14px rgba(216,99,80,0.12)` : 'none',
                 }}
               >
-                <span style={{ fontFamily: 'DM Serif Display, serif', fontSize: 16, fontWeight: 400, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'quincy-cf, serif', fontSize: 16, fontWeight: 700, color: isActive ? C.red : C.muted, lineHeight: 1 }}>
                   {cands.length}
                 </span>
                 <span style={{ fontSize: 12, fontWeight: isActive ? 600 : 400, color: isActive ? C.text : C.muted }}>

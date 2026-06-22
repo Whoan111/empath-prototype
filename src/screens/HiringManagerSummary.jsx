@@ -174,8 +174,8 @@ function DimBar({ label, value }) {
 
 // ── Interview report card ─────────────────────────────────────────────────────
 function InterviewCard({ interview, T }) {
-  const borderColor = interview.fit === 'strongly-advance' ? '#1B2461'
-                    : interview.fit === 'advance'          ? '#B45309'
+  const borderColor = interview.fit === 'strongly-advance' ? '#D86350'
+                    : interview.fit === 'advance'          ? '#C98A14'
                     : C.red
   const dimColor    = borderColor
   const avColors = [['#FDDDD7', C.red], ['#FEF3C7', '#D97706'], ['#EDE9FE', '#6D28D9']]
@@ -366,13 +366,13 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
               <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{T.badge}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
                 {/* Clickable name */}
-                <button onClick={() => setShowProfile(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text }}>
+                <button onClick={() => setShowProfile(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'quincy-cf, serif', fontSize: 24, fontWeight: 700, color: C.text }}>
                   {candidate.name}
                 </button>
                 <FitPill fit={overallFit} T={T} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
-                <span style={{ background: isDark ? 'rgba(27,36,97,0.22)' : 'rgba(27,36,97,0.08)', color: isDark ? '#8BA8FF' : '#1B2461', border: `1px solid ${isDark ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.18)'}`, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>{candidate.role}</span>
+                <span style={{ background: isDark ? 'rgba(107,130,144,0.16)' : 'rgba(107,130,144,0.10)', color: isDark ? '#94A3B8' : '#6B8290', border: `1px solid ${isDark ? 'rgba(107,130,144,0.28)' : 'rgba(107,130,144,0.22)'}`, borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 600, pointerEvents: 'none', userSelect: 'none' }}>{candidate.role}</span>
                 <span style={{ color: C.muted, fontSize: 12 }}>{T.applied} {candidate.appliedDate}</span>
               </div>
             </div>
@@ -386,7 +386,7 @@ export default function HiringManagerSummary({ theme, lang = 'en', candidate = M
             <p style={{ fontSize: 13, color: C.text, lineHeight: 1.75, margin: 0 }}>{SYNTHESIS_RATIONALE}</p>
           </div>
           <div style={{ background: C.infBg, borderRadius: 10, padding: '10px 14px', textAlign: 'center', border: `1px solid ${C.infL}`, flexShrink: 0 }}>
-            <div style={{ fontSize: 24, fontWeight: 700, color: C.inf, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.inf, fontFamily: 'quincy-cf, serif', lineHeight: 1 }}>{advCount}/{interviews.length}</div>
             <div style={{ fontSize: 9, color: C.infT, fontWeight: 700, marginTop: 3, letterSpacing: '0.05em' }}>{T.recommend}</div>
           </div>
         </div>

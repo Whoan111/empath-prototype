@@ -225,7 +225,7 @@ function ImportStep({ onNavigate, onBack, T, initialPosId = null, initialMgrId =
       </button>
 
       {/* Page title */}
-      <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         {T.title}
       </h1>
       <p style={{ color: C.muted, fontSize: 14, margin: '0 0 36px', lineHeight: 1.6 }}>
@@ -518,7 +518,7 @@ function ScreenStep({ config, onFinish, onBack }) {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
               <Avatar id={cv.id} ini={cv.ini} size={60} />
               <div style={{ flex: 1 }}>
-                <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>
+                <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: C.text, margin: '0 0 3px' }}>
                   {cv.name}
                 </h2>
                 <div style={{ fontSize: 14, color: C.muted, marginBottom: 6 }}>
@@ -697,7 +697,7 @@ function SummaryStep({ decisions, config, onConfirm, onBack }) {
         ← Back to review
       </button>
 
-      <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 24, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         Review your decisions
       </h1>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 28px', lineHeight: 1.6 }}>
@@ -708,14 +708,14 @@ function SummaryStep({ decisions, config, onConfirm, onBack }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 28 }}>
         <div style={{ background: C.sucBg, borderRadius: 12, padding: '16px 20px', border: '1px solid #BBF7D0' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.sucT, marginBottom: 3 }}>Advancing to screening</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif' }}>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.suc, fontFamily: 'quincy-cf, serif' }}>
             {advancing.length}
           </div>
           <div style={{ fontSize: 11, color: C.sucT }}>candidates</div>
         </div>
         <div style={{ background: '#FFF5F2', borderRadius: 12, padding: '16px 20px', border: '1px solid #FECACA' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 3 }}>Not moving forward</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.red, fontFamily: 'quincy-cf, serif' }}>
             {passing.length}
           </div>
           <div style={{ fontSize: 11, color: C.red }}>candidates — will receive an empathetic update</div>
@@ -839,7 +839,7 @@ function DoneStep({ decisions, config, onGoToDashboard }) {
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
       <div style={{ textAlign: 'center', maxWidth: 440 }}>
         <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 8px' }}>
+        <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 24, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>
           All set, Valentina.
         </h2>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: '0 0 28px' }}>

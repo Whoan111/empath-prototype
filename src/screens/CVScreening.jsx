@@ -264,7 +264,7 @@ function QueueSidebar({ cvs, currentIdx, decisions, notes, onSelect, T }) {
             { n: remaining, label: T.remaining, bg: C.gray,    color: C.muted },
           ].map(s => (
             <div key={s.label} style={{ background: s.bg, borderRadius: 7, padding: '7px 6px', textAlign: 'center' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: s.color, fontFamily: 'DM Serif Display, serif' }}>{s.n}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: s.color, fontFamily: 'quincy-cf, serif' }}>{s.n}</div>
               <div style={{ fontSize: 9, fontWeight: 600, color: s.color, lineHeight: 1.2 }}>{s.label}</div>
             </div>
           ))}
@@ -370,7 +370,7 @@ function CVCard({ cv, decision, animKey, T }) {
 
           <div style={{ flex: 1 }}>
             <h2 style={{
-              fontFamily: 'DM Serif Display, Georgia, serif',
+              fontFamily: 'quincy-cf, serif',
               fontSize: 22, fontWeight: 400, color: C.text,
               margin: '0 0 4px',
             }}>
@@ -666,7 +666,7 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
         {T.backReview}
       </button>
 
-      <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         {T.reviewDecisions}
       </h1>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 28px', lineHeight: 1.6 }}>
@@ -677,14 +677,14 @@ function SummaryView({ cvs, decisions, notes, position, manager, onBack, onConfi
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
         <div style={{ background: C.sucBg, borderRadius: 13, padding: '18px 22px', border: '1px solid #BBF7D0' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.sucT, marginBottom: 4 }}>{T.advancingToScreen}</div>
-          <div style={{ fontSize: 34, fontWeight: 700, color: C.suc, fontFamily: 'DM Serif Display, serif' }}>
+          <div style={{ fontSize: 34, fontWeight: 700, color: C.suc, fontFamily: 'quincy-cf, serif' }}>
             {advancing.length}
           </div>
           <div style={{ fontSize: 11, color: C.sucT }}>{T.candidates}</div>
         </div>
         <div style={{ background: '#FFF5F2', borderRadius: 13, padding: '18px 22px', border: '1px solid #FECACA' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.red, marginBottom: 4 }}>{T.notMovingFwd}</div>
-          <div style={{ fontSize: 34, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif' }}>
+          <div style={{ fontSize: 34, fontWeight: 700, color: C.red, fontFamily: 'quincy-cf, serif' }}>
             {passing.length}
           </div>
           <div style={{ fontSize: 11, color: C.red }}>{T.personalUpdate}</div>
@@ -796,7 +796,7 @@ function DoneView({ cvs, decisions, position, onGoToDashboard, onCraftMessages, 
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
       <div style={{ textAlign: 'center', maxWidth: 460 }}>
         <div style={{ fontSize: 56, marginBottom: 18 }}>✅</div>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
+        <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 10px' }}>
           {T.allSet}
         </h2>
         <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, margin: '0 0 32px' }}>

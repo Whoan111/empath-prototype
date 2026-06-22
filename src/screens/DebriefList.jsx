@@ -388,7 +388,7 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
-            <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 6px' }}>
+            <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 6px' }}>
               {T.title}
             </h1>
             <p style={{ color: C.muted, fontSize: 13, margin: 0, lineHeight: 1.6, maxWidth: 520 }}>
@@ -399,11 +399,11 @@ export default function DebriefList({ theme, lang = 'en', onBack, onNavigate }) 
           {/* Count chips */}
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, marginLeft: 24 }}>
             <div style={{ background: 'rgba(254,154,12,0.08)', borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: '1px solid #FDE68A' }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: '#B45309', fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{PENDING.length}</div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: '#B45309', fontFamily: 'quincy-cf, serif', lineHeight: 1 }}>{PENDING.length}</div>
               <div style={{ fontSize: 9, color: '#B45309', fontWeight: 600, marginTop: 3 }}>{T.pendingLabel}</div>
             </div>
             <div style={{ background: C.redBg, borderRadius: 11, padding: '12px 18px', textAlign: 'center', border: `1px solid ${C.redL}` }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: C.red, fontFamily: 'quincy-cf, serif', lineHeight: 1 }}>{COMPLETED.length}</div>
               <div style={{ fontSize: 9, color: C.red, fontWeight: 600, marginTop: 3 }}>{T.completedLabel}</div>
             </div>
           </div>

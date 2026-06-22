@@ -494,7 +494,7 @@ function InlineDebriefPanel({ candidate, onClose, onDone }) {
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '32px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
           <div style={{ fontSize: 40 }}>✓</div>
-          <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, color: C.text }}>Feedback saved</div>
+          <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, color: C.text }}>Feedback saved</div>
           <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.7 }}>Your input for {candidate.name} has been saved and will inform the hiring decision.</div>
           {o && <span style={{ background: o.bg, color: o.col, border: `1px solid ${o.bord}`, fontSize: 12, fontWeight: 600, padding: '5px 16px', borderRadius: 20 }}>{o.label}</span>}
           <button onClick={onDone} style={{ marginTop: 8, padding: '9px 24px', borderRadius: 9, background: C.gray, color: C.text, border: `1px solid ${C.border}`, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -689,7 +689,7 @@ function CurrentCard({ candidate, onStart }) {
         <Av id={candidate.id} ini={candidate.ini} size={46} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 18, color: C.text }}>{candidate.name}</span>
+            <span style={{ fontFamily: 'quincy-cf, serif', fontSize: 18, color: C.text }}>{candidate.name}</span>
             <span style={{ fontSize: 9, fontWeight: 700, color: isDark ? '#FCD34D' : '#D97706', background: isDark ? 'rgba(252,211,77,0.14)' : '#FEF3C7', border: `1px solid ${isDark ? 'rgba(252,211,77,0.25)' : '#FDE68A'}`, padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Debrief pending</span>
           </div>
           <div style={{ fontSize: 11, color: C.muted }}>{candidate.role} · {candidate.position} · {candidate.dept}</div>
@@ -719,7 +719,7 @@ function UpcomingCard({ interview, hasReminder, onToggleReminder }) {
         <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
           <Av id={interview.id} ini={interview.ini} size={40} />
           <div>
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 15, color: C.text, marginBottom: 1 }}>{interview.name}</div>
+            <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 15, color: C.text, marginBottom: 1 }}>{interview.name}</div>
             <div style={{ fontSize: 10, color: C.muted }}>{interview.role} · {interview.dept}</div>
           </div>
         </div>
@@ -810,7 +810,7 @@ function DashboardHome({ onOpenInterview, onViewProfile, T }) {
         {/* Header */}
         <header style={{ padding: '24px 32px 20px', background: isDark ? C.white : 'rgba(255,255,255,0.90)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', borderBottom: `1px solid ${C.border}` }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>Interviewer</p>
-          <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
             {T.greeting(INTERVIEWER.name.split(' ')[0])}
           </h1>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -945,7 +945,7 @@ function SummaryView({ onViewProfile, onFillDebrief, T }) {
   return (
     <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
-        <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>{T.debriefPageTitle}</h1>
+        <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: C.text, margin: '0 0 3px' }}>{T.debriefPageTitle}</h1>
         <p style={{ margin: 0, fontSize: 11, color: C.muted }}>{T.debriefPageSub}</p>
       </header>
 

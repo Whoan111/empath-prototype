@@ -527,7 +527,7 @@ function StepContext({ candidate, context, onChange, onNext, currentUser, T }) {
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
-      <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         {T.step1Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 24px', lineHeight: 1.6 }}>
@@ -637,7 +637,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
-      <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         {T.step2Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 10px', lineHeight: 1.6 }}>
@@ -650,7 +650,7 @@ function StepRatings({ candidate, ratings, onChange, onNext, onBack, T }) {
       {/* Live assessment summary */}
       {assessedCount > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.redBg, borderRadius: 10, padding: '11px 16px', marginBottom: 20, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.red, fontFamily: 'DM Serif Display, serif', lineHeight: 1 }}>{assessedCount}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.red, fontFamily: 'quincy-cf, serif', lineHeight: 1 }}>{assessedCount}</div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{T.fitSoFar}</div>
             <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
@@ -705,7 +705,7 @@ function StepFeedback({ candidate, feedback, onChange, onSubmit, onBack, isHM, T
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
-      <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
+      <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, margin: '0 0 10px' }}>
         {T.step3Title}
       </h2>
 
@@ -794,7 +794,7 @@ function StepRecommendation({ candidate, recommendation, notes, isHM, onChangeRe
 
   return (
     <div style={{ animation: 'stepIn 0.2s ease' }}>
-      <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: C.text, margin: '0 0 4px' }}>
+      <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: C.text, margin: '0 0 4px' }}>
         {T.step4Title}
       </h2>
       <p style={{ color: C.muted, fontSize: 13, margin: '0 0 26px', lineHeight: 1.6 }}>
@@ -874,7 +874,7 @@ function DoneState({ candidate, isHM, summariesScreen, homeScreen, onNavigate, T
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
-      <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 24, fontWeight: 400, color: C.text, margin: '0 0 10px' }}>
+      <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 24, fontWeight: 700, color: C.text, margin: '0 0 10px' }}>
         {T.doneTitle}
       </h2>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, margin: '0 0 28px', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
@@ -978,7 +978,7 @@ export default function PostInterviewQuestionnaire({ theme, lang = 'en', candida
 
         <div style={{ marginBottom: 26 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{T.badge}</p>
-          <h1 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 26, fontWeight: 400, color: C.text, margin: '0 0 3px' }}>{candidate.name}</h1>
+          <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 3px' }}>{candidate.name}</h1>
           <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>{candidate.role} · {candidate.pos}</p>
         </div>
 

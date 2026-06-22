@@ -111,7 +111,7 @@ function ConfirmMove({ move, candidates, th, stageT, T, onConfirm, onCancel }) {
       }}>
         <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
 
-        <div style={{ fontSize:17, fontWeight:600, color:th.text, fontFamily:'DM Serif Display, serif', marginBottom:14 }}>
+        <div style={{ fontSize:17, fontWeight:600, color:th.text, fontFamily:'quincy-cf, serif', marginBottom:14 }}>
           {T.moveCandidate}
         </div>
 
@@ -649,7 +649,7 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
         <div style={{ fontSize: 10, fontWeight: 700, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
           {L.badge}
         </div>
-        <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 22, fontWeight: 400, color: th.text, margin: '0 0 24px', lineHeight: 1.2 }}>
+        <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 22, fontWeight: 700, color: th.text, margin: '0 0 24px', lineHeight: 1.2 }}>
           {L.title}
         </h2>
 
@@ -904,7 +904,7 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
           <div style={{ width:1, height:18, background:th.border, flexShrink:0 }} />
           <div style={{ flexShrink:0 }}>
             <div style={{ fontSize:10, color:th.textDim, letterSpacing:'0.06em' }}>{pos.dept}</div>
-            <div style={{ fontFamily:'DM Serif Display, serif', fontSize:17, color:th.text, lineHeight:1.2 }}>{pos.title}</div>
+            <div style={{ fontFamily:'quincy-cf, serif', fontSize:17, color:th.text, lineHeight:1.2 }}>{pos.title}</div>
           </div>
           <button
             onClick={() => setShowImport(true)}

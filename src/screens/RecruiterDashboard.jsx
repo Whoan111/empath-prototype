@@ -62,7 +62,7 @@ function ClosePositionModal({ pos, th, onConfirm, onCancel }) {
           }}
         >
           <div style={{ fontSize:26, marginBottom:10 }}>🔒</div>
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:21, color:th.text, marginBottom:8 }}>
+          <div style={{ fontFamily:'quincy-cf, serif', fontSize:21, color:th.text, marginBottom:8 }}>
             Close this position?
           </div>
           <p style={{ fontSize:13, color:th.textDim, lineHeight:1.65, margin:'0 0 22px' }}>
@@ -213,7 +213,7 @@ function ClosePositionModal({ pos, th, onConfirm, onCancel }) {
             <span style={{ fontSize:34 }}>🏆</span>
           </div>
 
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
+          <div style={{ fontFamily:'quincy-cf, serif', fontSize:28, color:th.text, marginBottom:10, lineHeight:1.2, letterSpacing:'-0.01em' }}>
             Congratulations, Valentina!
           </div>
 
@@ -307,7 +307,7 @@ function NewPositionModal({ th, onClose, onNavigate, onCreated }) {
         <div style={{ fontSize: 9, fontWeight: 700, color: th.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
           New Opening
         </div>
-        <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 20, color: th.text, marginBottom: 22 }}>
+        <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, color: th.text, marginBottom: 22 }}>
           Create a new position
         </div>
 
@@ -426,7 +426,7 @@ function ClosedPositionsSection({ positions, th, T, onReopen }) {
               >
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:9, fontWeight:700, color:th.textDim, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>{p.dept}</div>
-                  <div style={{ fontFamily:'DM Serif Display, serif', fontSize:15, color:th.text }}>{p.title}</div>
+                  <div style={{ fontFamily:'quincy-cf, serif', fontSize:15, color:th.text }}>{p.title}</div>
                   {!hired && (
                     <div style={{ fontSize:10, color:th.textDim, marginTop:3 }}>
                       No match found · You can revisit this anytime.
@@ -498,12 +498,12 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{pos.dept}</div>
-          <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontSize: 20, fontWeight: 400, color: th.text, margin: 0, lineHeight: 1.2 }}>
+          <h2 style={{ fontFamily: 'quincy-cf, serif', fontSize: 20, fontWeight: 700, color: th.text, margin: 0, lineHeight: 1.2 }}>
             {pos.title}
           </h2>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'DM Serif Display, serif', fontSize: 30, fontWeight: 400, color: th.text, lineHeight: 1 }}>{pos.total}</div>
+          <div style={{ fontFamily: 'quincy-cf, serif', fontSize: 30, fontWeight: 700, color: th.text, lineHeight: 1 }}>{pos.total}</div>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.textDim, marginTop: 2, letterSpacing: '0.08em' }}>CANDIDATES</div>
         </div>
       </div>
@@ -562,11 +562,11 @@ function SpontaneousCard({ th, stageT, T, onOpen }) {
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
         <div>
           <div style={{ fontSize:9, fontWeight:700, color:isDark ? '#FE9A0C' : '#6B8290', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:5 }}>{T.unsolicited}</div>
-          <h2 style={{ fontFamily:'DM Serif Display, serif', fontSize:19, fontWeight:400, color:th.text, margin:0 }}>{T.spontaneousLine1}</h2>
-          <h2 style={{ fontFamily:'DM Serif Display, serif', fontSize:19, fontWeight:400, color:th.textMid, margin:0 }}>{T.spontaneousLine2}</h2>
+          <h2 style={{ fontFamily:'quincy-cf, serif', fontSize:19, fontWeight:400, color:th.text, margin:0 }}>{T.spontaneousLine1}</h2>
+          <h2 style={{ fontFamily:'quincy-cf, serif', fontSize:19, fontWeight:400, color:th.textMid, margin:0 }}>{T.spontaneousLine2}</h2>
         </div>
         <div style={{ textAlign:'right' }}>
-          <div style={{ fontFamily:'DM Serif Display, serif', fontSize:30, fontWeight:400, color:isDark ? '#FE9A0C' : '#6B8290', lineHeight:1 }}>3</div>
+          <div style={{ fontFamily:'quincy-cf, serif', fontSize:30, fontWeight:400, color:isDark ? '#FE9A0C' : '#6B8290', lineHeight:1 }}>3</div>
           <div style={{ fontSize:8, fontWeight:700, color:th.textDim, marginTop:2, letterSpacing:'0.08em' }}>{T.pendingLabel}</div>
         </div>
       </div>
@@ -629,7 +629,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
             <p style={{ fontSize:11, fontWeight:700, color:th.red, textTransform:'uppercase', letterSpacing:'0.1em', margin:'0 0 6px' }}>
               {T.dashboardBadge}
             </p>
-            <h1 style={{ fontFamily:'DM Serif Display, Georgia, serif', fontSize:30, fontWeight:400, color:th.text, margin:'0 0 6px', letterSpacing:'-0.01em' }}>
+            <h1 style={{ fontFamily:'quincy-cf, serif', fontSize:30, fontWeight:400, color:th.text, margin:'0 0 6px', letterSpacing:'-0.01em' }}>
               {T.greeting(hour)}, Valentina
             </h1>
             <p style={{ fontSize:13, color:th.textDim, margin:0 }}>
@@ -648,7 +648,7 @@ export default function RecruiterDashboard({ theme, themeMode, lang, onNavigate,
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:30 }}>
           {stats.map(s => (
             <div key={s.label} style={{ background: th.text.startsWith('rgba(255') ? 'rgba(27,36,97,0.24)' : th.cardBg, backdropFilter:th.blur, WebkitBackdropFilter:th.blur, border:`1px solid ${th.border}`, borderRadius:'0.75rem', padding:'14px 18px' }}>
-              <div style={{ fontFamily:'DM Serif Display, serif', fontSize:26, fontWeight:400, color:s.color, lineHeight:1, marginBottom:4 }}>{s.value}</div>
+              <div style={{ fontFamily:'quincy-cf, serif', fontSize:26, fontWeight:400, color:s.color, lineHeight:1, marginBottom:4 }}>{s.value}</div>
               <div style={{ fontSize:10, color:th.textDim, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase' }}>{s.label}</div>
             </div>
           ))}
