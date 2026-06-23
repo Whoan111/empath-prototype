@@ -27,7 +27,7 @@ const ROLES = {
 const BUILT = ['home','dashboard','import','screening','triage','not-suitable','kanban','craft',
   'interview-summaries','decision-list','recruiter-summary','hiring-summary',
   'hiring-manager','questionnaire','debrief-list','insights','hm-cv-review',
-  'interviewer-dashboard', 'interviewer-debrief']
+  'interviewer-dashboard', 'interviewer-debrief', 'hm-interviews', 'hm-interviews-debrief']
 
 // ── Settings panel items ───────────────────────────────────────────────────────
 const SETTINGS_SECTIONS = [
@@ -63,6 +63,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
   const NAV_HM = [
     { id: 'hiring-manager',  label: T.navDashboard      },
     { id: 'hm-cv-review',    label: T.navHmCVReview     },
+    { id: 'hm-interviews',   label: T.navInterviewerHome },
     { id: 'decision-list',   label: T.navDecisionBriefs },
     { id: 'debrief-list',    label: T.navDebriefs       },
   ]
@@ -76,6 +77,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
 
   const isActive = (id) => {
     if (id === 'dashboard' && screen === 'kanban') return true
+    if (id === 'hm-interviews' && screen === 'hm-interviews-debrief') return true
     return screen === id
   }
 
@@ -102,6 +104,18 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
         .sb-set-item:hover  { background: rgba(27,36,97,0.04) !important; }
         .sb-collapse:hover  { background: rgba(27,36,97,0.08) !important; }
         .sb-name-row:hover  { background: rgba(27,36,97,0.04) !important; }
+        @keyframes logoActivate {
+          0%   { color: white; }
+          10%  { color: #111; }
+          22%  { color: #D86350; }
+          36%  { color: #111; }
+          50%  { color: #D86350; }
+          64%  { color: #111; }
+          78%  { color: #D86350; }
+          90%  { color: #111; }
+          100% { color: white; }
+        }
+        .sb-logo-box.logo-activating { animation: logoActivate 2.8s ease-out forwards; }
       `}</style>
 
       {/* ══════════════════════════════════════════════
@@ -156,8 +170,8 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
             style={{ flex: 1, cursor: 'pointer', transition: 'opacity 0.15s', overflow: 'hidden' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 32, height: 32, background: th.red, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: `0 0 14px ${th.redGlow}` }}>♥</div>
-              <span style={{ color: th.text, fontSize: 17, fontFamily: 'Quincy CF, Georgia, serif', letterSpacing: '-0.01em' }}>empath</span>
+              <div className="sb-logo-box" style={{ width: 32, height: 32, background: th.red, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: `0 0 14px ${th.redGlow}` }}>♥</div>
+              <span style={{ color: th.text, fontSize: 17, fontFamily: 'Quincy CF, Georgia, serif', letterSpacing: '-0.01em' }}>Empath</span>
             </div>
             <div style={{ fontSize: 9, color: th.textDim, letterSpacing: '0.1em', fontWeight: 700 }}>PUBLICIS SAPIENT</div>
           </div>
@@ -190,7 +204,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
                   borderRadius: 8, border: 'none', cursor: 'pointer',
                   background: active ? 'rgba(216,99,80,0.08)' : 'transparent',
                   color: active ? th.red : th.textDim,
-                  fontSize: 12, fontWeight: active ? 600 : 400,
+                  fontSize: 12, fontWeight: active ? 700 : 600,
                   textAlign: 'left', width: '100%', fontFamily: 'inherit',
                   borderLeft: `3px solid ${active ? th.red : 'transparent'}`,
                   transition: 'all 0.15s', whiteSpace: 'nowrap',
@@ -211,7 +225,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
                 style={{
                   flex: 1, padding: '5px 0', borderRadius: 7, border: 'none',
                   cursor: lang !== l ? 'pointer' : 'default', fontFamily: 'inherit',
-                  fontSize: 11, fontWeight: lang === l ? 700 : 400,
+                  fontSize: 11, fontWeight: lang === l ? 700 : 500,
                   background: lang === l ? th.red : 'transparent',
                   color: lang === l ? 'white' : th.textDim,
                   transition: 'all 0.18s', letterSpacing: '0.05em',
@@ -241,7 +255,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
                 <div style={{ width: 26, height: 26, borderRadius: '50%', background: th.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0 }}>{r.ini}</div>
                 <div style={{ textAlign: 'left' }}>
                   <div style={{ fontSize: 12, fontWeight: 500, color: th.text }}>{r.name}</div>
-                  <div style={{ fontSize: 9, color: th.textDim }}>{lang === 'en' ? r.title_en : r.title_it}</div>
+                  <div style={{ fontSize: 9, color: th.textDim, fontWeight: 500 }}>{lang === 'en' ? r.title_en : r.title_it}</div>
                 </div>
                 {role === r.id && <span style={{ marginLeft: 'auto', fontSize: 10, color: th.red }}>✓</span>}
               </button>
@@ -326,7 +340,7 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
             </div>
             <div style={{ textAlign: 'left', overflow: 'hidden', flex: 1 }}>
               <div style={{ color: th.text, fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
-              <div style={{ color: th.textDim, fontSize: 9 }}>{lang === 'en' ? user.title_en : user.title_it}</div>
+              <div style={{ color: th.textDim, fontSize: 9, fontWeight: 500 }}>{lang === 'en' ? user.title_en : user.title_it}</div>
             </div>
           </button>
 
@@ -400,7 +414,7 @@ export default function App() {
   const notifications = { triage: true, 'not-suitable': true, 'hm-cv-review': true, 'debrief-list': true, 'interviewer-debrief': true }
 
   return (
-    <div onMouseMove={handleMouseMove} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'Galano Grotesque, DM Sans, system-ui, sans-serif', background: theme.bg, position: 'relative' }}>
+    <div onMouseMove={handleMouseMove} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: 'DM Sans, system-ui, sans-serif', background: theme.bg, position: 'relative' }}>
 
       {/* ── Animated orb background (dark + light) ── */}
       <style>{`
@@ -534,8 +548,10 @@ export default function App() {
         {screen === 'questionnaire'       && <PostInterviewQuestionnaire    lang={lang} theme={theme} candidate={screenData?.candidate || null} isHM={role === 'hiring-manager'} summariesScreen={role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief'} homeScreen={role === 'hiring-manager' ? 'hiring-manager' : 'interviewer-dashboard'} onBack={() => nav(role === 'hiring-manager' ? 'debrief-list' : 'interviewer-debrief')} onNavigate={nav} />}
         {screen === 'debrief-list'        && <DebriefList                   lang={lang} theme={theme} onBack={() => nav('hiring-manager')} onNavigate={nav} />}
         {screen === 'insights'            && <AIInsights                    {...sp} onBack={goBack} />}
-        {screen === 'interviewer-dashboard' && <InterviewerDashboard        lang={lang} theme={theme} section="home"   onBack={goBack} onNavigate={nav} />}
+        {screen === 'interviewer-dashboard'  && <InterviewerDashboard        lang={lang} theme={theme} section="home"   onBack={goBack} onNavigate={nav} />}
         {screen === 'interviewer-debrief'   && <InterviewerDashboard        lang={lang} theme={theme} section="debrief" onBack={goBack} onNavigate={nav} />}
+        {screen === 'hm-interviews'         && <InterviewerDashboard        lang={lang} theme={theme} section="home"   persona="hm"   onBack={goBack} onNavigate={nav} />}
+        {screen === 'hm-interviews-debrief' && <InterviewerDashboard        lang={lang} theme={theme} section="debrief" persona="hm"  onBack={goBack} onNavigate={nav} />}
         {!BUILT.includes(screen)          && <ComingSoon screen={screen} onBack={goBack} theme={theme} />}
       </main>
     </div>

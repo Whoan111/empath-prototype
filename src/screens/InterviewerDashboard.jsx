@@ -104,6 +104,7 @@ const SCREEN_T = {
 
 // ── Identity & mock data ──────────────────────────────────────────────────────
 const INTERVIEWER = { name: 'Alessandro S.', ini: 'AL', role: 'Senior UX Designer' }
+const HM_PERSONA  = { name: 'Andrea P.',     ini: 'AP', role: 'Hiring Manager'     }
 
 const MY_CANDIDATES = [
   {
@@ -171,6 +172,76 @@ const UPCOMING_INTERVIEWS = [
     role: 'Product Designer', dept: 'Product Design',
     round: 2, type: 'Values Deep-Dive',
     date: 'Jun 19', time: '2:30 PM',
+  },
+]
+
+// ── Hiring Manager persona data ───────────────────────────────────────────────
+const HM_CANDIDATES = [
+  {
+    id: 1, name: 'Giulia Rossi', ini: 'GR',
+    role: 'UX Designer', exp: '4 yrs', loc: 'Milan, Italy',
+    email: 'giulia.rossi@gmail.com', phone: '+39 333 456 7890',
+    edu: 'Politecnico di Milano · MSc Design',
+    skills: ['Figma', 'User Research', 'Design Systems', 'Prototyping', 'Accessibility'],
+    portfolio: 'giuliarossi.com', linkedin: 'linkedin.com/in/giuliarossi',
+    file: 'GiuliaRossi_CV.pdf', pages: 2,
+    position: 'UX Designer', dept: 'Product Design',
+    myRound: 1, myType: 'Portfolio Review', myDate: 'May 14', myFit: 'strongly-advance',
+    debriefDone: true,
+    outcome: 'notAdvancing',
+    currentStage: 'Closed', rejectedDate: 'May 24',
+    allFeedback: [
+      { round: 1, type: 'Portfolio Review', by: 'Andrea P.', byRole: 'Hiring Manager', date: 'May 14', fit: 'strongly-advance', isMine: true, txt: 'Strong portfolio and excellent communication. Clear learning drive despite some design-systems gaps.', strengths: ['Portfolio depth', 'Communication', 'Growth mindset'], concerns: ['Design systems experience'] },
+      { round: 2, type: 'Technical Deep-Dive', by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 17', fit: 'advance', isMine: false, txt: 'Enthusiastic and highly collaborative. Cultural fit is strong.', strengths: ['Cultural fit', 'Collaboration'], concerns: ['Problem-solving under pressure'] },
+    ],
+  },
+  {
+    id: 7, name: 'Chiara Lombardi', ini: 'CL',
+    role: 'UX Researcher', exp: '6 yrs', loc: 'Milan, Italy',
+    email: 'chiara.lombardi@gmail.com', phone: '+39 339 234 5678',
+    edu: 'Università Cattolica · MA Psychology',
+    skills: ['Mixed Methods', 'Usability Testing', 'Survey Design', 'Data Analysis', 'Facilitation'],
+    portfolio: null, linkedin: 'linkedin.com/in/chiaralombardi',
+    file: 'ChiaraLombardi_CV.pdf', pages: 2,
+    position: 'UX Designer', dept: 'Product Design',
+    myRound: 2, myType: 'Values & Team Fit', myDate: 'May 10', myFit: 'strongly-advance',
+    debriefDone: true,
+    outcome: 'advancing',
+    currentStage: 'Decision',
+    allFeedback: [
+      { round: 1, type: 'Research Deep-Dive', by: 'Alessandro S.', byRole: 'Senior UX Designer', date: 'May 6', fit: 'strongly-advance', isMine: false, txt: 'Outstanding. Research depth is rare at this level.', strengths: ['Research depth', 'Systems thinking'], concerns: [] },
+      { round: 2, type: 'Values & Team Fit', by: 'Andrea P.', byRole: 'Hiring Manager', date: 'May 10', fit: 'strongly-advance', isMine: true, txt: 'Strong recommend. She asks exactly the right questions.', strengths: ['Values alignment', 'Intellectual curiosity'], concerns: [] },
+    ],
+  },
+  {
+    id: 20, name: 'Sofia Esposito', ini: 'SE',
+    role: 'Senior PM', exp: '8 yrs', loc: 'Milan, Italy',
+    email: 'sofia.esposito@gmail.com', phone: '+39 340 123 4567',
+    edu: 'Bocconi · MBA',
+    skills: ['Product Strategy', 'OKRs', 'Data Analysis', 'Roadmapping', 'Agile'],
+    portfolio: null, linkedin: 'linkedin.com/in/sofiaesposito',
+    file: 'SofiaEsposito_CV.pdf', pages: 3,
+    position: 'Product Manager', dept: 'Product',
+    myRound: 1, myType: 'Leadership Interview', myDate: 'Jun 10', myFit: null,
+    debriefDone: false,
+    outcome: 'debrief',
+    currentStage: 'Interviews',
+    allFeedback: [],
+  },
+]
+
+const HM_UPCOMING = [
+  {
+    id: 301, name: 'Marco Bianchi', ini: 'MB',
+    role: 'Senior UX Designer', dept: 'Product Design',
+    round: 2, type: 'Technical Deep-Dive',
+    date: 'Jun 28', time: '11:00 AM',
+  },
+  {
+    id: 302, name: 'Luca Ferrari', ini: 'LF',
+    role: 'Product Designer', dept: 'Product Design',
+    round: 1, type: 'Portfolio Review',
+    date: 'Jul 2', time: '3:00 PM',
   },
 ]
 
@@ -789,11 +860,10 @@ function DoneCard({ candidate, onView, T }) {
 }
 
 // ── Dashboard home view ───────────────────────────────────────────────────────
-function DashboardHome({ onOpenInterview, onViewProfile, T }) {
+function DashboardHome({ user, candidates, upcoming, onOpenInterview, onViewProfile, T }) {
   const [reminders, setReminders] = useState({})
-  const current  = MY_CANDIDATES.filter(c => !c.debriefDone)
-  const done     = MY_CANDIDATES.filter(c => c.debriefDone)
-  const upcoming = UPCOMING_INTERVIEWS
+  const current = candidates.filter(c => !c.debriefDone)
+  const done    = candidates.filter(c => c.debriefDone)
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative', background: isDark ? 'transparent' : '#F8F8F8' }}>
@@ -809,13 +879,13 @@ function DashboardHome({ onOpenInterview, onViewProfile, T }) {
       <div style={{ flex: 1, overflow: 'auto', position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <header style={{ padding: '24px 32px 20px', background: isDark ? C.white : 'rgba(255,255,255,0.90)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', borderBottom: `1px solid ${C.border}` }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>Interviewer</p>
+          <p style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px' }}>{user.role}</p>
           <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
-            {T.greeting(INTERVIEWER.name.split(' ')[0])}
+            {T.greeting(user.name.split(' ')[0])}
           </h1>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 11, color: C.muted, background: C.gray, border: `1px solid ${C.border}`, padding: '3px 11px', borderRadius: 20 }}>
-              {T.interviewsDone(MY_CANDIDATES.length)}
+              {T.interviewsDone(candidates.length)}
             </span>
             {current.length > 0 && (
               <span style={{ fontSize: 11, color: C.red, background: C.redBg, border: `1px solid ${C.redL}`, padding: '3px 11px', borderRadius: 20, fontWeight: 600 }}>
@@ -939,9 +1009,9 @@ function CandidateProfilePanel({ candidate, onNavigate, T }) {
 }
 
 // ── Debriefs section (list + submitted) ───────────────────────────────────────
-function SummaryView({ onViewProfile, onFillDebrief, T }) {
-  const pending   = MY_CANDIDATES.filter(c => !c.debriefDone)
-  const submitted = MY_CANDIDATES.filter(c => c.debriefDone)
+function SummaryView({ candidates, onViewProfile, onFillDebrief, T }) {
+  const pending   = candidates.filter(c => !c.debriefDone)
+  const submitted = candidates.filter(c => c.debriefDone)
   return (
     <div style={{ flex: 1, overflow: 'auto', background: isDark ? C.gray : 'transparent' }}>
       <header style={{ padding: '22px 32px 20px', background: C.white, borderBottom: `1px solid ${C.border}` }}>
@@ -1033,11 +1103,16 @@ function SummaryView({ onViewProfile, onFillDebrief, T }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
-export default function InterviewerDashboard({ lang = 'en', theme, section = 'home', onBack, onNavigate }) {
+export default function InterviewerDashboard({ lang = 'en', theme, section = 'home', persona, onBack, onNavigate }) {
   C = buildC(theme)
   isDark = theme === THEMES.dark
 
   const T = SCREEN_T[lang] || SCREEN_T.en
+  const isHM        = persona === 'hm'
+  const activeUser  = isHM ? HM_PERSONA  : INTERVIEWER
+  const candidates  = isHM ? HM_CANDIDATES  : MY_CANDIDATES
+  const upcoming    = isHM ? HM_UPCOMING    : UPCOMING_INTERVIEWS
+
   const [view,     setView]     = useState('list')
   const [selected, setSelected] = useState(null)
 
@@ -1101,10 +1176,10 @@ export default function InterviewerDashboard({ lang = 'en', theme, section = 'ho
   return (
     <div style={{ height: '100%', overflow: 'hidden' }}>
       {section === 'home' && (
-        <DashboardHome onOpenInterview={openActiveInterview} onViewProfile={openProfile} T={T} />
+        <DashboardHome user={activeUser} candidates={candidates} upcoming={upcoming} onOpenInterview={openActiveInterview} onViewProfile={openProfile} T={T} />
       )}
       {section === 'debrief' && (
-        <SummaryView onViewProfile={openProfile} onFillDebrief={openActiveInterview} T={T} />
+        <SummaryView candidates={candidates} onViewProfile={openProfile} onFillDebrief={openActiveInterview} T={T} />
       )}
     </div>
   )

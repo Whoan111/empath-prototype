@@ -12,7 +12,7 @@
 // Recruiter-only screen.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
 let isDark = false
@@ -624,8 +624,94 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving
   )
 }
 
+// ── Recruiter notes component ─────────────────────────────────────────────────
+function RecruiterNotes({ note, onNoteChange }) {
+  const dictation = useTriageDictation(useCallback(t => onNoteChange(p => p ? p + ' ' + t : t), [onNoteChange]))
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+        <p style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>My Notes</p>
+        <TriageDictateBtn {...dictation} />
+      </div>
+      {dictation.active && dictation.interim && (
+        <div style={{ marginBottom: 5, padding: '5px 9px', background: C.redBg, borderRadius: 6, border: `1px solid ${C.redL}`, fontSize: 10, color: C.muted, fontStyle: 'italic' }}>
+          <span style={{ fontSize: 8, fontWeight: 700, color: C.red, display: 'block', marginBottom: 1 }}>🎤 Transcribing…</span>
+          {dictation.interim}
+        </div>
+      )}
+      <textarea
+        value={note || ''}
+        onChange={e => onNoteChange(e.target.value)}
+        placeholder="Add observations about this candidate…"
+        rows={3}
+        style={{
+          width: '100%', padding: '9px 11px', borderRadius: 8,
+          border: `1px solid ${dictation.active ? C.red : C.border}`,
+          background: C.gray, color: C.text, fontSize: 11,
+          fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.6,
+          boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
+        }}
+      />
+    </div>
+  )
+}
+
+// ── Dictation helpers ─────────────────────────────────────────────────────────
+function useTriageDictation(onResult) {
+  const [active,    setActive]    = useState(false)
+  const [supported, setSupported] = useState(false)
+  const [interim,   setInterim]   = useState('')
+  const recRef = useRef(null)
+  useEffect(() => {
+    setSupported(!!(window.SpeechRecognition || window.webkitSpeechRecognition))
+    return () => { recRef.current?.stop() }
+  }, [])
+  const start = useCallback(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    const rec = new SR()
+    rec.continuous = true; rec.interimResults = true; rec.lang = 'en-US'
+    rec.onresult = (e) => {
+      let fin = '', int = ''
+      for (const r of e.results) { if (r.isFinal) fin += r[0].transcript + ' '; else int += r[0].transcript }
+      if (fin) onResult(fin.trim())
+      setInterim(int)
+    }
+    rec.onend = () => { setActive(false); setInterim('') }
+    rec.onerror = () => { setActive(false); setInterim('') }
+    rec.start(); recRef.current = rec; setActive(true)
+  }, [onResult])
+  const stop   = useCallback(() => { recRef.current?.stop(); setActive(false); setInterim('') }, [])
+  const toggle = useCallback(() => { active ? stop() : start() }, [active, start, stop])
+  return { active, toggle, supported, interim }
+}
+
+function TriageDictateBtn({ active, toggle, supported }) {
+  if (!supported) return null
+  return (
+    <button onClick={toggle} style={{
+      display: 'flex', alignItems: 'center', gap: 5,
+      padding: '4px 10px', borderRadius: 20, border: 'none',
+      background: active ? C.red : C.gray,
+      color: active ? 'white' : C.muted,
+      fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+      boxShadow: active ? `0 0 0 3px ${C.redL}` : 'none',
+      transition: 'all 0.2s', flexShrink: 0,
+    }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="9" y1="22" x2="15" y2="22"/>
+      </svg>
+      {active ? 'Stop' : 'Dictate'}
+      {active && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', animation: 'pulse 1s infinite', display: 'inline-block' }} />}
+    </button>
+  )
+}
+
 // ── Right panel: candidate info card + decisions ──────────────────────────────
-function CandidateCard({ cv, docType, decision, onDecide, T }) {
+function CandidateCard({ cv, docType, decision, onDecide, note, onNoteChange, T }) {
   const isPortfolio = docType === 'portfolio'
 
   return (
@@ -710,6 +796,9 @@ function CandidateCard({ cv, docType, decision, onDecide, T }) {
             )}
           </div>
         </div>
+
+        {/* Recruiter notes */}
+        <RecruiterNotes note={note} onNoteChange={onNoteChange} />
 
         {/* Portfolio note */}
         {isPortfolio && (
@@ -1240,6 +1329,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
   const th = theme || { cardBg:'#fff', cardBgHov:'#f9f9f9', border:'#e5e5e5', borderBrt:'#ccc', textDim:'#999', textMid:'#555', text:'#111', red:'#D86350', redGlow:'rgba(216,99,80,0.2)', blur:'blur(0px)', surface:'#F5F4F3', surfaceHov:'#EEECE9' }
   const T = SCREEN_T[lang] || SCREEN_T.en
 
+  const [notes, setNotes] = useState({})
+
   const [positions, setPositions] = useState(() => {
     const base = INIT_POSITIONS.map(p => {
       // Bump the count for the initial position if extraCandidates were injected
@@ -1529,6 +1620,8 @@ export default function CVTriage({ theme, themeMode, lang = 'en', onBack, onNavi
               docType={effectiveDocType(cv)}
               decision={decisions[cv.id]}
               onDecide={handleDecide}
+              note={notes[cv.id] || ''}
+              onNoteChange={val => setNotes(n => ({ ...n, [cv.id]: typeof val === 'function' ? val(n[cv.id] || '') : val }))}
               T={T}
             />
           </>

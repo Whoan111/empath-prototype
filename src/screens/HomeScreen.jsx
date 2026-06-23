@@ -90,7 +90,7 @@ function NotificationBubble({ role, th, onNavigate }) {
           <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 3, background: '#D86350', boxShadow: '0 0 6px rgba(216,99,80,0.45)' }} />
           <span style={{ fontSize: 12, fontWeight: 700, color: th.text, lineHeight: 1.4 }}>{n.headline}</span>
         </div>
-        <p style={{ fontSize: 11, color: th.textMid, margin: '0 0 13px', lineHeight: 1.65, paddingLeft: 15 }}>{n.body}</p>
+        <p style={{ fontSize: 11, fontWeight: 600, color: th.textMid, margin: '0 0 13px', lineHeight: 1.65, paddingLeft: 15 }}>{n.body}</p>
         <button
           onClick={() => onNavigate(n.screen)}
           style={{ width: '100%', padding: '8px 0', borderRadius: 8, background: NAVY, color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.03em', transition: 'opacity 0.15s' }}
@@ -151,7 +151,7 @@ function CapsuleButton({ label, sub, th, hov, onEnter, onLeave, onClick, isFirst
       <div style={{ fontFamily: '"quincy-cf", serif', fontSize: 27, fontWeight: 700, color: hov ? th.red : th.text, transition: 'color 0.2s', letterSpacing: '-0.02em', lineHeight: 1.1, textAlign: 'center', animation: `labelFade 0.5s ease ${textDelay}s both` }}>
         {label}
       </div>
-      <div style={{ fontSize: 12, color: hov ? th.textMid : th.textDim, transition: 'color 0.2s', letterSpacing: '0.01em', textAlign: 'center', animation: `labelFade 0.5s ease ${textDelay + 0.1}s both` }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: hov ? th.textMid : th.textDim, transition: 'color 0.2s', letterSpacing: '0.01em', textAlign: 'center', animation: `labelFade 0.5s ease ${textDelay + 0.1}s both` }}>
         {sub}
       </div>
     </button>
@@ -167,35 +167,36 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
   // ── Heart journey animation ───────────────────────────────────────────────
   // Phases: 'hidden' → 'appear' → 'travel' → 'recolor' → 'fade' → 'hidden'
   const [heartPhase, setHeartPhase] = useState('hidden')
-  const [startX,  setStartX]  = useState(0)
-  const [startY,  setStartY]  = useState(0)
-  const [logoCx,  setLogoCx]  = useState(0)
-  const [logoCy,  setLogoCy]  = useState(0)
-  const dotRef = useRef(null) // ref on the period after the name
+  const [dotRed,    setDotRed]    = useState(false)
+  const [startX,    setStartX]    = useState(0)
+  const [startY,    setStartY]    = useState(0)
+  const dotRef = useRef(null)
 
   useEffect(() => {
     if (!userName) return
 
     if (dotRef.current) {
       const r = dotRef.current.getBoundingClientRect()
-      setStartX(r.right)
-      setStartY(r.top + r.height / 2)
+      setStartX(r.left + r.width / 2)         // centered on dot
+      setStartY(r.top + r.height / 2 - 10)    // slightly above center to clear letters
     }
 
-    const logoEl = document.querySelector('.sb-logo')
-    if (logoEl) {
-      const r = logoEl.getBoundingClientRect()
-      setLogoCx(r.left + r.width / 2)
-      setLogoCy(r.top + r.height / 2)
+    const triggerLogoFlicker = () => {
+      document.querySelector('.sb-logo-box')?.classList.add('logo-activating')
+    }
+    const resetLogoFlicker = () => {
+      document.querySelector('.sb-logo-box')?.classList.remove('logo-activating')
     }
 
-    // Wait for all entry animations to settle (~2.2s), then run heart sequence
-    const t0 = setTimeout(() => setHeartPhase('appear'),  2500)  // appear after everything settles
-    const t1 = setTimeout(() => setHeartPhase('travel'),  3200)  // travel after appear animation (0.5s)
-    const t2 = setTimeout(() => setHeartPhase('hidden'),  5200)  // remove after 2s travel + buffer
+    // appear at dot (dot turns red) → fade out → logo flickers (dot back to dark)
+    const t0 = setTimeout(() => { setHeartPhase('appear');  setDotRed(true)  }, 2500)
+    const t1 = setTimeout(() => { setHeartPhase('fadeout')                   }, 3300)
+    const t2 = setTimeout(() => { setHeartPhase('hidden'); triggerLogoFlicker() }, 3800)
+    const t3 = setTimeout(() => { setDotRed(false); resetLogoFlicker()       }, 5400)
+
     return () => {
-      clearTimeout(t0); clearTimeout(t1); clearTimeout(t2)
-      setHeartPhase('hidden')
+      clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
+      setHeartPhase('hidden'); setDotRed(false); resetLogoFlicker()
     }
   }, [userName])
 
@@ -220,28 +221,21 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
 
   const hovKey = (idx, id) => `${idx}-${id}`
 
-  // Heart style — 3 phases: hidden / appear / travel
-  const traveling = heartPhase === 'travel'
+  // Heart style — 3 phases: hidden / appear / fadeout
   const heartStyle = {
     position: 'absolute',
     fontSize: '18px', lineHeight: '1',
     userSelect: 'none',
-    top:  traveling ? `${logoCy}px` : `${startY}px`,
-    left: traveling ? `${logoCx}px` : `${startX}px`,
+    top:  `${startY}px`,
+    left: `${startX}px`,
     transform: 'translate(-50%, -50%)',
-    color:  traveling ? '#000' : '#D86350',
-    opacity: 1,   // always visible — element is removed instantly when 'hidden' fires
-    // Glow fades as heart approaches logo (transition delay matches ~80% of travel duration)
-    filter: traveling ? 'none' : 'drop-shadow(0 2px 14px rgba(216,99,80,0.9))',
-    animation: heartPhase === 'appear'
-      ? 'heartAppear 0.50s cubic-bezier(0.22,1,0.36,1) both'
-      : 'none',
-    transition: traveling ? [
-      'top 1.80s cubic-bezier(0.35,0,0.15,1)',
-      'left 1.80s cubic-bezier(0.35,0,0.15,1)',
-      'color 0.55s ease 1.25s',    // color shifts to black near logo arrival
-      'filter 0.55s ease 1.20s',   // glow fades at same time
-    ].join(', ') : 'none',
+    color: '#D86350',
+    opacity: 1,
+    filter: 'drop-shadow(0 2px 14px rgba(216,99,80,0.9))',
+    animation: heartPhase === 'appear'  ? 'heartAppear  0.50s cubic-bezier(0.22,1,0.36,1) both'
+             : heartPhase === 'fadeout' ? 'heartFadeOut 0.50s ease-in both'
+             : 'none',
+    transition: 'none',
   }
 
   return (
@@ -275,13 +269,19 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
           55%  { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
           100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
         }
+        @keyframes heartFadeOut {
+          0%   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+          35%  { opacity: 0.8; transform: translate(-50%,-50%) scale(1.15); }
+          100% { opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
+        }
       `}</style>
 
-      {/* ── Heart journey overlay — above sidebar and all UI ── */}
-      {heartPhase !== 'hidden' && (
+      {/* ── Heart journey overlay — portaled to body so it renders above sidebar ── */}
+      {heartPhase !== 'hidden' && createPortal(
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 99999 }}>
           <span style={heartStyle}>♥</span>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/*
@@ -302,9 +302,9 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
               Publicis Sapient · empath
             </p>
             <h1 style={{ fontFamily: '"quincy-cf", serif', fontSize: 44, fontWeight: 700, color: th.text, margin: '0 0 14px', letterSpacing: '-0.025em', lineHeight: 1.12, animation: 'helloFade 0.5s ease 0.3s both' }}>
-              Hello, {firstName}<span ref={dotRef}>.</span>
+              Hello, {firstName}<span ref={dotRef} style={{ color: dotRed ? '#D86350' : 'inherit', transition: 'color 0.35s ease' }}>.</span>
             </h1>
-            <p style={{ fontSize: 16, color: th.textMid, margin: 0, letterSpacing: '-0.01em', fontWeight: 300, animation: 'subFade 0.5s ease 0.65s both' }}>
+            <p style={{ fontSize: 16, color: th.textMid, margin: 0, letterSpacing: '-0.01em', fontWeight: 400, animation: 'subFade 0.5s ease 0.65s both' }}>
               {question}
             </p>
           </div>
@@ -345,7 +345,7 @@ export default function HomeScreen({ theme, themeMode, lang = 'en', onNavigate, 
                 style={{
                   padding: '11px 24px', borderRadius: '0.75rem',
                   background: th.cardBg, border: `1px solid ${th.border}`,
-                  color: th.textMid, fontSize: 13, fontWeight: 500,
+                  color: th.textMid, fontSize: 13, fontWeight: 600,
                   cursor: 'pointer', fontFamily: 'inherit',
                   backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
                   transition: 'all 0.15s',
