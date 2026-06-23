@@ -219,160 +219,273 @@ function toneWord(t, T) {
   return T ? T.personalWarm : 'Personal & Warm'
 }
 
-// ── Message generator ─────────────────────────────────────────────────────────
-// All messages are generated client-side from templates that adapt to tone.
-// In production you would call the Anthropic API here.
-function generateMessage({ candidate, typeId, context, tone }) {
-  const name  = candidate?.name  || '[Name]'
-  const role  = candidate?.role  || '[Role]'
-  const stage = candidate?.stage || ''
-  const warm  = tone >= 60
-  const prof  = tone <= 35
+// ── Message templates — single source of truth (annotated display + plain text) ─
+function buildAnnotatedTokens({ candidate, typeId, context, tone }) {
+  const name = candidate?.name || '[Name]'
+  const role = candidate?.role || '[Role]'
+  const warm = tone >= 60
+  const ctx  = context?.trim() || ''
 
-  const hi = warm
-    ? `Dear ${name},\n\nI hope this message finds you well!`
-    : `Dear ${name},`
+  const tokens = []
+  const e  = (t) => tokens.push({ text: t, role: 'empath' })
+  const d  = (t) => tokens.push({ text: t, role: 'depth'  })
+  const u  = (t) => tokens.push({ text: t, role: 'user'   })
+  const br = (n = 2) => { for (let i = 0; i < n; i++) tokens.push({ text: '\n', role: 'newline' }) }
 
-  const closing = warm
-    ? `\n\nWith warm regards,\n\nValentina O.\nTalent Acquisition · Publicis Sapient`
-    : `\n\nBest regards,\n\nValentina O.\nTalent Acquisition · Publicis Sapient`
-
-  const contextBlock = context ? `\n\n${context}` : ''
+  // Greeting
+  e('Dear '); d(name); e(',')
+  br()
 
   switch (typeId) {
     case 'rejection':
-      return [
-        hi,
-        `\n\nThank you sincerely for the time and energy you invested in your application for the ${role} position at Publicis Sapient.`,
-        warm
-          ? `\n\nAfter careful and thorough consideration, we have made the difficult decision to move forward with another candidate whose background more closely aligns with what we need at this moment. Please know this was genuinely not easy — your application stood out, and you brought real thoughtfulness to every stage of the process.`
-          : `\n\nAfter careful consideration, we have decided to move forward with another candidate whose experience more closely aligns with our current requirements.`,
-        contextBlock,
-        warm
-          ? `\n\nWe truly hope this is not the last time our paths cross. We would encourage you to keep an eye on future opportunities at Publicis Sapient — the right role may well come along.`
-          : `\n\nWe wish you every success in your search.`,
-        closing,
-      ].join('')
+      if (warm) {
+        e('I hope this message finds you well.')
+        br()
+        e('I wanted to reach out personally with an update on your application for the ')
+        d(role); e(' position at '); d('Publicis Sapient')
+        e(' — and I want to do so with the care your candidacy deserves.')
+        br()
+        e('After a thorough and considered review process, we have made the decision to move forward with another candidate whose background more closely aligns with where we are right now. I want to be honest with you: ')
+        d('this was not a straightforward decision.')
+        e(' Your application genuinely stood out — ')
+        d('the depth of your work, your thoughtful approach throughout, and the clarity you brought to every conversation')
+        e(' left a real impression on our team.')
+        if (ctx) { br(); u(ctx) }
+        br()
+        e('This is not a closing of the door. We would love to stay in touch and keep you in mind for future opportunities at ')
+        d('Publicis Sapient')
+        e('. The right role may well come along, and we want to be the first to reach out when it does.')
+        br()
+        e('Thank you — truly — for the time and energy you invested in this process. We are genuinely grateful.')
+      } else {
+        e('I am writing to update you on your application for the ')
+        d(role); e(' position at '); d('Publicis Sapient.')
+        br()
+        e('After a careful review process, we have decided to move forward with another candidate whose experience more closely aligns with our current requirements.')
+        if (ctx) { br(); u(ctx) }
+        br()
+        e('We wish you every success in your search and hope our paths may cross again in the future.')
+      }
+      break
 
     case 'screening-call':
-      return [
-        hi,
-        `\n\nThank you for applying for the ${role} position at Publicis Sapient. We have reviewed your application and ${warm ? 'we would love to learn more about you and share a little about what we are building' : 'we would like to invite you for a screening call'}.`,
-        contextBlock || `\n\nPlease let us know your availability and we will coordinate from our side.`,
-        warm
-          ? `\n\nWe are looking forward to the conversation!`
-          : `\n\nWe look forward to speaking with you.`,
-        closing,
-      ].join('')
+      if (warm) {
+        e('I am very pleased to let you know that after reviewing your profile for the ')
+        d(role); e(' position, ')
+        d('we would love to invite you to a short introductory call')
+        e(' — the first step in getting to know each other better.')
+        br()
+        e("This is not a formal interview. Think of it as a relaxed, two-way conversation: we'd love to hear more about your background, what draws you to this kind of work, and what you are looking for in your next step. In return, I will share more about the role, the team, and what life at ")
+        d('Publicis Sapient')
+        e(' really looks like day to day.')
+        br()
+        if (ctx) { u(ctx) } else {
+          e('The call typically runs around '); d('30 minutes.')
+          e(' Please share your availability over the next couple of weeks and we will find a time that works for you.')
+        }
+        br()
+        e('There is nothing to prepare in advance — just come as you are. ')
+        d('We are really looking forward to meeting you.')
+      } else {
+        e('Following a review of your application for the ')
+        d(role); e(' role at '); d('Publicis Sapient')
+        e(', we would like to invite you to a screening call.')
+        br()
+        if (ctx) { u(ctx) } else { e('Please let us know your availability and we will arrange a suitable time.') }
+        br()
+        e('We look forward to speaking with you.')
+      }
+      break
 
     case 'interview-invite':
-      return [
-        hi,
-        warm
-          ? `\n\nWe have some great news — we would love to invite you to the next stage of the process for the ${role} position: a formal interview with our team.`
-          : `\n\nFollowing our initial review, we would like to invite you to an interview for the ${role} position.`,
-        contextBlock || `\n\nPlease confirm your availability and we will share all the details shortly.`,
-        warm
-          ? `\n\nWe are genuinely excited to continue this conversation and learn more about you.`
-          : `\n\nWe look forward to meeting you.`,
-        closing,
-      ].join('')
+      if (warm) {
+        e('I have some exciting news — following our initial conversation, ')
+        d('we would love to invite you to the next stage of the process')
+        e(' for the '); d(role); e(' position at '); d('Publicis Sapient')
+        e(': a formal interview with members of our team.')
+        br()
+        e('This stage will give us the chance to go deeper — exploring your experience, the way you approach complex challenges, and how you think through design and strategy. It will also be a genuine opportunity for you to meet some of the people you would be working with, ask the questions that matter most to you, and get a real feel for what we are building.')
+        br()
+        if (ctx) { u(ctx) } else {
+          e('We will share all the practical details — ')
+          d('format, panel composition, and what to expect')
+          e(' — once we have confirmed timing. Please feel free to reach out beforehand if there is anything you would like to know.')
+        }
+        br()
+        e('We are genuinely looking forward to this conversation.')
+      } else {
+        e('Following our initial review, we would like to invite you to a formal interview for the ')
+        d(role); e(' position at '); d('Publicis Sapient.')
+        br()
+        if (ctx) { u(ctx) } else { e('Please confirm your availability and we will share further details in due course.') }
+        br()
+        e('We look forward to meeting you.')
+      }
+      break
 
     case 'status-update':
-      return [
-        hi,
-        `\n\nI wanted to reach out with a quick update on your application for the ${role} role at Publicis Sapient.`,
-        contextBlock || `\n\nOur team is currently in the final stages of reviewing all candidates, and we are working to reach a decision as efficiently as possible. I appreciate your patience throughout this process.`,
-        warm
-          ? `\n\nThank you again for the thoughtful approach you have brought to every step — it has not gone unnoticed.`
-          : `\n\nThank you for your continued patience and interest.`,
-        closing,
-      ].join('')
+      if (warm) {
+        e('I hope this message finds you well.')
+        br()
+        e('I wanted to reach out personally with a quick update on your application for the ')
+        d(role); e(' role at '); d('Publicis Sapient.')
+        br()
+        if (ctx) { u(ctx) } else {
+          e('Our team is currently working through the final stages of the evaluation process, and I want to be transparent with you: ')
+          d('we are taking a little more time than originally anticipated.')
+          e(' This reflects both the strength of the pool of candidates we are reviewing — ')
+          d('yourself very much included')
+          e(' — and our commitment to making this decision thoughtfully rather than quickly.')
+        }
+        br()
+        e('You remain an active and valued part of our process. ')
+        d('I expect to have a clearer picture to share with you very soon')
+        e(', and I will be in touch the moment I do.')
+        br()
+        e('Thank you so much for your patience. It genuinely means a lot to us.')
+      } else {
+        e('I am writing with a brief update on your application for the ')
+        d(role); e(' position at '); d('Publicis Sapient.')
+        br()
+        if (ctx) { u(ctx) } else { e('Our team is still reviewing candidates and will be in touch as soon as a decision has been reached.') }
+        br()
+        e('Thank you for your patience.')
+      }
+      break
 
     case 'still-deciding':
-      return [
-        hi,
-        warm
-          ? `\n\nI wanted to reach out personally to let you know that we are still in the process of finalising our decision for the ${role} position.`
-          : `\n\nI am writing to let you know that a decision for the ${role} role has not yet been finalised.`,
-        contextBlock || (warm
-          ? `\n\nWe recognise that waiting can be difficult, and we genuinely appreciate your patience. We are working as carefully as we can and will be in touch as soon as we have clarity to share.`
-          : `\n\nWe will be in touch as soon as a decision has been made.`),
-        warm
-          ? `\n\nYour interest in Publicis Sapient means a great deal to us.`
-          : '',
-        closing,
-      ].join('')
+      if (warm) {
+        e('I wanted to reach out — it felt important to do so personally.')
+        br()
+        e('We are still working through our final decision for the ')
+        d(role); e(' position at '); d('Publicis Sapient')
+        e(', and I did not want more time to pass without a word from us. I am very aware that waiting can be genuinely difficult, particularly when you may be navigating other conversations at the same time, and ')
+        d('I want to thank you sincerely for your patience and understanding.')
+        br()
+        if (ctx) { u(ctx) } else {
+          e('Our team is in the middle of a final internal review, and we are doing everything we can to bring clarity as soon as possible. ')
+          d('You will be the first to hear from us the moment we have a conclusion to share.')
+        }
+        br()
+        e('Thank you for staying with us through this process. ')
+        d('It says something real about you')
+        e(', and we do not take it for granted.')
+      } else {
+        e('I am writing to let you know that we have not yet finalised our decision for the ')
+        d(role); e(' position at '); d('Publicis Sapient.')
+        br()
+        if (ctx) { u(ctx) } else { e('We will be in touch as soon as we are in a position to do so. We appreciate your continued patience.') }
+      }
+      break
 
     case 'offer':
-      return [
-        hi,
-        warm
-          ? `\n\nI have absolutely wonderful news — we would love for you to join us as ${role} at Publicis Sapient!`
-          : `\n\nFollowing your interviews, we are pleased to offer you the position of ${role} at Publicis Sapient.`,
-        contextBlock || `\n\nWe will be in touch shortly with the full written offer. Please do not hesitate to reach out if you have any questions in the meantime.`,
-        warm
-          ? `\n\nWe are truly excited about the prospect of working together and look forward to welcoming you to the team.`
-          : `\n\nWe look forward to welcoming you to the team.`,
-        closing,
-      ].join('')
+      if (warm) {
+        e('I have some truly wonderful news to share with you today.')
+        br()
+        e('Following your interviews and our conversations as a team, ')
+        d('I am absolutely delighted to let you know that we would love for you to join us as ')
+        d(role); e(' at '); d('Publicis Sapient.')
+        e(' This offer comes with real and unanimous excitement — ')
+        d('the way you think, the work you do, and the energy you brought to every stage of this process')
+        e(' made this a joyful and easy decision for everyone involved.')
+        br()
+        if (ctx) { u(ctx) } else {
+          e('Over the coming days, you will receive a ')
+          d('formal written offer with all the details.')
+          e(' I would also love to arrange a call to walk you through everything, answer any questions you have, and celebrate a little together.')
+        }
+        br()
+        e('We truly cannot wait to welcome you to the team.')
+      } else {
+        e('I am pleased to inform you that, following your interviews, we would like to extend an offer for the ')
+        d(role); e(' position at '); d('Publicis Sapient.')
+        br()
+        if (ctx) { u(ctx) } else { e('You will receive a formal written offer shortly. Please do not hesitate to reach out with any questions.') }
+        br()
+        e('We look forward to welcoming you to the team.')
+      }
+      break
 
     default:
-      return `${hi}\n\n${context || `I am writing regarding your application for the ${role} position.`}${closing}`
+      e('I am writing to you regarding your application for the ')
+      d(role); e(' position at '); d('Publicis Sapient.')
+      if (ctx) { br(); u(ctx) }
+      br()
+      e('Please do not hesitate to reach out if you have any questions in the meantime.')
   }
+
+  // Closing sign-off
+  br()
+  e(warm ? 'With warm regards,' : 'Best regards,')
+  br()
+  d('Valentina O.')
+  br(1)
+  e('Talent Acquisition · '); d('Publicis Sapient')
+
+  return tokens
 }
 
-// ── Message split view — AI vs. user-input zones ─────────────────────────────
-function splitByContext(message, context) {
-  if (!context?.trim()) return { before: message, user: null, after: '' }
-  const idx = message.indexOf(context.trim())
-  if (idx === -1) return { before: message, user: null, after: '' }
-  return {
-    before: message.slice(0, idx),
-    user:   context.trim(),
-    after:  message.slice(idx + context.trim().length),
-  }
+// generateMessage derives plain text from the annotated token structure above
+function generateMessage(config) {
+  return buildAnnotatedTokens(config).map(t => t.text).join('')
 }
 
-function MessageSplitView({ message, context, onEditRequest }) {
-  const { before, user, after } = splitByContext(message, context)
-  const amber   = isDark ? '#FE9A0C' : '#B45309'
-  const amberBg = isDark ? 'rgba(254,154,12,0.10)' : '#FFFBEB'
-  const amberBd = isDark ? 'rgba(254,154,12,0.30)' : '#FDE68A'
-  const aiBd    = isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.20)'
-  const bg      = isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF'
+// ── Annotated message view — inline Empath vs. depth coloring ─────────────────
+function AnnotatedMessageView({ candidate, typeId, context, tone, showAnnotation, onEditRequest }) {
+  const tokens = useMemo(
+    () => buildAnnotatedTokens({ candidate, typeId, context, tone }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [candidate?.id, typeId, context, tone]
+  )
+
+  const empathColor = C.nav
+  const depthColor  = isDark ? 'rgba(255,255,255,0.92)' : '#1C1917'
+  const userColor   = isDark ? '#FE9A0C' : '#B45309'
+  const bg          = isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF'
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 0, background: bg }}>
+    <div style={{ flex: 1, overflowY: 'auto', padding: '18px 22px', background: bg }}>
 
-      {/* Legend + edit link */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: 7 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: C.red, background: isDark ? 'rgba(216,99,80,0.15)' : '#FFF5F2', border: `1px solid ${aiBd}`, padding: '2px 9px', borderRadius: 10 }}>✦ Empath AI</span>
-          {user && <span style={{ fontSize: 10, fontWeight: 700, color: amber, background: amberBg, border: `1px solid ${amberBd}`, padding: '2px 9px', borderRadius: 10 }}>✎ Your input</span>}
-        </div>
-        <button onClick={onEditRequest} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Edit freely →</button>
-      </div>
-
-      {/* AI — before context */}
-      <div style={{ borderLeft: `2px solid ${aiBd}`, paddingLeft: 14, paddingBottom: user ? 12 : 0 }}>
-        <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{before.replace(/^\n+/, '')}</div>
-      </div>
-
-      {/* User input zone */}
-      {user && (
-        <div style={{ borderLeft: `2px solid ${amber}`, background: amberBg, padding: '10px 14px', borderRadius: '0 6px 6px 0', marginBottom: 12 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: amber, letterSpacing: '0.07em', marginBottom: 5, textTransform: 'uppercase' }}>✎ Your input</div>
-          <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{user}</div>
+      {/* Legend */}
+      {showAnnotation && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 9, fontWeight: 700, color: empathColor, background: isDark ? 'rgba(216,99,80,0.12)' : '#FFF5F2', border: `1px solid rgba(216,99,80,0.22)`, padding: '2px 9px', borderRadius: 10 }}>
+            ✦ Empath — connection &amp; tone
+          </span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: depthColor, background: C.gray, border: `1px solid ${C.border}`, padding: '2px 9px', borderRadius: 10 }}>
+            ● Core message
+          </span>
+          {context?.trim() && (
+            <span style={{ fontSize: 9, fontWeight: 700, color: userColor, background: isDark ? 'rgba(254,154,12,0.10)' : '#FFFBEB', border: '1px solid #FDE68A', padding: '2px 9px', borderRadius: 10 }}>
+              ✎ Your input
+            </span>
+          )}
         </div>
       )}
 
-      {/* AI — after context */}
-      {after && (
-        <div style={{ borderLeft: `2px solid ${aiBd}`, paddingLeft: 14 }}>
-          <div style={{ fontSize: 13, color: C.text, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{after.replace(/^\n\n/, '')}</div>
-        </div>
-      )}
+      {/* Message body — inline spans */}
+      <div style={{ fontSize: 13, lineHeight: 1.9 }}>
+        {tokens.map((tok, i) => {
+          if (tok.role === 'newline') return <br key={i} />
+          const color = !showAnnotation ? depthColor
+                      : tok.role === 'empath' ? empathColor
+                      : tok.role === 'user'   ? userColor
+                      : depthColor
+          const weight = showAnnotation && tok.role === 'depth' ? 600 : 400
+          return (
+            <span key={i} style={{ color, fontWeight: weight, transition: 'color 0.2s' }}>
+              {tok.text}
+            </span>
+          )
+        })}
+      </div>
+
+      {/* Edit freely */}
+      <div style={{ marginTop: 18, textAlign: 'right' }}>
+        <button onClick={onEditRequest} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+          Edit freely →
+        </button>
+      </div>
     </div>
   )
 }
@@ -756,6 +869,100 @@ function ComposeStep({ initialCandidate, onGenerate, onBack, backLabel, T }) {
 // STEP 2 — Edit & Preview
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Process progress bar — shown at top of candidate email ───────────────────
+const PROCESS_STAGES = [
+  { id: 'applied',    label: 'Applied',        why: 'Your profile & motivation reviewed' },
+  { id: 'screening',  label: 'CV Review',       why: 'Structured assessment against role criteria' },
+  { id: 'call',       label: 'Intro Call',      why: '30-min mutual discovery session' },
+  { id: 'portfolio',  label: 'Deep Dive',       why: 'Craft, thinking process & problem-solving' },
+  { id: 'interview',  label: 'Interviews',      why: 'Panel sessions — skills, approach & team fit' },
+  { id: 'decision',   label: 'Decision',        why: 'Consensus review, offer or thoughtful closure' },
+]
+
+const STAGE_TO_IDX = {
+  'Screening': 1, 'Preliminary Call': 2, 'Interviews': 4, 'Offer': 5, 'Decision': 5,
+}
+
+function ProcessProgressBar({ candidate }) {
+  const currentIdx = STAGE_TO_IDX[candidate?.stage] ?? 0
+  const n = PROCESS_STAGES.length
+  const pct = currentIdx === 0 ? 0 : (currentIdx / (n - 1)) * 100
+
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, #FFF8F6 0%, #FFFCFB 100%)',
+      border: '1px solid rgba(216,99,80,0.18)',
+      borderRadius: 14, padding: '16px 18px 14px', marginBottom: 22,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 9, fontWeight: 800, color: '#D86350', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>
+            Your selection journey
+          </div>
+          <div style={{ fontSize: 9.5, color: '#888' }}>
+            {candidate?.pos || 'Open Position'} · Publicis Sapient
+          </div>
+        </div>
+        <div style={{ fontSize: 9, background: 'rgba(216,99,80,0.09)', color: '#D86350', fontWeight: 700, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+          Step {currentIdx + 1} of {n}
+        </div>
+      </div>
+
+      {/* Track */}
+      <div style={{ position: 'relative', paddingTop: 2, paddingBottom: 6 }}>
+        {/* Background rail */}
+        <div style={{ position: 'absolute', top: 12, left: `${100 / (n - 1) / 2}%`, right: `${100 / (n - 1) / 2}%`, height: 2, background: '#EEE', borderRadius: 2 }} />
+        {/* Progress fill */}
+        <div style={{ position: 'absolute', top: 12, left: `${100 / (n - 1) / 2}%`, width: `${pct * (1 - 1 / (n - 1))}%`, height: 2, background: '#D86350', borderRadius: 2, transition: 'width 0.5s ease' }} />
+
+        {/* Stage nodes */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
+          {PROCESS_STAGES.map((stage, i) => {
+            const done    = i < currentIdx
+            const current = i === currentIdx
+            const future  = i > currentIdx
+            return (
+              <div key={stage.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: 0 }}>
+                {/* Dot */}
+                <div style={{
+                  width: current ? 24 : 18,
+                  height: current ? 24 : 18,
+                  borderRadius: '50%',
+                  background: done ? '#D86350' : current ? '#D86350' : '#FFF',
+                  border: `2px solid ${future ? '#DDD' : '#D86350'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: done || current ? 'white' : '#CCC',
+                  fontSize: done ? 8 : 8,
+                  fontWeight: 700,
+                  boxShadow: current ? '0 0 0 5px rgba(216,99,80,0.12)' : 'none',
+                  zIndex: 2, position: 'relative',
+                  marginBottom: 6,
+                }}>
+                  {done ? '✓' : i + 1}
+                </div>
+                {/* Label */}
+                <div style={{ fontSize: 8, fontWeight: current ? 700 : done ? 500 : 400, color: current ? '#1C1917' : done ? '#555' : '#BBB', textAlign: 'center', lineHeight: 1.3, marginBottom: 3 }}>
+                  {stage.label}
+                </div>
+                {/* Why — only current stage is prominent */}
+                <div style={{ fontSize: 7, color: current ? '#D86350' : done ? '#CCC' : '#DDD', textAlign: 'center', lineHeight: 1.5, maxWidth: 68, opacity: current ? 1 : 0.7 }}>
+                  {stage.why}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(216,99,80,0.1)', fontSize: 8, color: '#BBB', textAlign: 'center', lineHeight: 1.7 }}>
+        Our process is structured, objective, and designed to respect your time. Every stage has a clear purpose and defined evaluation criteria.
+      </div>
+    </div>
+  )
+}
+
 // Candidate inbox mock — shows what the email looks like on their side
 function CandidateInboxView({ candidate, subject, message }) {
   const senderInitial = 'SR'
@@ -818,8 +1025,13 @@ function CandidateInboxView({ candidate, subject, message }) {
           </div>
         </div>
 
+        {/* Process progress bar */}
+        <div style={{ borderTop: '1px solid #E8EAED', paddingTop: 18 }}>
+          <ProcessProgressBar candidate={candidate} />
+        </div>
+
         {/* Email body */}
-        <div style={{ fontSize: 13, color: '#1C1917', lineHeight: 1.85, whiteSpace: 'pre-wrap', borderTop: '1px solid #E8EAED', paddingTop: 18 }}>
+        <div style={{ fontSize: 13, color: '#1C1917', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
           {message}
         </div>
 
@@ -849,6 +1061,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
   const [sent,              setSent]             = useState(false)
   const [activeQuick,       setActiveQuick]      = useState(null)
   const [viewMode,          setViewMode]         = useState('preview')
+  const [showAnnotation,    setShowAnnotation]    = useState(true)
   const [showFeedbackPicker,setShowFeedbackPicker] = useState(false)
 
   // Regenerate message whenever tone or context changes
@@ -957,8 +1170,8 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
             /* Compose / split-preview view */
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: isDark ? 'rgba(16,14,28,0.97)' : '#FFFFFF', borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               {/* Email meta header */}
-              <div style={{ padding: '12px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ padding: '10px 20px', borderBottom: `1px solid ${C.border}`, background: C.gray, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.toLabel}</span>
                   <span style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>
                     {candidate
@@ -966,17 +1179,41 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                       : '[Select a candidate]'}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.subjectLabel}</span>
-                  <span style={{ fontSize: 12, color: C.text }}>{subject}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 11, color: C.muted, width: 48, flexShrink: 0 }}>{T.subjectLabel}</span>
+                    <span style={{ fontSize: 12, color: C.text }}>{subject}</span>
+                  </div>
+                  {/* Annotation toggle — only in preview mode */}
+                  {viewMode === 'preview' && !userEdited && (
+                    <button
+                      onClick={() => setShowAnnotation(v => !v)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
+                        padding: '3px 10px', borderRadius: 20, cursor: 'pointer',
+                        background: showAnnotation
+                          ? (isDark ? 'rgba(216,99,80,0.15)' : 'rgba(216,99,80,0.08)')
+                          : C.white,
+                        border: `1px solid ${showAnnotation ? 'rgba(216,99,80,0.3)' : C.border}`,
+                        color: showAnnotation ? C.nav : C.muted,
+                        fontSize: 10, fontWeight: showAnnotation ? 700 : 400,
+                        fontFamily: 'inherit', transition: 'all 0.18s',
+                      }}
+                    >
+                      ✦ {showAnnotation ? 'Annotated' : 'Normal'}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Body — split preview or free-edit textarea */}
+              {/* Body — annotated preview or free-edit textarea */}
               {viewMode === 'preview' && !userEdited ? (
-                <MessageSplitView
-                  message={currentBody}
+                <AnnotatedMessageView
+                  candidate={candidate}
+                  typeId={typeId}
                   context={context}
+                  tone={tone}
+                  showAnnotation={showAnnotation}
                   onEditRequest={() => setViewMode('edit')}
                 />
               ) : (
@@ -997,7 +1234,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
                 <span>{T.words(currentBody.split(/\s+/).filter(Boolean).length)}</span>
                 {(userEdited || viewMode === 'edit') && (
                   <button
-                    onClick={() => { setUserEdited(false); setEditedBody(generatedBody); setViewMode('preview') }}
+                    onClick={() => { setUserEdited(false); setEditedBody(generatedBody); setViewMode('preview'); setShowAnnotation(true) }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: 10, fontFamily: 'inherit' }}
                   >
                     {T.resetGenerated}

@@ -117,8 +117,9 @@ const ROLE_CONFIGS = {
   },
   'hiring-manager': {
     capsule: [
-      { id: 'hm-cv-review',   label_en: 'Review CVs', sub_en: 'CVs assigned by recruiter',  label_it: 'Revisiona CV',  sub_it: 'CV assegnati dal recruiter' },
-      { id: 'hiring-manager', label_en: 'Dashboard',  sub_en: 'Active candidates',           label_it: 'Bacheca',       sub_it: 'Candidati attivi'           },
+      { id: 'hm-cv-review',   label_en: 'Review CVs',    sub_en: 'CVs assigned by recruiter',  label_it: 'Revisiona CV',     sub_it: 'CV assegnati dal recruiter' },
+      { id: 'hm-interviews',  label_en: 'My Interviews', sub_en: 'Interviews & debriefs',       label_it: 'I miei colloqui',  sub_it: 'Colloqui e debrief'          },
+      { id: 'hiring-manager', label_en: 'Dashboard',     sub_en: 'Active candidates',           label_it: 'Bacheca',          sub_it: 'Candidati attivi'            },
     ],
     bottom: [
       { id: 'decision-list', label_en: 'Decision Reports',   label_it: 'Report Decisionali' },
