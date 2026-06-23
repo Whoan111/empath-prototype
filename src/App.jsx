@@ -64,8 +64,8 @@ function Sidebar({ screen, role, theme, themeMode, lang, onNavigate, onSwitchRol
     { id: 'hiring-manager',  label: T.navDashboard      },
     { id: 'hm-cv-review',    label: T.navHmCVReview     },
     { id: 'hm-interviews',   label: T.navInterviewerHome },
-    { id: 'decision-list',   label: T.navDecisionBriefs },
     { id: 'debrief-list',    label: T.navDebriefs       },
+    { id: 'decision-list',   label: T.navDecisionBriefs },
   ]
   const NAV_INTERVIEWER = [
     { id: 'interviewer-dashboard', label: T.navInterviewerHome   },

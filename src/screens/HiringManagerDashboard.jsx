@@ -1041,9 +1041,19 @@ export default function HiringManagerDashboard({ theme, lang = 'en', onBack, onN
         <h1 style={{ fontFamily: 'quincy-cf, serif', fontSize: 26, fontWeight: 700, color: C.text, margin: '0 0 3px', letterSpacing: '-0.01em' }}>
           Good morning, {HM.name.split(' ')[0]}.
         </h1>
-        <p style={{ fontSize: 12, color: C.muted, margin: '0 0 20px' }}>
+        <p style={{ fontSize: 12, color: C.muted, margin: '0 0 12px' }}>
           {T.preSelected(allCands.length)} across {POSITIONS.length} open positions
         </p>
+
+        {/* Quick shortcuts */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          <button
+            onClick={() => onNavigate?.('hm-interviews')}
+            style={{ padding: '5px 13px', borderRadius: 20, background: C.navBg, border: `1.5px solid ${isDark ? 'rgba(255,140,120,0.3)' : 'rgba(216,99,80,0.25)'}`, color: C.nav, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+          >
+            My Interviews →
+          </button>
+        </div>
 
         {/* Position pills + request button */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

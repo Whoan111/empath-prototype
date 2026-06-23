@@ -198,7 +198,7 @@ function RestoreModal({ candidate, group, T, onConfirm, onCancel }) {
                     flex:1, padding:'9px 6px', borderRadius:9,
                     border: sel ? `2px solid ${C.red}` : `1px solid ${C.border}`,
                     background: sel ? C.red : C.white,
-                    color: sel ? C.white : C.muted,
+                    color: sel ? 'white' : C.muted,
                     fontSize:11, fontWeight: sel ? 700 : 400,
                     cursor:'pointer', fontFamily:'inherit',
                     transition:'all 0.13s',

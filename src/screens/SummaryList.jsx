@@ -271,7 +271,7 @@ function SummaryStatusPill({ status }) {
 function FitPill({ rec, T }) {
   if (!rec) return <span style={{ fontSize: 11, color: C.muted }}>—</span>
   if (rec === 'strongly-advance') return (
-    <span style={{ background: 'rgba(27,36,97,0.09)', color: '#1B2461', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
+    <span style={{ background: C.navBg, color: C.nav, fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>
       ★ {T.strongAdvance}
     </span>
   )

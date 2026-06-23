@@ -470,9 +470,7 @@ function PositionCard({ pos, th, stageT, T, onOpen, onCloseRequest }) {
   const active   = (pos.stages.Interviews||0) + (pos.stages.Decision||0) + (pos.stages.Offer||0)
   const hasOffer = (pos.stages.Offer||0) > 0
   const isDark   = th.text.startsWith('rgba(255')
-  const cardBg   = isDark
-    ? (hov ? 'rgba(27,36,97,0.38)' : 'rgba(27,36,97,0.24)')
-    : (hov ? th.cardBgHov : th.cardBg)
+  const cardBg   = hov ? th.cardBgHov : th.cardBg
 
   return (
     <div
