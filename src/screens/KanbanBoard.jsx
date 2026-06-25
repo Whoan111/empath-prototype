@@ -169,10 +169,37 @@ function MiniPipeline({ stage, th }) {
 }
 
 // ── Profile panel (right sidebar) ────────────────────────────────────────────
+// ── Candidate profile side panel ──────────────────────────────────────────────
 function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContact, onViewCV }) {
+  const [notes,     setNotes]     = useState('')
+  const [listening, setListening] = useState(false)
+  const [noteSaved, setNoteSaved] = useState(false)
+  const recognitionRef = useRef(null)
+
+  const isDark     = th.text?.startsWith('rgba(255')
+  const isPreCall  = stage === 'Pre-Call'
+
+  const toggleDictation = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    if (listening) { recognitionRef.current?.stop(); setListening(false); return }
+    const rec = new SR()
+    rec.continuous = true
+    rec.interimResults = true
+    rec.lang = 'en-US'
+    rec.onresult = (e) => setNotes(Array.from(e.results).map(r => r[0].transcript).join(''))
+    rec.onerror = () => setListening(false)
+    rec.onend   = () => setListening(false)
+    recognitionRef.current = rec
+    rec.start()
+    setListening(true)
+  }
+
+  const saveNote = () => { setNoteSaved(true); setTimeout(() => setNoteSaved(false), 1800) }
+
   return (
     <aside style={{
-      width: 300, flexShrink: 0,
+      width: isPreCall ? 320 : 300, flexShrink: 0,
       background: th.bgPanel,
       backdropFilter: th.blur, WebkitBackdropFilter: th.blur,
       borderLeft: `1px solid ${th.border}`,
@@ -195,18 +222,126 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: th.textDim, fontSize: 18, lineHeight: 1, padding: '0 0 0 8px', flexShrink: 0 }}>×</button>
         </div>
-        {/* Pipeline */}
         <MiniPipeline stage={stage} th={th} />
       </div>
 
-      {/* Body — feedback placeholder */}
+      {/* Body */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
-        <div style={{ textAlign: 'center', padding: '24px 0', color: th.textDim }}>
-          <div style={{ fontSize: 22, marginBottom: 7 }}>📋</div>
-          <div style={{ fontSize: 12, color: th.textDim }}>No debriefs submitted yet</div>
-          <div style={{ fontSize: 10, color: th.textDim, marginTop: 3 }}>Feedback appears here after interviews</div>
-        </div>
+
+        {isPreCall ? (
+          <>
+            {/* ── Ready to call? ───────────────────────────────────────────── */}
+            <div style={{
+              background: isDark ? 'rgba(216,99,80,0.09)' : 'rgba(216,99,80,0.06)',
+              border: `1.5px solid ${isDark ? 'rgba(216,99,80,0.28)' : 'rgba(216,99,80,0.22)'}`,
+              borderRadius: 12, padding: '13px 14px 12px', marginBottom: 14,
+            }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: th.red, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
+                Ready to call?
+              </div>
+              {candidate.phone && (
+                <a href={`tel:${candidate.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: th.text, textDecoration: 'none', marginBottom: 9 }}>
+                  <span style={{ fontSize: 14 }}>📞</span>
+                  <span style={{ fontWeight: 500 }}>{candidate.phone}</span>
+                </a>
+              )}
+              <button
+                style={{
+                  width: '100%', padding: '9px 12px', borderRadius: 9,
+                  background: th.red, color: 'white', border: 'none',
+                  fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  transition: 'opacity 0.13s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = '0.86'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+              >
+                📞 Start screening call
+              </button>
+              <div style={{ fontSize: 10, color: th.textDim, marginTop: 8, lineHeight: 1.55 }}>
+                Suggested: 30 min · motivation, availability, role fit
+              </div>
+            </div>
+
+            {/* ── Recruiter notes ──────────────────────────────────────────── */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>
+                Recruiter Notes
+              </div>
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Add call notes — motivation, flags, key points…"
+                  rows={4}
+                  style={{
+                    width: '100%', padding: '10px 12px', paddingBottom: 36,
+                    borderRadius: 9, border: `1.5px solid ${listening ? th.red : th.border}`,
+                    fontSize: 12, fontFamily: 'inherit', color: th.text,
+                    background: isDark ? 'rgba(255,255,255,0.04)' : '#F8F5F2',
+                    resize: 'none', outline: 'none', boxSizing: 'border-box', lineHeight: 1.6,
+                    transition: 'border-color 0.15s',
+                  }}
+                />
+                {/* Mic button */}
+                <button
+                  type="button"
+                  onClick={toggleDictation}
+                  style={{
+                    position: 'absolute', bottom: 8, left: 9,
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '3px 9px', borderRadius: 20,
+                    background: listening ? th.red : 'transparent',
+                    border: `1.5px solid ${listening ? th.red : th.border}`,
+                    color: listening ? 'white' : th.textDim,
+                    fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                    fontFamily: 'inherit', transition: 'all 0.18s',
+                    boxShadow: listening ? `0 0 0 3px ${th.red}22` : 'none',
+                  }}
+                >
+                  <span style={{ fontSize: 12 }}>{listening ? '⏹' : '🎙'}</span>
+                  {listening ? 'Listening…' : 'Dictate'}
+                </button>
+                {/* Save button */}
+                {notes.trim() && (
+                  <button
+                    type="button"
+                    onClick={saveNote}
+                    style={{
+                      position: 'absolute', bottom: 8, right: 9,
+                      padding: '3px 9px', borderRadius: 20,
+                      background: noteSaved ? 'rgba(34,197,94,0.12)' : 'transparent',
+                      border: `1.5px solid ${noteSaved ? 'rgba(34,197,94,0.45)' : th.border}`,
+                      color: noteSaved ? '#16a34a' : th.textDim,
+                      fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                      fontFamily: 'inherit', transition: 'all 0.18s',
+                    }}
+                  >
+                    {noteSaved ? '✓ Saved' : 'Save'}
+                  </button>
+                )}
+              </div>
+              {/* Listening indicator bars */}
+              {listening && (
+                <div style={{ display: 'flex', gap: 3, alignItems: 'center', marginTop: 5, paddingLeft: 2 }}>
+                  {[0,1,2].map(i => (
+                    <div key={i} style={{ width: 3, borderRadius: 3, background: th.red, animation: `micBar${i} 0.6s ease-in-out ${i*0.15}s infinite alternate` }} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 9, fontWeight: 700, color: th.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Interview feedback</div>
+            <div style={{ textAlign: 'center', padding: '24px 0', color: th.textDim }}>
+              <div style={{ fontSize: 22, marginBottom: 7 }}>📋</div>
+              <div style={{ fontSize: 12, color: th.textDim }}>No debriefs submitted yet</div>
+              <div style={{ fontSize: 10, color: th.textDim, marginTop: 3 }}>Feedback appears here after interviews</div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Footer actions */}
@@ -217,7 +352,7 @@ function KanbanProfilePanel({ candidate, stage, th, stageT, T, onClose, onContac
           onMouseEnter={e => e.currentTarget.style.background = `${th.red}1A`}
           onMouseLeave={e => e.currentTarget.style.background = `${th.red}0D`}
         >
-          📄 View CV →
+          📄 {isPreCall ? 'View CV' : 'View CV →'}
         </button>
         <button
           onClick={onContact}
@@ -472,9 +607,9 @@ function Column({ stage, candidates, th, stageT, T, onMove, onContact, onReject,
 const INIT = {
   1: {  // UX Designer — Pre-Call:3, Interviews:2, Decision:2, Offer:1 = 8
     'Pre-Call': [
-      { id:105, name:'Marco Bianchi',     ini:'MB', role:'Senior UX',            loc:'Rome',     exp:'7 yrs', daysAgo:2,  skills:['Strategy','Leadership'] },
-      { id:106, name:'Anna Ferretti',     ini:'AF', role:'Visual Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:6,  skills:['Figma','Branding']      },
-      { id:107, name:'Carla Esposito',    ini:'CE', role:'UX Researcher',        loc:'Rome',     exp:'3 yrs', daysAgo:10, skills:['Research','Survey']     },
+      { id:105, name:'Marco Bianchi',     ini:'MB', role:'Senior UX',            loc:'Rome',     exp:'7 yrs', daysAgo:2,  skills:['Strategy','Leadership'], phone:'+39 333 456 7890' },
+      { id:106, name:'Anna Ferretti',     ini:'AF', role:'Visual Designer',      loc:'Milan',    exp:'4 yrs', daysAgo:6,  skills:['Figma','Branding'],      phone:'+39 342 567 8901' },
+      { id:107, name:'Carla Esposito',    ini:'CE', role:'UX Researcher',        loc:'Rome',     exp:'3 yrs', daysAgo:10, skills:['Research','Survey']                              },
     ],
     Interviews: [
       { id:108, name:'Luca Ferrari',      ini:'LF', role:'Product Designer',     loc:'Florence', exp:'5 yrs', daysAgo:5,  skills:['Figma','Agile'],        interviewsDone:2, nextInterview:'Jun 12 · 10:00' },
@@ -490,10 +625,10 @@ const INIT = {
   },
   2: {  // Frontend Engineer — Pre-Call:4, Interviews:3, Decision:1, Offer:1 = 9
     'Pre-Call': [
-      { id:203, name:'Lukas Weber',       ini:'LW', role:'JS Engineer',          loc:'Munich',   exp:'4 yrs', daysAgo:4,  skills:['React','Node']          },
-      { id:205, name:'Andrea Chen',       ini:'AC', role:'Frontend Dev',         loc:'Barcelona',exp:'4 yrs', daysAgo:2,  skills:['React','TypeScript']    },
-      { id:206, name:'Sophie Laurent',    ini:'SL', role:'Vue Developer',        loc:'Paris',    exp:'3 yrs', daysAgo:7,  skills:['Vue','CSS']             },
-      { id:207, name:'Erik Müller',       ini:'EM', role:'JS Engineer',          loc:'Berlin',   exp:'5 yrs', daysAgo:11, skills:['Node','React']          },
+      { id:203, name:'Lukas Weber',       ini:'LW', role:'JS Engineer',          loc:'Munich',   exp:'4 yrs', daysAgo:4,  skills:['React','Node'],         phone:'+49 176 5432 1098' },
+      { id:205, name:'Andrea Chen',       ini:'AC', role:'Frontend Dev',         loc:'Barcelona',exp:'4 yrs', daysAgo:2,  skills:['React','TypeScript'],   phone:'+34 611 234 567'  },
+      { id:206, name:'Sophie Laurent',    ini:'SL', role:'Vue Developer',        loc:'Paris',    exp:'3 yrs', daysAgo:7,  skills:['Vue','CSS']                                       },
+      { id:207, name:'Erik Müller',       ini:'EM', role:'JS Engineer',          loc:'Berlin',   exp:'5 yrs', daysAgo:11, skills:['Node','React'],         phone:'+49 170 9876 5432' },
     ],
     Interviews: [
       { id:204, name:'Maria Silva',       ini:'MS', role:'UI Engineer',          loc:'Lisbon',   exp:'6 yrs', daysAgo:9,  skills:['React','CSS'],          interviewsDone:1, nextInterview:'Jun 10 · 14:00' },
@@ -509,9 +644,9 @@ const INIT = {
   },
   3: {  // Product Manager — Pre-Call:3, Interviews:1, Decision:1 = 5
     'Pre-Call': [
-      { id:302, name:'Dario Mancini',     ini:'DM', role:'Product Lead',         loc:'Turin',    exp:'6 yrs', daysAgo:4,  skills:['Roadmap','Data']        },
-      { id:304, name:'Elena Vitali',      ini:'EV', role:'Product Manager',      loc:'Milan',    exp:'5 yrs', daysAgo:3,  skills:['OKRs','Analytics']      },
-      { id:305, name:'Marco Pellegrini',  ini:'MP', role:'Senior PM',            loc:'Rome',     exp:'7 yrs', daysAgo:9,  skills:['Strategy','Agile']      },
+      { id:302, name:'Dario Mancini',     ini:'DM', role:'Product Lead',         loc:'Turin',    exp:'6 yrs', daysAgo:4,  skills:['Roadmap','Data'],       phone:'+39 348 901 2345' },
+      { id:304, name:'Elena Vitali',      ini:'EV', role:'Product Manager',      loc:'Milan',    exp:'5 yrs', daysAgo:3,  skills:['OKRs','Analytics'],     phone:'+39 351 012 3456' },
+      { id:305, name:'Marco Pellegrini',  ini:'MP', role:'Senior PM',            loc:'Rome',     exp:'7 yrs', daysAgo:9,  skills:['Strategy','Agile']                               },
     ],
     Interviews: [
       { id:303, name:'Clara Rossi',       ini:'CR', role:'Associate PM',         loc:'Rome',     exp:'3 yrs', daysAgo:2,  skills:['Agile','Research'],     interviewsDone:0, nextInterview:'Jun 11 · 11:30' },
@@ -723,7 +858,7 @@ function AddCandidatesModal({ posTitle, th, lang, onClose, onComplete }) {
 }
 
 // ── CV overlay modal ──────────────────────────────────────────────────────────
-function CVModal({ candidate, onClose }) {
+function CVModal({ candidate, onClose, rightOffset = 0 }) {
   if (!candidate) return null
   const Line = ({ w = '100%', h = 7, mb = 5 }) => (
     <div style={{ width: w, height: h, background: '#E8E4E0', borderRadius: 2, marginBottom: mb }} />
@@ -734,7 +869,7 @@ function CVModal({ candidate, onClose }) {
   return (
     <div
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      style={{ position: 'fixed', top: 0, left: 0, right: rightOffset, bottom: 0, zIndex: 400, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <div
         onClick={e => e.stopPropagation()}
@@ -834,6 +969,15 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
     restoreCandidate ? { name: restoreCandidate.name, stage: restoreCandidate.stage } : null
   )
 
+  // Auto-open CV modal when a Pre-Call candidate is selected
+  useEffect(() => {
+    if (selectedInfo?.stage === 'Pre-Call') {
+      setCvCandidate(selectedInfo.candidate)
+    } else if (!selectedInfo) {
+      setCvCandidate(null)
+    }
+  }, [selectedInfo])
+
   // Auto-dismiss the restored banner after 3.5 s
   useEffect(() => {
     if (!restoredBanner) return
@@ -893,6 +1037,9 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
         @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
         @keyframes restoreIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
         @keyframes kbPanelIn{from{transform:translateX(100%);opacity:0.7}to{transform:translateX(0);opacity:1}}
+        @keyframes micBar0{from{height:4px}to{height:13px}}
+        @keyframes micBar1{from{height:8px}to{height:18px}}
+        @keyframes micBar2{from{height:4px}to{height:10px}}
       `}</style>
 
       {/* Header */}
@@ -966,8 +1113,8 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
             candidate={selectedInfo.candidate}
             stage={selectedInfo.stage}
             th={th} stageT={stageT} T={T}
-            onClose={() => setSelectedInfo(null)}
-            onContact={() => { setSelectedInfo(null); onNavigate?.('craft', { candidate: selectedInfo.candidate }) }}
+            onClose={() => { setSelectedInfo(null); setCvCandidate(null) }}
+            onContact={() => { setSelectedInfo(null); setCvCandidate(null); onNavigate?.('craft', { candidate: selectedInfo.candidate }) }}
             onViewCV={c => setCvCandidate(c)}
           />
         )}
@@ -987,8 +1134,14 @@ export default function KanbanBoard({ position, restoreCandidate, theme, themeMo
       {/* Celebration */}
       {celebration && <Celebration msg={celebration} onDone={() => setCelebration(null)} />}
 
-      {/* CV overlay */}
-      {cvCandidate && <CVModal candidate={cvCandidate} onClose={() => setCvCandidate(null)} />}
+      {/* CV overlay — rightOffset keeps it from covering the profile panel */}
+      {cvCandidate && (
+        <CVModal
+          candidate={cvCandidate}
+          onClose={() => setCvCandidate(null)}
+          rightOffset={selectedInfo?.stage === 'Pre-Call' ? 320 : 0}
+        />
+      )}
 
       {/* Add-candidates import modal */}
       {showImport && (
