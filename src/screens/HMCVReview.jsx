@@ -15,7 +15,7 @@
 //                    checklist, portfolio link, HM notes, Accept / Reject
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { buildC, THEMES } from '../designSystem'
 let C = buildC(THEMES.light)
 let isDark = false
@@ -133,7 +133,7 @@ const ASSIGNED_CANDIDATES = [
     ],
   },
   {
-    id: 2, positionId: 1, name: 'Marco Bianchi', ini: 'MB',
+    id: 2, positionId: 1, name: 'Lorenzo Bianchi', ini: 'LB',
     role: 'Senior UX Designer', exp: '7 yrs', loc: 'Rome, Italy',
     email: 'marco.bianchi@gmail.com', phone: '+39 342 567 8901',
     edu: 'La Sapienza · BA Visual Communication',
@@ -427,6 +427,11 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving
   const portfolioAvailable = showPortfolio && (hasPDFPortfolio || hasURLPortfolio)
 
   const [viewMode, setViewMode] = useState('cv')
+  const [entered,  setEntered]  = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setEntered(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   const tabStyle = (active, purple = false) => ({
     padding: '11px 20px',
@@ -458,7 +463,13 @@ function DocumentViewer({ cv, docType, onOverrideType, T, showPortfolio, leaving
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: isDark ? C.gray : 'transparent' }}>
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      background: isDark ? C.gray : 'transparent',
+      opacity: entered ? 1 : 0,
+      transform: entered ? 'translateX(0)' : 'translateX(20px)',
+      transition: 'opacity 200ms ease-out, transform 200ms ease-out',
+    }}>
 
       {/* ── Tab bar — stays anchored during animation ── */}
       <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
@@ -918,6 +929,27 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
 
       </header>
 
+      {/* ── Progress bar ── */}
+      {cvList.length > 0 && (
+        <div style={{ height: 5, background: isDark ? 'rgba(255,255,255,0.06)' : '#EDE9E3', flexShrink: 0, display: 'flex', gap: 2, padding: '0 2px' }}>
+          {cvList.map((c, i) => (
+            <div
+              key={c.id}
+              onClick={() => handleSelectById(c.id)}
+              style={{
+                flex: 1, height: '100%', borderRadius: 3, cursor: 'pointer',
+                background: decisions[c.id] === 'accept' ? C.red
+                          : decisions[c.id] === 'reject' ? '#D97706'
+                          : i === idx        ? C.redL
+                          : isDark           ? 'rgba(255,255,255,0.12)'
+                          : '#D4CFC8',
+                transition: 'background 0.25s ease',
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {/* ── Body ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
@@ -954,7 +986,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
           cv && (
             <>
               <DocumentViewer
-                key={cv.id}
+                key={'dv-' + cv.id}
                 cv={cv}
                 docType={effectiveDocType(cv)}
                 onOverrideType={(t) => handleOverrideType(cv.id, t)}
@@ -964,7 +996,7 @@ export default function HMCVReview({ lang = 'en', theme, onBack, onNavigate }) {
                 leavingDir={leavingDir}
               />
               <HMCandidatePanel
-                key={cv.id}
+                key={'hp-' + cv.id}
                 candidate={cv}
                 decision={decisions[cv.id] ?? null}
                 notes={savedNotes[cv.id] || ''}
