@@ -883,8 +883,20 @@ const STAGE_TO_IDX = {
   'Screening': 1, 'Preliminary Call': 2, 'Interviews': 4, 'Offer': 5, 'Decision': 5,
 }
 
-function ProcessProgressBar({ candidate }) {
-  const currentIdx = STAGE_TO_IDX[candidate?.stage] ?? 0
+// Each message type implies a pipeline position — null means use candidate's own stage
+const TYPE_TO_STAGE_IDX = {
+  'rejection':        null,
+  'screening-call':   2,
+  'interview-invite': 4,
+  'status-update':    null,
+  'still-deciding':   5,
+  'offer':            5,
+  'custom':           null,
+}
+
+function ProcessProgressBar({ candidate, typeId }) {
+  const override   = TYPE_TO_STAGE_IDX[typeId]
+  const currentIdx = (override != null ? override : STAGE_TO_IDX[candidate?.stage]) ?? 0
   const n = PROCESS_STAGES.length
   const pct = currentIdx === 0 ? 0 : (currentIdx / (n - 1)) * 100
 
@@ -922,30 +934,45 @@ function ProcessProgressBar({ candidate }) {
             const done    = i < currentIdx
             const current = i === currentIdx
             const future  = i > currentIdx
+            const [avBg, avFg] = candidate ? avColor(candidate.id) : ['#D86350', 'white']
             return (
               <div key={stage.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: 0 }}>
-                {/* Dot */}
-                <div style={{
-                  width: current ? 24 : 18,
-                  height: current ? 24 : 18,
-                  borderRadius: '50%',
-                  background: done ? '#D86350' : current ? '#D86350' : '#FFF',
-                  border: `2px solid ${future ? '#DDD' : '#D86350'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: done || current ? 'white' : '#CCC',
-                  fontSize: done ? 8 : 8,
-                  fontWeight: 700,
-                  boxShadow: current ? '0 0 0 5px rgba(216,99,80,0.12)' : 'none',
-                  zIndex: 2, position: 'relative',
-                  marginBottom: 6,
-                }}>
-                  {done ? '✓' : i + 1}
-                </div>
+                {/* Avatar pinned at current stage, numbered dot elsewhere */}
+                {current && candidate ? (
+                  <div style={{ position: 'relative', marginBottom: 6 }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: avBg, color: avFg,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 700,
+                      boxShadow: '0 0 0 4px rgba(216,99,80,0.18), 0 0 0 7px rgba(216,99,80,0.07)',
+                      zIndex: 2, position: 'relative',
+                    }}>
+                      {candidate.ini}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: current ? 24 : 18,
+                    height: current ? 24 : 18,
+                    borderRadius: '50%',
+                    background: done ? '#D86350' : current ? '#D86350' : '#FFF',
+                    border: `2px solid ${future ? '#DDD' : '#D86350'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: done || current ? 'white' : '#CCC',
+                    fontSize: 8, fontWeight: 700,
+                    boxShadow: current ? '0 0 0 5px rgba(216,99,80,0.12)' : 'none',
+                    zIndex: 2, position: 'relative',
+                    marginBottom: 6,
+                  }}>
+                    {done ? '✓' : i + 1}
+                  </div>
+                )}
                 {/* Label */}
                 <div style={{ fontSize: 8, fontWeight: current ? 700 : done ? 500 : 400, color: current ? '#1C1917' : done ? '#555' : '#BBB', textAlign: 'center', lineHeight: 1.3, marginBottom: 3 }}>
                   {stage.label}
                 </div>
-                {/* Why — only current stage is prominent */}
+                {/* Why — only current stage */}
                 <div style={{ fontSize: 7, color: current ? '#D86350' : done ? '#CCC' : '#DDD', textAlign: 'center', lineHeight: 1.5, maxWidth: 68, opacity: current ? 1 : 0.7 }}>
                   {stage.why}
                 </div>
@@ -964,7 +991,7 @@ function ProcessProgressBar({ candidate }) {
 }
 
 // Candidate inbox mock — shows what the email looks like on their side
-function CandidateInboxView({ candidate, subject, message }) {
+function CandidateInboxView({ candidate, typeId, subject, message }) {
   const senderInitial = 'SR'
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
@@ -1027,7 +1054,7 @@ function CandidateInboxView({ candidate, subject, message }) {
 
         {/* Process progress bar */}
         <div style={{ borderTop: '1px solid #E8EAED', paddingTop: 18 }}>
-          <ProcessProgressBar candidate={candidate} />
+          <ProcessProgressBar candidate={candidate} typeId={typeId} />
         </div>
 
         {/* Email body */}
@@ -1163,6 +1190,7 @@ function EditStep({ candidate, typeId, context: initContext, tone: initTone, onB
           {inboxView ? (
             <CandidateInboxView
               candidate={candidate}
+              typeId={typeId}
               subject={subject}
               message={currentBody}
             />
