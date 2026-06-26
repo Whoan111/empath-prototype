@@ -1052,10 +1052,12 @@ function CandidateInboxView({ candidate, typeId, subject, message }) {
           </div>
         </div>
 
-        {/* Process progress bar */}
-        <div style={{ borderTop: '1px solid #E8EAED', paddingTop: 18 }}>
-          <ProcessProgressBar candidate={candidate} typeId={typeId} />
-        </div>
+        {/* Process progress bar — only for types that imply a pipeline stage */}
+        {TYPE_TO_STAGE_IDX[typeId] != null && (
+          <div style={{ borderTop: '1px solid #E8EAED', paddingTop: 18 }}>
+            <ProcessProgressBar candidate={candidate} typeId={typeId} />
+          </div>
+        )}
 
         {/* Email body */}
         <div style={{ fontSize: 13, color: '#1C1917', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>
